@@ -1,0 +1,29 @@
+{
+  "name": "field4you-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node dist/app.js",
+    "dev": "tsc && nodemon src/app.ts",
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/swagger-ui-express": "^4.1.7",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.6",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.3",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

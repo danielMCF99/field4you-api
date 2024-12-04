@@ -1,0 +1,55 @@
+version: '3.3'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo-docker
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: mongoadmin
+    ports:
+      - '27017:27017'
+    volumes:
+      - type: volume
+        source: mongodb_data_volume
+        target: /data/db
+
+  gateway-microservice:
+    build:
+      context: ./gateway-microservice
+    ports:
+      - 3000:3000
+    environment:
+      - AUTH_SERVICE_URL=http://auth-microservice:3001/auth
+      - USER_SERVICE_URL=http://user-microservice:3002/users
+
+  auth-microservice:
+    build:
+      context: ./auth-microservice
+    ports:
+      - 3001:3001
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongoadmin:mongoadmin@mongo-docker:27017/auth-service?authSource=admin
+      - JWT_SECRET=field4you2024
+      - MAIL_ACCOUNT=field4youapi@gmail.com
+      - MAIL_PASSWORD=smrazgjluryzsbgp
+      - USER_GATEWAY_SERVICE_URL=http://gateway-microservice:3000/api/users
+    depends_on:
+      - gateway-microservice
+
+  user-microservice:
+    build:
+      context: ./user-microservice
+    ports:
+      - 3002:3002
+    environment:
+      - PORT=3002
+      - MONGODB_URI=mongodb://mongoadmin:mongoadmin@mongo-docker:27017/user-service?authSource=admin
+      - AUTH_GATEWAY_SERVICE_URL=http://gateway-microservice:3000/api/auth
+    depends_on:
+      - gateway-microservice
+
+volumes:
+  mongodb_data_volume:
+    driver: local
