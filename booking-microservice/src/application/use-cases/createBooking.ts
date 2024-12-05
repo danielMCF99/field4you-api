@@ -12,6 +12,13 @@ export const createBooking = async (
     if (!ownerId) {
       return undefined;
     }
+    const now = new Date();
+    if (booking.bookingStartDate < now) {
+      return undefined;
+    }
+    if (booking.bookingEndDate <= booking.bookingStartDate) {
+      return undefined;
+    }
     booking.ownerId = ownerId;
     const newBooking = await repository.create(booking);
     return newBooking;

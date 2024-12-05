@@ -16,7 +16,7 @@ export const updateBooking = async (
     if (!booking.ownerId) {
       return {
         status: 404,
-        message: "Owner not found",
+        message: "Booking not found",
       };
     }
     const authenticated = await authMiddleware.authenticate(
