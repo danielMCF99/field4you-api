@@ -22,10 +22,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - run: |
-          cd auth-microservice
-          ls
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -47,7 +43,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./auth-microservice
           file: ./auth-microservice/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
