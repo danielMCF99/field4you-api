@@ -43,7 +43,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: booking-microservice
+          context: ./booking-microservice
           file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
