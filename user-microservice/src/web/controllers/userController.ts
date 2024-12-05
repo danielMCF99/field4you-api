@@ -19,7 +19,6 @@ export const createUserController = async (req: Request, res: Response) => {
     lastName,
     birthDate,
     registerDate,
-    lastAccessDate,
   } = req.body;
 
   if (
@@ -29,8 +28,7 @@ export const createUserController = async (req: Request, res: Response) => {
     !firstName ||
     !lastName ||
     !birthDate ||
-    !registerDate ||
-    !lastAccessDate
+    !registerDate
   ) {
     res
       .status(400)
@@ -46,7 +44,6 @@ export const createUserController = async (req: Request, res: Response) => {
       lastName,
       birthDate,
       registerDate,
-      lastAccessDate,
     });
     const newUser = await createUser(userRequest, userRepository);
 

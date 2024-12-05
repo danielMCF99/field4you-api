@@ -30,7 +30,6 @@ services:
       - 3001:3001
     environment:
       - PORT=3001
-      #- MONGODB_URI=mongodb://mongoadmin:mongoadmin@mongo-docker:27017/auth-service?authSource=admin
       - MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/auth-microservice?retryWrites=true&w=majority&appName=field4you-cluster
       - JWT_SECRET=field4you2024
       - MAIL_ACCOUNT=field4youapi@gmail.com
@@ -46,9 +45,19 @@ services:
       - 3002:3002
     environment:
       - PORT=3002
-      #- MONGODB_URI=mongodb://mongoadmin:mongoadmin@mongo-docker:27017/user-service?authSource=admin
       - MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/user-microservice?retryWrites=true&w=majority&appName=field4you-cluster
       - AUTH_GATEWAY_SERVICE_URL=http://gateway-microservice:3000/api/auth
+    depends_on:
+      - gateway-microservice
+
+  booking-microservice:
+    build:
+      context: ./booking-microservice
+    ports:
+      - 3003:3003
+    environment:
+      - PORT=3003
+      - MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/booking-microservice?retryWrites=true&w=majority&appName=field4you-cluster
     depends_on:
       - gateway-microservice
 #volumes:

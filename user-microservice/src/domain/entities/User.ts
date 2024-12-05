@@ -1,7 +1,12 @@
+export enum UserType {
+  'user',
+  'owner',
+}
+
 export class User {
   private id?: string;
   private authServiceUserId: string;
-  public userType: string;
+  public userType: UserType;
   public email: string;
   public phoneNumber?: string;
   public firstName: string;
@@ -13,12 +18,11 @@ export class User {
   public longitude?: number;
   public birthDate: string;
   public registerDate: Date;
-  public lastAccessDate: Date;
 
   constructor(user: {
     id?: string;
     authServiceUserId: string;
-    userType: string;
+    userType: UserType;
     email: string;
     phoneNumber?: string;
     firstName: string;
@@ -30,7 +34,6 @@ export class User {
     longitude?: number;
     birthDate: string;
     registerDate: Date;
-    lastAccessDate: Date;
   }) {
     this.id = user.id;
     this.authServiceUserId = user.authServiceUserId;
@@ -46,7 +49,6 @@ export class User {
     this.longitude = user.longitude;
     this.birthDate = user.birthDate;
     this.registerDate = user.registerDate;
-    this.lastAccessDate = user.lastAccessDate;
   }
 
   getId(): string {
@@ -73,7 +75,6 @@ export class User {
       longitude: doc.longitude,
       birthDate: doc.birthDate,
       registerDate: doc.registerDate,
-      lastAccessDate: doc.lastAccessDate,
     });
   }
 }

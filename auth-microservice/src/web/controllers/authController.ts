@@ -62,7 +62,6 @@ export const registerUserController = async (req: Request, res: Response) => {
         lastName: lastName,
         birthDate: birthDate,
         registerDate: registerDate,
-        lastAccessDate: lastAccessDate,
       })
       .then((response) => {
         console.log(response.data);
@@ -79,7 +78,7 @@ export const registerUserController = async (req: Request, res: Response) => {
     // Generate JWT Token
     const token = await jwtHelper.generateToken(
       newUser.getId(),
-      newUser.userType,
+      newUser.userType.toString(),
       newUser.email
     );
 
@@ -111,12 +110,16 @@ export const loginUserController = async (req: Request, res: Response) => {
       userRepository
     );
 
-    if (!success || !userId) {
+    if (!success || !userId || !userType) {
       res.status(status).json({ message: message });
       return;
     }
     // Generate JWT Token
-    const token = await jwtHelper.generateToken(userId, userType, email);
+    const token = await jwtHelper.generateToken(
+      userId,
+      userType.toString(),
+      email
+    );
     res.status(status).json({
       message: 'Login was successfull.',
       token: token,

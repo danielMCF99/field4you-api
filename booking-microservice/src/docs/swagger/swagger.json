@@ -1,0 +1,488 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Booking API",
+    "version": "1.0.0",
+    "description": "API for managing bookings in the Field4You system."
+  },
+  "paths": {
+    "/bookings/create": {
+      "post": {
+        "summary": "Create a new booking",
+        "tags": ["Bookings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sportsVenueId": {
+                    "type": "string",
+                    "example": "643c9c5a12345abcd6789fgh"
+                  },
+                  "bookingType": {
+                    "type": "string",
+                    "example": "event",
+                    "enum": ["regular", "event"]
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active",
+                    "enum": ["active", "inactive"]
+                  },
+                  "title": { "type": "string", "example": "Football Match" },
+                  "bookingStartDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2024-12-10T14:00:00.000Z"
+                  },
+                  "bookingEndDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2024-12-10T16:00:00.000Z"
+                  },
+                  "isPublic": { "type": "boolean", "example": true },
+                  "invitedUsersIds": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "example": [
+                      "643c9c5a12345abcd6789fgh",
+                      "643c9c5a12345abcd6789xyz"
+                    ]
+                  }
+                },
+                "required": [
+                  "sportsVenueId",
+                  "bookingType",
+                  "status",
+                  "title",
+                  "bookingStartDate",
+                  "bookingEndDate",
+                  "isPublic"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Booking created successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Missing required fields"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error creating a booking"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/all": {
+      "get": {
+        "summary": "Get all bookings",
+        "tags": ["Bookings"],
+        "responses": {
+          "200": {
+            "description": "List of all bookings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bookings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Booking"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fetching bookings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error fetching bookings:"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{id}": {
+      "get": {
+        "summary": "Get a booking by ID",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "Booking ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Booking not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a booking by ID",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "Booking ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Booking deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Booking not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a booking by ID",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "Booking ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sportsVenueId": {
+                    "type": "string",
+                    "example": "643c9c5a12345abcd6789fgh"
+                  },
+                  "bookingType": {
+                    "type": "string",
+                    "example": "regular",
+                    "enum": ["regular", "event"]
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active",
+                    "enum": ["active", "inactive"]
+                  },
+                  "title": { "type": "string", "example": "Updated Title" },
+                  "bookingStartDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2024-12-10T14:00:00.000Z"
+                  },
+                  "bookingEndDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2024-12-10T16:00:00.000Z"
+                  },
+                  "isPublic": { "type": "boolean", "example": false },
+                  "invitedUsersIds": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "example": [
+                      "643c9c5a12345abcd6789fgh",
+                      "643c9c5a12345abcd6789xyz"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Booking updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Booking"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Booking not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error updating booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error updating booking"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Booking": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
+          "ownerId": { "type": "string", "example": "owner123" },
+          "sportsVenueId": {
+            "type": "string",
+            "example": "643c9c5a12345abcd6789xyz"
+          },
+          "bookingType": { "type": "string", "example": "event" },
+          "status": { "type": "string", "example": "active" },
+          "title": { "type": "string", "example": "Football Match" },
+          "bookingStartDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-12-10T14:00:00.000Z"
+          },
+          "bookingEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-12-10T16:00:00.000Z"
+          },
+          "isPublic": { "type": "boolean", "example": true },
+          "invitedUserIds": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["643c9c5a12345abcd6789fgh", "643c9c5a12345abcd6789xyz"]
+          }
+        }
+      }
+    }
+  }
+}

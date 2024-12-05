@@ -15,7 +15,6 @@ interface IUserDocument extends Document {
   longitude: number;
   birthDate: string;
   registerDate: Date;
-  lastAccessDate: Date;
 }
 
 const userSchema = new Schema<IUserDocument>({
@@ -37,7 +36,6 @@ const userSchema = new Schema<IUserDocument>({
   longitude: { type: Number },
   birthDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
   registerDate: { type: Date, required: true },
-  lastAccessDate: { type: Date, required: true },
 });
 
 export const UserModel = model<IUserDocument>('User', userSchema);

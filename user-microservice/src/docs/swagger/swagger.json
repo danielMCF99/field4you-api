@@ -22,8 +22,7 @@
                   "firstName": { "type": "string" },
                   "lastName": { "type": "string" },
                   "birthDate": { "type": "string", "format": "date" },
-                  "registerDate": { "type": "string", "format": "date-time" },
-                  "lastAccessDate": { "type": "string", "format": "date-time" }
+                  "registerDate": { "type": "string", "format": "date-time" }
                 },
                 "required": [
                   "userType",
@@ -31,8 +30,7 @@
                   "firstName",
                   "lastName",
                   "birthDate",
-                  "registerDate",
-                  "lastAccessDate"
+                  "registerDate"
                 ]
               }
             }
@@ -288,8 +286,7 @@
           "latitude": { "type": "number" },
           "longitude": { "type": "number" },
           "birthDate": { "type": "string", "format": "date" },
-          "registerDate": { "type": "string", "format": "date-time" },
-          "lastAccessDate": { "type": "string", "format": "date-time" }
+          "registerDate": { "type": "string", "format": "date-time" }
         }
       }
     }
