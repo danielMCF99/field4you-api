@@ -1,4 +1,4 @@
-name: Build and Publish App Docker Image
+name: Gateway Service Docker Image
 
 on:
   release:

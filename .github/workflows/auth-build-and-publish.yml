@@ -1,4 +1,4 @@
-name: Build and Publish App Docker Image
+name: Auth Service Docker Image
 
 on:
   release:
