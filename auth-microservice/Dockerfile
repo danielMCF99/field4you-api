@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY package*.json /app/
 
+RUN ls -al /app
+
 RUN npm ci
 
 COPY . /app/
