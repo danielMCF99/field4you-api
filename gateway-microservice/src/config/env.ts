@@ -6,6 +6,7 @@ export const serviceConfig = {
   port: process.env.PORT || 3000,
   auth: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
   users: process.env.USER_SERVICE_URL || 'http://localhost:3002',
-  //booking: process.env.BOOKING_SERVICE_URL || 'http://localhost:3003',
-  //sportsVenue: process.env.SPORTS_VENUE_SERVICE_URL || 'http://localhost:3004',
+  bookings: process.env.BOOKING_SERVICE_URL || 'http://localhost:3003',
+  'sports-venues':
+    process.env.SPORTS_VENUE_SERVICE_URL || 'http://localhost:3004',
 };
