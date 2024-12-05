@@ -13,7 +13,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: sports-venue-service
+  IMAGE_NAME: ${{ github.repository }}-sports-venue-service
 
 jobs:
   build-and-publish:

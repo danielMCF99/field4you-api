@@ -13,7 +13,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: booking-service
+  IMAGE_NAME: ${{ github.repository }}-booking-service
 
 jobs:
   build-and-publish:

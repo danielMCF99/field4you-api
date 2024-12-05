@@ -13,7 +13,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: user-service
+  IMAGE_NAME: ${{ github.repository }}-user-service
 
 jobs:
   build-and-publish:
