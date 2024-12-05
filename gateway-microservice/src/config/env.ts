@@ -9,4 +9,5 @@ export const serviceConfig = {
   bookings: process.env.BOOKING_SERVICE_URL || 'http://localhost:3003',
   'sports-venues':
     process.env.SPORTS_VENUE_SERVICE_URL || 'http://localhost:3004',
+  posts: process.env.FEED_SERVICE_URL || 'http://localhost:3005',
 };

@@ -10,7 +10,7 @@
       "post": {
         "summary": "Register the User",
         "description": "Register a new user with email, password, and other details.",
-        "tags": ["User"],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -85,7 +85,7 @@
       "post": {
         "summary": "User login",
         "description": "Login a user with email and password.",
-        "tags": ["User"],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -99,167 +99,81 @@
                 }
               }
             }
-          },
-          "responses": {
-            "200": {
-              "description": "Login was successful.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      },
-                      "token": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad Request - Email and password are required.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "User not found.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Invalid credentials.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "Internal Server Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
           }
-        }
-      },
-      "/auth/password-recovery": {
-        "post": {
-          "summary": "Password Recovery",
-          "description": "Password recovery mechanism to send email to user.",
-          "tags": ["User"],
-          "requestBody": {
-            "required": true,
+        },
+        "responses": {
+          "200": {
+            "description": "Login was successful.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "email": {
-                      "type": "string",
-                      "description": "Email"
+                    "message": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "string"
                     }
-                  },
-                  "required": ["email"]
+                  }
                 }
               }
             }
           },
-          "responses": {
-            "200": {
-              "description": "Successfully sent email for password recovery.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+          "400": {
+            "description": "Bad Request - Email and password are required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "400": {
-              "description": "Bad Request - Email is Required.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          },
+          "404": {
+            "description": "User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "404": {
-              "description": "Not Found - User with given email not found.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "500": {
-              "description": "Internal Server Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
@@ -267,124 +181,210 @@
             }
           }
         }
-      },
-      "/auth/reset-password/{token}": {
-        "put": {
-          "summary": "Password Reset",
-          "description": "Reset password for given user.",
-          "tags": ["User"],
-          "parameters": [
-            {
-              "name": "token",
-              "in": "path",
-              "required": true,
-              "description": "The token for resetting the password.",
+      }
+    },
+    "/auth/password-recovery": {
+      "post": {
+        "summary": "Password Recovery",
+        "description": "Password recovery mechanism to send email to user.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
               "schema": {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Email"
+                  }
+                },
+                "required": ["email"]
               }
             }
-          ],
-          "requestBody": {
-            "required": true,
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully sent email for password recovery.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "email": { "type": "string", "format": "email" },
-                    "password": { "type": "string" }
-                  },
-                  "required": ["email", "password"]
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           },
-          "responses": {
-            "200": {
-              "description": "Successfully updated password.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+          "400": {
+            "description": "Bad Request - Email is Required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "400": {
-              "description": "Bad Request - Email and password are required.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          },
+          "404": {
+            "description": "Not Found - User with given email not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "401": {
-              "description": "Unauthorized - Invalid information sent for given user to reset password.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "401": {
-              "description": "Unauthorized - Token validation for password recovery has expired.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password/{token}": {
+      "put": {
+        "summary": "Password Reset",
+        "description": "Reset password for given user.",
+        "tags": ["Auth"],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "The token for resetting the password.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated password.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "404": {
-              "description": "Not Found - User with given email not found.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Email and password are required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "500": {
-              "description": "Internal Server Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid information sent for given user to reset password.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Token validation for password recovery has expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - User with given email not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }

@@ -10,6 +10,7 @@
       "post": {
         "summary": "Create a new user",
         "description": "Registers a new user in the system",
+        "tags": ["User"],
         "requestBody": {
           "required": true,
           "content": {
@@ -17,6 +18,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "authServiceUserId": { "type": "string" },
                   "userType": { "type": "string" },
                   "email": { "type": "string", "format": "email" },
                   "firstName": { "type": "string" },
@@ -25,6 +27,7 @@
                   "registerDate": { "type": "string", "format": "date-time" }
                 },
                 "required": [
+                  "authServiceUserId",
                   "userType",
                   "email",
                   "firstName",
@@ -83,6 +86,7 @@
       "get": {
         "summary": "Get all users",
         "description": "Retrieves all registered users",
+        "tags": ["User"],
         "responses": {
           "200": {
             "description": "List of users",
@@ -122,6 +126,7 @@
       "get": {
         "summary": "Get user by ID",
         "description": "Retrieves a user by their ID",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
@@ -188,6 +193,7 @@
       "put": {
         "summary": "Update",
         "description": "Updates a user",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
@@ -268,6 +274,110 @@
             }
           }
         }
+      },
+      "delete": {
+        "summary": "Delete a user",
+        "description": "Deletes a user by their ID after authenticating the request using a bearer token.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the user to delete.",
+            "schema": {
+              "type": "string",
+              "example": "64d7f2aeb965d80f1c8b4578"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Resource deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Bearer token is missing or authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User with given ID not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -276,6 +386,9 @@
       "User": {
         "type": "object",
         "properties": {
+          "id": { "type": "string" },
+          "authServiceUserId": { "type": "string" },
+          "userType": { "type": "string" },
           "firstName": { "type": "string" },
           "lastName": { "type": "string" },
           "email": { "type": "string", "format": "email" },
@@ -288,6 +401,13 @@
           "birthDate": { "type": "string", "format": "date" },
           "registerDate": { "type": "string", "format": "date-time" }
         }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }
