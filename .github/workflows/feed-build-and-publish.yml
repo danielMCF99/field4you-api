@@ -45,8 +45,8 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         with:
-          context: ./feed-service
-          file: ./feed-service/Dockerfile
+          context: ./feed-microservice
+          file: ./feed-microservice/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
