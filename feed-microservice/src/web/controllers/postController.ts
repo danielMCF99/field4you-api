@@ -23,6 +23,13 @@ export const createPostController = async (req: Request, res: Response) => {
 
   const { userId, userType, email, iat, exp } = decodedPayload;
 
+  if (exp < Date.now()) {
+    res.status(401).json({
+      message: 'Login expired',
+    });
+    return;
+  }
+
   if (!req.file) {
     res.status(400).json({
       message: 'Please upload an Image',
