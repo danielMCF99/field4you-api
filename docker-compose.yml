@@ -24,7 +24,7 @@ services:
       - USER_SERVICE_URL=http://user-microservice:3002/users
       - BOOKING_SERVICE_URL=http://booking-microservice:3003/bookings
       - SPORTS_VENUE_SERVICE_URL=http://sports-venue-microservice:3004/sports-venues
-      - FEED_SERVICE_URL=http://sports-venue-microservice:3005/posts
+      - FEED_SERVICE_URL=http://feed-microservice:3005/posts
 
   auth-microservice:
     build:
