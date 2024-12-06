@@ -36,26 +36,6 @@ export const createUserController = async (req: Request, res: Response) => {
     return;
   }
 
-  const token = await jwtHelper.extractBearerToken(req);
-  if (!token) {
-    res.status(401).json({ message: 'Bearer token required' });
-    return;
-  }
-
-  const decodedPayload = await jwtHelper.decodeBearerToken(token);
-  if (!decodedPayload) {
-    res.status(401).json({ message: 'Bearer token required' });
-    return;
-  }
-
-  const { exp } = decodedPayload;
-  const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
-
-  if (tokenExpired) {
-    res.status(401).json({ message: 'Bearer token validation expired' });
-    return;
-  }
-
   try {
     const userRequest = new User({
       authServiceUserId,

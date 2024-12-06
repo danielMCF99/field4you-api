@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import FormData from 'form-data';
 import { logger } from '../logging/logger';
 import { serviceConfig } from '../config/env';
 
@@ -8,6 +9,7 @@ class ProxyService {
     path: string,
     method: string,
     data?: any,
+    file?: any,
     query?: any,
     headers?: Record<string, any>
   ) {
@@ -24,9 +26,43 @@ class ProxyService {
         method: method as AxiosRequestConfig['method'],
         url,
         params: query,
-        data,
         headers,
+        data,
       };
+
+      /*if (file) {
+        const formData = new FormData();
+        // Append the file buffer to the form data
+        formData.append('image', file.buffer, {
+          filename: file.originalname, // The original file name
+          contentType: file.mimetype, // The mime type of the file
+        });
+
+        // Send request to create equivalent user in user-microservice
+        await axios
+          .post(serviceConfig.posts + '/create', formData, {
+            headers: { ...headers, ...formData.getHeaders() },
+          })
+          .then((response) => {
+            return {
+              status: response.status,
+              headers: response.headers,
+              data: response.data,
+            };
+          })
+          .catch((error) => {
+            logger.error(
+              `Error while forwarding request to service '${serviceName}': ${error.message}`
+            );
+            if (error.response) {
+              return {
+                status: error.response.status,
+                headers: error.response.headers,
+                data: error.response.data,
+              };
+            }
+          });
+      }*/
 
       logger.info(`Forwarding ${method} request to ${url}`);
       const response = await axios(config);
