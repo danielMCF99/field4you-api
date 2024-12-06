@@ -13,7 +13,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-user-service
+  IMAGE_NAME: ${{ github.repository }}-feed-service
 
 jobs:
   build-and-publish:
@@ -45,8 +45,8 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         with:
-          context: ./user-microservice
-          file: ./user-microservice/Dockerfile
+          context: ./feed-service
+          file: ./feed-service/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
