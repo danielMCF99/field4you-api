@@ -9,6 +9,7 @@ import { AuthMiddlewareImplementation } from './infrastructure/middlewares/auth.
 import { MongoPostRepository } from './infrastructure/repositories/MongoPostRepository';
 import postRoutes from './web/routes/postRoutes';
 import swaggerDocument from './docs/swagger/swagger.json';
+import { FirebaseImplementation } from './infrastructure/middlewares/firebase';
 
 const app: Application = express();
 
@@ -21,6 +22,7 @@ export const bucket = admin.storage().bucket();
 export const postRepository = MongoPostRepository.getInstance();
 export const jwtHelper = JwtHelperImplementation.getInstance();
 export const authMiddleware = AuthMiddlewareImplementation.getInstance();
+export const firebase = FirebaseImplementation.getInstance();
 
 const startServer = async () => {
   try {

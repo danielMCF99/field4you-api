@@ -3,5 +3,6 @@ export interface AuthMiddleware {
     authServiceUserId: string,
     email: string,
     token: string
-  ): Promise<{ authenticated: boolean }>;
+  ): Promise<boolean>;
+  validateTokenExpirationDate(expiration: number): Promise<boolean>;
 }

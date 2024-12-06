@@ -15,28 +15,32 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
     return AuthMiddlewareImplementation.instance;
   }
 
-  async authenticate(
-    creatorId: string,
-    token: string
-  ): Promise<{ authenticated: boolean }> {
+  async authenticate(creatorId: string, token: string): Promise<boolean> {
     const decodedPayload = await jwtHelper.decodeBearerToken(token);
     if (!decodedPayload) {
-      return { authenticated: false };
+      return false;
     }
 
     const { userId, userType, email, iat, exp } = decodedPayload;
-    if (exp < Date.now()) {
-      return { authenticated: false };
+    const tokenExpired = await this.validateTokenExpirationDate(exp);
+    if (!tokenExpired) {
+      return false;
     }
 
     if (!(userType === 'admin')) {
       if (!(userId === creatorId)) {
-        return {
-          authenticated: false,
-        };
+        return false;
       }
     }
 
-    return { authenticated: true };
+    return true;
+  }
+
+  async validateTokenExpirationDate(expiration: number): Promise<boolean> {
+    if (expiration < Date.now()) {
+      return false;
+    }
+
+    return true;
   }
 }

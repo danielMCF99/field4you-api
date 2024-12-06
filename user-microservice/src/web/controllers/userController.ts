@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import axios from 'axios';
 import config from '../../config/env';
 import { User } from '../../domain/entities/User';
-import { jwtHelper, userRepository } from '../../app';
+import { authMiddleware, jwtHelper, userRepository } from '../../app';
 import { createUser } from '../../application/use-cases/createUser';
 import { getAll } from '../../application/use-cases/getAll';
 import { getById } from '../../application/use-cases/getById';
@@ -35,6 +35,27 @@ export const createUserController = async (req: Request, res: Response) => {
       .json({ message: 'Bad Request for User creation in user-service' });
     return;
   }
+
+  const token = await jwtHelper.extractBearerToken(req);
+  if (!token) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const decodedPayload = await jwtHelper.decodeBearerToken(token);
+  if (!decodedPayload) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const { exp } = decodedPayload;
+  const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+  if (tokenExpired) {
+    res.status(401).json({ message: 'Bearer token validation expired' });
+    return;
+  }
+
   try {
     const userRequest = new User({
       authServiceUserId,
@@ -68,6 +89,26 @@ export const createUserController = async (req: Request, res: Response) => {
 };
 
 export const getAllController = async (req: Request, res: Response) => {
+  const token = await jwtHelper.extractBearerToken(req);
+  if (!token) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const decodedPayload = await jwtHelper.decodeBearerToken(token);
+  if (!decodedPayload) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const { exp } = decodedPayload;
+  const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+  if (tokenExpired) {
+    res.status(401).json({ message: 'Bearer token validation expired' });
+    return;
+  }
+
   try {
     const allUsers = await getAll(userRepository);
     res.status(200).json({ users: allUsers });
@@ -83,9 +124,29 @@ export const getAllController = async (req: Request, res: Response) => {
 
 export const getByIdController = async (req: Request, res: Response) => {
   const id = req.params.id.toString();
+  const token = await jwtHelper.extractBearerToken(req);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(400).json({ message: 'Invalid ID format' });
+    return;
+  }
+
+  if (!token) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const decodedPayload = await jwtHelper.decodeBearerToken(token);
+  if (!decodedPayload) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const { exp } = decodedPayload;
+  const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+  if (tokenExpired) {
+    res.status(401).json({ message: 'Bearer token validation expired' });
     return;
   }
 

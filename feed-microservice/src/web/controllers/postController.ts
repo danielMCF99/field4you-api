@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid'; // Para gerar nomes únicos
 import { Post } from '../../domain/entities/Post';
 import { createPost } from '../../application/use-cases/createPost';
 import { getLast10 } from '../../application/use-cases/getLast10';
 import { deletePost } from '../../application/use-cases/deletePost';
-import { bucket, jwtHelper, postRepository } from '../../app';
+import { authMiddleware, firebase, jwtHelper, postRepository } from '../../app';
 
 export const createPostController = async (req: Request, res: Response) => {
   // Extract token from Authorization Header
@@ -17,16 +16,15 @@ export const createPostController = async (req: Request, res: Response) => {
 
   const decodedPayload = await jwtHelper.decodeBearerToken(token);
   if (!decodedPayload) {
-    res.status(500).json({ message: 'Error while validating authentication' });
+    res.status(401).json({ message: 'Bearer token required' });
     return;
   }
 
-  const { userId, userType, email, iat, exp } = decodedPayload;
+  const { userId, email, exp } = decodedPayload;
+  const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
 
-  if (exp < Date.now()) {
-    res.status(401).json({
-      message: 'Login expired',
-    });
+  if (tokenExpired) {
+    res.status(401).json({ message: 'Bearer token validation expired' });
     return;
   }
 
@@ -37,21 +35,15 @@ export const createPostController = async (req: Request, res: Response) => {
     return;
   }
 
-  try {
-    const { originalname, buffer } = req.file;
-    const fileName = `${uuidv4()}-${originalname}`;
-    const file = bucket.file(fileName);
-
-    await file.save(buffer, {
-      metadata: {
-        contentType: req.file.mimetype,
-      },
-      public: true,
+  const publicUrl = await firebase.uploadFileToFirebase(req);
+  if (!publicUrl) {
+    res.status(500).json({
+      message: 'Something went wrong storing image',
     });
+    return;
+  }
 
-    // Image URL
-    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
-
+  try {
     const postRequest = new Post({
       creatorId: userId,
       creatorEmail: email,
@@ -82,6 +74,26 @@ export const createPostController = async (req: Request, res: Response) => {
 };
 
 export const getLast10PostController = async (req: Request, res: Response) => {
+  const token = await jwtHelper.extractBearerToken(req);
+  if (!token) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const decodedPayload = await jwtHelper.decodeBearerToken(token);
+  if (!decodedPayload) {
+    res.status(401).json({ message: 'Bearer token required' });
+    return;
+  }
+
+  const { exp } = decodedPayload;
+  const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+  if (tokenExpired) {
+    res.status(401).json({ message: 'Bearer token validation expired' });
+    return;
+  }
+
   try {
     const last10Posts = await getLast10(postRepository);
     res.status(200).json(last10Posts);
