@@ -24,5 +24,6 @@ const firebaseConfig = JSON.parse(jsonString);
 export default {
   mongoUri,
   port: process.env.PORT || 3005,
+  jwtSecret: process.env.JWT_SECRET || 'field4you',
   firebaseConfig,
 };

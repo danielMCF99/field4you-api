@@ -41,7 +41,7 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
   }
 
   async validateTokenExpirationDate(expiration: number): Promise<boolean> {
-    if (expiration < Date.now()) {
+    if (expiration * 1000 < Date.now()) {
       return false;
     }
 

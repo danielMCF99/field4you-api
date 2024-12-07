@@ -1,4 +1,3 @@
-import { decode } from 'jsonwebtoken';
 import { jwtHelper } from '../../app';
 import { AuthMiddleware } from '../../domain/interfaces/AuthMiddleware';
 

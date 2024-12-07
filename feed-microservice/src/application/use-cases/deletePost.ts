@@ -29,7 +29,10 @@ export const deletePost = async (
     }
 
     // Delete from firebase
-    await bucket.file(post.imageURL).delete();
+    const regex = /[^/]+$/; // Matches the last segment after the last "/"
+    const match = post.imageURL.match(regex);
+    const imageID = match ? match[0] : 'N/A';
+    await bucket.file(imageID).delete();
 
     const isDeleted = await repository.delete(id);
     if (!isDeleted) {

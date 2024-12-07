@@ -65,7 +65,7 @@
         ]
       }
     },
-    "/posts/last-10": {
+    "/posts/last10": {
       "get": {
         "summary": "Get the last 10 posts",
         "tags": ["Post"],

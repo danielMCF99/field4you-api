@@ -21,7 +21,7 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
       return false;
     }
 
-    const { userId, userType, email, iat, exp } = decodedPayload;
+    const { userId, userType, exp } = decodedPayload;
     const tokenExpired = await this.validateTokenExpirationDate(exp);
     if (!tokenExpired) {
       return false;
@@ -37,7 +37,7 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
   }
 
   async validateTokenExpirationDate(expiration: number): Promise<boolean> {
-    if (expiration < Date.now()) {
+    if (expiration * 1000 < Date.now()) {
       return false;
     }
 

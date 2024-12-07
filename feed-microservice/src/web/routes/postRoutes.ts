@@ -17,7 +17,7 @@ postRoutes.get('/posts/swagger', async (req: Request, res: Response) => {
 });
 
 postRoutes.post('/posts/create', upload.single('image'), createPostController);
-postRoutes.get('/posts/last-10', getLast10PostController);
+postRoutes.get('/posts/last10', getLast10PostController);
 postRoutes.delete('/posts/:id', deletePostController);
 
 export default postRoutes;
