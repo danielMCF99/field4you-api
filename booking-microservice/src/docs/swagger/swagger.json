@@ -114,6 +114,39 @@
               }
             }
           },
+          "404": {
+            "description": "Not Found - Sports venue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports venue not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - A conflicting booking exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Conflicting booking exists"
+                    }
+                  }
+                }
+              }
+            }
+          },
+
           "500": {
             "description": "Internal server error",
             "content": {

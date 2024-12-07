@@ -49,7 +49,7 @@ export const createBookingController = async (req: Request, res: Response) => {
     );
 
     if (hasConflicts) {
-      return res.status(400).json({ message: "Conflicting booking exists" });
+      return res.status(409).json({ message: "Conflicting booking exists" });
     }
     const booking = new Booking({
       sportsVenueId,
