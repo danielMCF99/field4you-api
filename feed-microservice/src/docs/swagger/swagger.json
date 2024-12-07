@@ -1,16 +1,15 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Post Management API",
-    "description": "API for managing posts including creation, retrieval, and deletion.",
-    "version": "1.0.0"
+    "title": "Posts API",
+    "version": "1.0.0",
+    "description": "API for creating, retrieving, and deleting posts."
   },
   "paths": {
     "/posts/create": {
       "post": {
         "summary": "Create a new post",
-        "description": "Uploads an image and creates a new post.",
-        "tags": ["Posts"],
+        "tags": ["User"],
         "requestBody": {
           "required": true,
           "content": {
@@ -18,14 +17,14 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "comments": {
+                    "type": "string",
+                    "description": "Comments about the post."
+                  },
                   "image": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Image file to upload."
-                  },
-                  "comments": {
-                    "type": "string",
-                    "description": "Optional comments for the post."
+                    "description": "Image file for the post."
                   }
                 },
                 "required": ["image"]
@@ -35,121 +34,82 @@
         },
         "responses": {
           "200": {
-            "description": "Post created successfully.",
+            "description": "Successfully created the post.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/last-10": {
-      "get": {
-        "summary": "Get the last 10 posts",
-        "description": "Retrieves the last 10 created posts.",
-        "tags": ["Posts"],
-        "responses": {
-          "200": {
-            "description": "Last 10 posts retrieved successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": { "type": "string" },
-                      "creatorId": { "type": "string" },
-                      "creatorEmail": { "type": "string" },
-                      "comments": { "type": "string" },
-                      "imageName": { "type": "string" },
-                      "imageURL": { "type": "string" },
-                      "creationDate": {
-                        "type": "string",
-                        "format": "date-time"
-                      }
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
             }
           },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/posts/last-10": {
+      "get": {
+        "summary": "Get the last 10 posts",
+        "tags": ["User"],
+        "responses": {
+          "200": {
+            "description": "A list of the last 10 posts.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
                   }
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/posts/{id}": {
       "delete": {
-        "summary": "Delete a post",
-        "description": "Deletes a post by its ID.",
-        "tags": ["Posts"],
+        "summary": "Delete a post by ID",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The ID of the post to delete.",
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "ID of the post to delete."
           }
         ],
         "responses": {
@@ -160,66 +120,75 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid ID format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
+            "description": "Invalid ID format"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
+            "description": "Unauthorized"
           },
           "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     }
   },
   "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the post."
+          },
+          "creatorId": {
+            "type": "string",
+            "description": "ID of the creator."
+          },
+          "creatorEmail": {
+            "type": "string",
+            "description": "Email of the creator."
+          },
+          "comments": {
+            "type": "string",
+            "description": "Comments about the post."
+          },
+          "imageName": {
+            "type": "string",
+            "description": "Name of the uploaded image file."
+          },
+          "imageURL": {
+            "type": "string",
+            "description": "URL of the uploaded image."
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the post was created."
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
-  },
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ]
+  }
 }
