@@ -17,20 +17,17 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
 
   async authenticate(id: string, token: string): Promise<boolean> {
     const decodedPayload = await jwtHelper.decodeBearerToken(token);
-    console.log("id", id, "Payload", decodedPayload);
+
     if (!decodedPayload) {
       return false;
     }
 
     const { userId, userType, email, iat, exp } = decodedPayload;
     const expirationDate = new Date(exp * 1000); // Multiplica por 1000 para converter de segundos para milissegundos
-    console.log("Token expiration date:", expirationDate.toISOString());
-    console.log("Current date:", new Date().toISOString());
+
     if (exp * 1000 < Date.now()) {
-      console.log("token expired");
       return false;
     }
-    console.log("id", id, "UserId", userId);
 
     if (!(id === userId)) {
       return false;
