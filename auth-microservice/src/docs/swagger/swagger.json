@@ -8,8 +8,8 @@
   "paths": {
     "/auth/register": {
       "post": {
-        "summary": "Register the User",
-        "description": "Register a new user with email, password, and other details.",
+        "summary": "Register a new user",
+        "description": "Creates a new user in the system and generates a JWT token.",
         "tags": ["Auth"],
         "requestBody": {
           "required": true,
@@ -18,17 +18,25 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email" },
-                  "password": { "type": "string" },
-                  "userType": { "type": "string" },
-                  "firstName": { "type": "string" },
-                  "lastName": { "type": "string" },
-                  "birthDate": { "type": "string", "format": "date" }
+                  "userType": { "type": "string", "example": "admin" },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": { "type": "string", "example": "P@ssw0rd!" },
+                  "firstName": { "type": "string", "example": "John" },
+                  "lastName": { "type": "string", "example": "Doe" },
+                  "birthDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "1990-01-01"
+                  }
                 },
                 "required": [
+                  "userType",
                   "email",
                   "password",
-                  "userType",
                   "firstName",
                   "lastName",
                   "birthDate"
@@ -39,40 +47,52 @@
         },
         "responses": {
           "200": {
-            "description": "Successfully registered the user.",
+            "description": "User registered successfully.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "token": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully registered the user."
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request for User creation.",
+            "description": "Bad request, missing or invalid fields.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request for User creation"
+                    }
                   }
                 }
               }
             }
           },
           "500": {
-            "description": "Something went wrong for new user registration.",
+            "description": "Internal server error during user registration.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong for new user registration"
+                    }
                   }
                 }
               }
@@ -83,8 +103,8 @@
     },
     "/auth/login": {
       "post": {
-        "summary": "User login",
-        "description": "Login a user with email and password.",
+        "summary": "Login a user",
+        "description": "Authenticate a user with email and password, and generate a JWT token upon successful login.",
         "tags": ["Auth"],
         "requestBody": {
           "required": true,
@@ -93,27 +113,33 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email" },
-                  "password": { "type": "string" },
-                  "required": ["email", "password"]
-                }
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": { "type": "string", "example": "P@ssw0rd!" }
+                },
+                "required": ["email", "password"]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Login was successful.",
+            "description": "Login successful, JWT token returned.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Login was successful."
                     },
                     "token": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                     }
                   }
                 }
@@ -121,29 +147,15 @@
             }
           },
           "400": {
-            "description": "Bad Request - Email and password are required.",
+            "description": "Bad request, missing or invalid email/password.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Email and Password are required"
                     }
                   }
                 }
@@ -151,29 +163,44 @@
             }
           },
           "401": {
-            "description": "Invalid credentials.",
+            "description": "Unauthorized, invalid credentials.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Invalid password"
                     }
                   }
                 }
               }
             }
           },
+          "404": {
+            "description": "User not found with the given email.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "User not found" }
+                  }
+                }
+              }
+            }
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal server error during login.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Something went wrong"
                     }
                   }
                 }
@@ -186,7 +213,7 @@
     "/auth/password-recovery": {
       "post": {
         "summary": "Password Recovery",
-        "description": "Password recovery mechanism to send email to user.",
+        "description": "Initiates the password recovery process for a user by sending a recovery email with a reset link.",
         "tags": ["Auth"],
         "requestBody": {
           "required": true,
@@ -197,7 +224,8 @@
                 "properties": {
                   "email": {
                     "type": "string",
-                    "description": "Email"
+                    "format": "email",
+                    "example": "user@example.com"
                   }
                 },
                 "required": ["email"]
@@ -207,14 +235,15 @@
         },
         "responses": {
           "200": {
-            "description": "Successfully sent email for password recovery.",
+            "description": "Password recovery email sent successfully.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Successfully sent email for password recovery to user"
                     }
                   }
                 }
@@ -222,14 +251,15 @@
             }
           },
           "400": {
-            "description": "Bad Request - Email is Required.",
+            "description": "Bad request, email field is missing.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Email is required"
                     }
                   }
                 }
@@ -237,14 +267,15 @@
             }
           },
           "404": {
-            "description": "Not Found - User with given email not found.",
+            "description": "User with the given email not found.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "User with given email not found"
                     }
                   }
                 }
@@ -252,14 +283,15 @@
             }
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal server error during password recovery process.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Something went wrong with password recovery mechanism"
                     }
                   }
                 }
@@ -272,16 +304,17 @@
     "/auth/reset-password/{token}": {
       "put": {
         "summary": "Password Reset",
-        "description": "Reset password for given user.",
+        "description": "Allows a user to reset their password using a password reset token.",
         "tags": ["Auth"],
         "parameters": [
           {
             "name": "token",
             "in": "path",
             "required": true,
-            "description": "The token for resetting the password.",
+            "description": "The password reset token provided to the user via email.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "a1b2c3d4e5f6g7h8"
             }
           }
         ],
@@ -292,8 +325,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email" },
-                  "password": { "type": "string" }
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "newSecurePassword123!"
+                  }
                 },
                 "required": ["email", "password"]
               }
@@ -302,14 +343,15 @@
         },
         "responses": {
           "200": {
-            "description": "Successfully updated password.",
+            "description": "Password reset successful.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Password reset successful"
                     }
                   }
                 }
@@ -317,14 +359,15 @@
             }
           },
           "400": {
-            "description": "Bad Request - Email and password are required.",
+            "description": "Bad request, required fields are missing.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Email and Password are required"
                     }
                   }
                 }
@@ -332,29 +375,15 @@
             }
           },
           "401": {
-            "description": "Unauthorized - Invalid information sent for given user to reset password.",
+            "description": "Unauthorized, token is invalid or expired.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Token validation for password recovery has expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Invalid information sent for given user to reset password"
                     }
                   }
                 }
@@ -362,14 +391,15 @@
             }
           },
           "404": {
-            "description": "Not Found - User with given email not found.",
+            "description": "User with the provided email not found.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "User with given email not found"
                     }
                   }
                 }
@@ -377,14 +407,15 @@
             }
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal server error during password reset.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Something went wrong with password reset"
                     }
                   }
                 }
