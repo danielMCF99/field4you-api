@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); // parse application/x-www-form-urlencoded
 
 // Swagger endpoint
-app.use('/auth/swagger', serve, setup(swaggerDocument));
+//app.use('/auth/swagger', serve, setup(swaggerDocument));
 
 app.use(authRoutes);
 

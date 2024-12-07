@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); // parse application/x-www-form-urlencoded
 
 // Swagger endpoint
-app.use('/users/swagger', serve, setup(swaggerDocument));
+//app.use('/users/swagger', serve, setup(swaggerDocument));
 
 app.use(userRoutes);
 

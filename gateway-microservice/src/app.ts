@@ -1,7 +1,9 @@
-import express, { Application } from 'express';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import { serviceConfig } from './config/env';
 import routes from './routes/routes';
 import { logger } from './logging/logger';
+import { generateSwaggerDocument } from './services/swagger';
+import { serve, setup } from 'swagger-ui-express';
 
 const app: Application = express();
 
@@ -13,6 +15,20 @@ const startServer = async () => {
       logger.info(`Incoming request: ${req.method} ${req.url}`);
       next();
     });
+
+    app.use(
+      '/swagger',
+      serve,
+      async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const swaggerDocument = await generateSwaggerDocument();
+          return setup(swaggerDocument)(req, res, next);
+        } catch (error: any) {
+          console.error('Failed to load Swagger UI:', error.message);
+          res.status(500).send('Internal Server Error');
+        }
+      }
+    );
 
     // Routes
     app.use('/api', routes);
