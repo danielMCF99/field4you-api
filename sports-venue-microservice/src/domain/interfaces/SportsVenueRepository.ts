@@ -5,4 +5,5 @@ export interface ISportsVenueRepository {
   update(id: string, updatedData: Partial<SportsVenue>): Promise<SportsVenue | null>;
   delete(id: string): Promise<SportsVenue | null>;
   findById(id: string): Promise<SportsVenue | null>;
+  findAll(): Promise<SportsVenue[]>;
 }

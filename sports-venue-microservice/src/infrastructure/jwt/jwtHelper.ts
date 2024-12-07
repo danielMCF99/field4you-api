@@ -1,7 +1,8 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { Request } from 'express';
-import config from '../../config/env';
-import { CustomJwtPayload, JwtHelper } from '../../domain/interfaces/JwtHelper';
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { Request } from "express";
+import config from "../../config/env";
+import { CustomJwtPayload, JwtHelper } from "../../domain/interfaces/JwtHelper";
+import { jwtHelper } from "../../app";
 
 export class JwtHelperImplementation implements JwtHelper {
   private static instance: JwtHelperImplementation;
@@ -18,18 +19,20 @@ export class JwtHelperImplementation implements JwtHelper {
 
   async verifyToken(token: string): Promise<string | undefined> {
     try {
-      const payload = (await jwt.verify(token, config.jwtSecret)) as JwtPayload;
+      const payload = (await jwtHelper.decodeBearerToken(token)) as CustomJwtPayload
 
-      const { userId, exp } = payload;
+      if (!payload) {
+        return undefined;
+      }
 
-      // Validate token expiration date
-      if (exp) {
-        const tokenExpirationDate = new Date(exp * 1000); // exp claim is a Unix timestamp (seconds since January 1, 1970)
-        const currentDate = new Date();
+      const { exp, userType, userId } = payload;
 
-        if (tokenExpirationDate.getTime() < currentDate.getTime()) {
-          return undefined;
-        }
+      if (exp * 1000 < Date.now()) {
+        return undefined;
+      }
+
+      if (userType === "user") {
+        return undefined;
       }
       return userId;
     } catch (error) {
