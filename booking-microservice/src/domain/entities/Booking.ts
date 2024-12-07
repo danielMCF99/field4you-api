@@ -46,6 +46,9 @@ export class Booking {
   getId(): string {
     return this.id ? this.id : "N/A";
   }
+  getOwnerId(): string {
+    return this.ownerId ? this.ownerId : "N/A";
+  }
 
   static fromMongooseDocument(doc: any): Booking {
     return new Booking({

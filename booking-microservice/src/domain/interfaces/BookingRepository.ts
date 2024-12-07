@@ -9,4 +9,10 @@ export interface IBookingRepository {
     id: string,
     updatedData: Partial<Booking>
   ): Promise<Booking | undefined>;
+  findConflictingBookings(
+    sportsVenueId: string,
+    bookingStartDate: Date,
+    bookingEndDate: Date,
+    idToExclude?: string
+  ): Promise<Booking[]>;
 }

@@ -1,12 +1,16 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import axios from "axios";
+import config from "../../config/env";
 import { Booking } from "../../domain/entities/Booking";
 import { jwtHelper, bookingRepository } from "../../app";
 import { createBooking } from "../../application/use-cases/createBooking";
+import { checkBookingConflicts } from "../../application/use-cases/checkBookingConflicts";
 import { updateBooking } from "../../application/use-cases/updateBooking";
 import { getBookingById } from "../../application/use-cases/getBookingById";
 import { getAllBookings } from "../../application/use-cases/getAllBookings";
 import { deleteBooking } from "../../application/use-cases/deleteBooking";
+import { authMiddleware } from "../../app";
 
 export const createBookingController = async (req: Request, res: Response) => {
   try {
@@ -21,6 +25,7 @@ export const createBookingController = async (req: Request, res: Response) => {
       isPublic,
       invitedUsersIds,
     } = req.body;
+
     if (!token) {
       res.status(401).json({ message: "Bearer token required" });
       return;
@@ -31,10 +36,20 @@ export const createBookingController = async (req: Request, res: Response) => {
       !status ||
       !title ||
       !bookingStartDate ||
-      !bookingEndDate ||
-      !isPublic
+      !bookingEndDate
     ) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+    const hasConflicts = await checkBookingConflicts(
+      bookingRepository,
+      sportsVenueId,
+      new Date(bookingStartDate),
+      new Date(bookingEndDate),
+      undefined
+    );
+
+    if (hasConflicts) {
+      return res.status(400).json({ message: "Conflicting booking exists" });
     }
     const booking = new Booking({
       sportsVenueId,
@@ -55,6 +70,23 @@ export const createBookingController = async (req: Request, res: Response) => {
         invalidIds,
       });
     }
+    try {
+      const response = await axios.get(
+        `${config.sportsVenueGatewayServiceUri}/${sportsVenueId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        return res.status(404).json({ message: "Sports venue not found" });
+      }
+    } catch (error: any) {
+      return res.status(404).json({ message: "Sports venue not found" });
+    }
+
     const newBooking = await createBooking(token, booking, bookingRepository);
     if (!newBooking) {
       return res.status(500).json({ error: "Error creating a booking" });
@@ -62,7 +94,7 @@ export const createBookingController = async (req: Request, res: Response) => {
     return res.status(201).json({ message: "Booking created successfully" });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ error: "Error creating a booking+" });
+    return res.status(500).json({ error: "Error creating a booking" });
   }
 };
 
@@ -81,28 +113,20 @@ export const updateBookingController = async (req: Request, res: Response) => {
       res.status(401).json({ message: "Bearer token required" });
       return;
     }
-
-    const updatedBooking = await updateBooking(
+    const { status, message, booking } = await updateBooking(
       id,
       token,
       updatedData,
       bookingRepository
     );
 
-    if (updatedBooking && updatedBooking.status === 404) {
-      return res.status(404).json({ message: updatedBooking.message });
-    }
-    if (updatedBooking && updatedBooking.status === 500) {
-      return res.status(500).json({ message: updatedBooking.message });
-    }
-    if (!updatedBooking) {
-      return res.status(404).json({ message: "Booking not found" });
+    if (!booking) {
+      res.status(status).json({ message: message });
+      return;
     }
 
-    return res.status(200).json({
-      message: "Booking updated successfully",
-      data: updatedBooking,
-    });
+    res.status(status).json({ message: message, data: booking });
+    return;
   } catch (error) {
     return res.status(500).json({ error: "Error updating booking" });
   }
@@ -110,11 +134,30 @@ export const updateBookingController = async (req: Request, res: Response) => {
 
 export const getBookingByIdController = async (req: Request, res: Response) => {
   const id = req.params.id.toString();
+  const token = await jwtHelper.extractBearerToken(req);
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(400).json({ message: "Invalid ID format" });
     return;
   }
   try {
+    if (!token) {
+      res.status(401).json({ message: "Bearer token required" });
+      return;
+    }
+
+    const decodedPayload = await jwtHelper.decodeBearerToken(token);
+    if (!decodedPayload) {
+      res.status(401).json({ message: "Bearer token required" });
+      return;
+    }
+
+    const { exp } = decodedPayload;
+    const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+    if (tokenExpired) {
+      res.status(401).json({ message: "Bearer token validation expired" });
+      return;
+    }
     const { found, booking } = await getBookingById(id, bookingRepository);
 
     if (!found) {
@@ -127,11 +170,27 @@ export const getBookingByIdController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllBookingsController = async (
-  _req: Request,
-  res: Response
-) => {
+export const getAllBookingsController = async (req: Request, res: Response) => {
   try {
+    const token = await jwtHelper.extractBearerToken(req);
+    if (!token) {
+      res.status(401).json({ message: "Bearer token required" });
+      return;
+    }
+    const decodedPayload = await jwtHelper.decodeBearerToken(token);
+    if (!decodedPayload) {
+      res.status(401).json({ message: "Bearer token required" });
+      return;
+    }
+
+    const { exp } = decodedPayload;
+    const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+    if (tokenExpired) {
+      res.status(401).json({ message: "Bearer token validation expired" });
+      return;
+    }
+
     const allBookings = await getAllBookings(bookingRepository);
 
     return res.status(200).json({ bookings: allBookings });
@@ -152,11 +211,13 @@ export const deleteBookingController = async (req: Request, res: Response) => {
       res.status(401).json({ message: "Bearer token required" });
       return;
     }
-    const deletedBooking = await deleteBooking(id, token, bookingRepository);
-    if (!deletedBooking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
-    return res.status(200).json({ message: "Booking deleted successfully" });
+    const { status, message } = await deleteBooking(
+      id,
+      token,
+      bookingRepository
+    );
+    res.status(status).json({ message: message });
+    return;
   } catch (error) {
     return res.status(500).json({ error: "Error deleting booking" });
   }

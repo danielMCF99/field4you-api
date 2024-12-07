@@ -17,7 +17,7 @@ export const deleteBooking = async (
     }
 
     const authenticated = await authMiddleware.authenticate(
-      booking.getId(),
+      booking.getOwnerId(),
       token
     );
 

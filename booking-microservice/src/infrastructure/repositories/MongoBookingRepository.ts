@@ -58,4 +58,27 @@ export class MongoBookingRepository implements IBookingRepository {
     }
     return Booking.fromMongooseDocument(updatedBooking);
   }
+  async findConflictingBookings(
+    sportsVenueId: string,
+    bookingStartDate: Date,
+    bookingEndDate: Date,
+    idToExclude?: string
+  ): Promise<Booking[]> {
+    const query: Record<string, unknown> = {
+      sportsVenueId,
+      $or: [
+        {
+          bookingStartDate: { $lt: bookingEndDate },
+          bookingEndDate: { $gt: bookingStartDate },
+        },
+      ],
+    };
+
+    if (idToExclude) {
+      query._id = { $ne: idToExclude };
+    }
+
+    const conflictingBookings = await BookingModel.find(query);
+    return conflictingBookings.map((doc) => Booking.fromMongooseDocument(doc));
+  }
 }

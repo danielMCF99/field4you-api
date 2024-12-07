@@ -1,4 +1,4 @@
-version: '3.3'
+version: "3.3"
 
 services:
   #mongo:
@@ -63,6 +63,7 @@ services:
       - PORT=3003
       - MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/booking-microservice?retryWrites=true&w=majority&appName=field4you-cluster
       - JWT_SECRET=field4you2024
+      - SPORTS_VENUE_SERVICE_URL=http://gateway-microservice:3000/api/sports-venues
     depends_on:
       - gateway-microservice
 

@@ -16,28 +16,6 @@ export class JwtHelperImplementation implements JwtHelper {
     return JwtHelperImplementation.instance;
   }
 
-  async verifyToken(token: string): Promise<string | undefined> {
-    try {
-      const payload = (await jwt.verify(token, config.jwtSecret)) as JwtPayload;
-
-      const { userId, exp } = payload;
-
-      // Validate token expiration date
-      if (exp) {
-        const tokenExpirationDate = new Date(exp * 1000); // exp claim is a Unix timestamp (seconds since January 1, 1970)
-        const currentDate = new Date();
-
-        if (tokenExpirationDate.getTime() < currentDate.getTime()) {
-          return undefined;
-        }
-      }
-      return userId;
-    } catch (error) {
-      console.log(error);
-      return undefined;
-    }
-  }
-
   async extractBearerToken(req: Request): Promise<string | undefined> {
     const authHeader = req.headers.authorization;
 
