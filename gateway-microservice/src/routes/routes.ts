@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
+import multer from 'multer';
 import ProxyService from '../services/proxyService';
 import { logger } from '../logging/logger';
-import multer from 'multer';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -17,8 +17,8 @@ router.all(
     const path = req.params[0]; // Capture the remaining path
     const method = req.method;
     const data = req.body;
-    const file = req.file;
     const query = req.query;
+    const file = req.file;
 
     try {
       const authHeader = req.headers['authorization'];
@@ -28,11 +28,11 @@ router.all(
         `/${path}`,
         method,
         data,
-        file,
         query,
         {
           Authorization: authHeader || '',
-        }
+        },
+        file
       );
       res.status(result.status).set(result.headers).json(result.data);
     } catch (error: any) {
