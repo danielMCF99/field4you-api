@@ -38,4 +38,9 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     const sportsVenue = await SportsVenueModel.findById(id).lean();
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
   }
+
+  async findAll(): Promise<SportsVenue[]> {
+    const allSportsVenue = await SportsVenueModel.find();
+    return allSportsVenue.map((sportsVenue) => SportsVenue.fromMongooseDocument(sportsVenue));
+  }
 }

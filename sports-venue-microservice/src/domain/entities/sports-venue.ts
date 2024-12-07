@@ -1,6 +1,6 @@
 export class SportsVenue {
     public id?: string;
-    public ownerId: string;
+    public ownerId?: string;
     public location: string;
     public sportsVenueType: string;
     public status: string;
@@ -14,7 +14,7 @@ export class SportsVenue {
 
     constructor ( sportsVenue: {
         id?: string;
-        ownerId: string;
+        ownerId?: string;
         location: string;
         sportsVenueType: string;
         status: string;
@@ -38,6 +38,9 @@ export class SportsVenue {
         this.hasParking = sportsVenue.hasParking;
         this.hasShower = sportsVenue.hasShower;
         this.hasBar = sportsVenue.hasBar;
+    }
+    getId(): string {
+        return this.id ? this.id : "N/A";
     }
 
     static fromMongooseDocument(doc:any): SportsVenue{
