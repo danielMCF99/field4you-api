@@ -6,7 +6,7 @@
     "description": "User Management API Information"
   },
   "paths": {
-    "/user/create": {
+    "/api/users/create": {
       "post": {
         "summary": "Create a new user",
         "description": "Creates a new user in the user-service.",
@@ -116,7 +116,7 @@
         }
       }
     },
-    "/user/all": {
+    "/api/users/all": {
       "get": {
         "summary": "Get all users",
         "description": "Fetches all users from the user-service.",
@@ -223,7 +223,7 @@
         }
       }
     },
-    "/users/{id}": {
+    "/api/users/{id}": {
       "get": {
         "summary": "Get user by ID",
         "description": "Fetches a specific user by their ID.",

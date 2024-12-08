@@ -6,7 +6,7 @@
     "description": "API for creating, retrieving, and deleting posts."
   },
   "paths": {
-    "/posts/create": {
+    "/api/posts/create": {
       "post": {
         "summary": "Create a new post",
         "description": "Creates a new post with an image and comments. Requires authentication via Bearer token.",
@@ -113,7 +113,7 @@
         }
       }
     },
-    "/posts/last10": {
+    "/api/posts/last10": {
       "get": {
         "summary": "Get the last 10 posts",
         "description": "Fetches the last 10 posts from the repository. Requires authentication via Bearer token.",
@@ -179,7 +179,7 @@
         }
       }
     },
-    "/posts/{id}": {
+    "/api/posts/{id}": {
       "delete": {
         "summary": "Delete a post",
         "description": "Deletes a post by its ID. Requires authentication via Bearer token.",

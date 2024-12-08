@@ -6,7 +6,7 @@
     "description": "Authentication API Information"
   },
   "paths": {
-    "/auth/register": {
+    "/api/auth/register": {
       "post": {
         "summary": "Register a new user",
         "description": "Creates a new user in the system and generates a JWT token.",
@@ -101,7 +101,7 @@
         }
       }
     },
-    "/auth/login": {
+    "/api/auth/login": {
       "post": {
         "summary": "Login a user",
         "description": "Authenticate a user with email and password, and generate a JWT token upon successful login.",
@@ -210,7 +210,7 @@
         }
       }
     },
-    "/auth/password-recovery": {
+    "/api/auth/password-recovery": {
       "post": {
         "summary": "Password Recovery",
         "description": "Initiates the password recovery process for a user by sending a recovery email with a reset link.",
@@ -301,7 +301,7 @@
         }
       }
     },
-    "/auth/reset-password/{token}": {
+    "/api/auth/reset-password/{token}": {
       "put": {
         "summary": "Password Reset",
         "description": "Allows a user to reset their password using a password reset token.",

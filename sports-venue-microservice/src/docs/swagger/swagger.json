@@ -6,7 +6,7 @@
     "description": "API for managing sports venues in the Field4You system."
   },
   "paths": {
-    "/sports-venue/create": {
+    "/api/sports-venues/create": {
       "post": {
         "summary": "Create a new Sports Venue",
         "tags": ["Sports Venues"],
@@ -148,7 +148,7 @@
         }
       }
     },
-    "/sports-venue/all": {
+    "/api/sports-venues/all": {
       "get": {
         "summary": "Get all sports-venues",
         "tags": ["Sports Venues"],
@@ -190,7 +190,7 @@
         }
       }
     },
-    "/sports-venue/{id}": {
+    "/api/sports-venues/{id}": {
       "get": {
         "summary": "Get a sports-venue by ID",
         "tags": ["Sports Venues"],
@@ -484,7 +484,7 @@
         "type": "object",
         "properties": {
           "id": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
-          "ownerId": { "type": "string", "example": "owner123" },
+          "ownerId": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
           "location": {
             "type": "string",
             "example": "Barcelos, Braga, Portugal"

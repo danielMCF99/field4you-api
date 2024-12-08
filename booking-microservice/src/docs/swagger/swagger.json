@@ -6,7 +6,7 @@
     "description": "API for managing bookings in the Field4You system."
   },
   "paths": {
-    "/bookings/create": {
+    "/api/bookings/create": {
       "post": {
         "summary": "Create a new booking",
         "tags": ["Bookings"],
@@ -166,7 +166,7 @@
         }
       }
     },
-    "/bookings/all": {
+    "/api/bookings/all": {
       "get": {
         "summary": "Get all bookings",
         "tags": ["Bookings"],
@@ -208,7 +208,7 @@
         }
       }
     },
-    "/bookings/{id}": {
+    "/api/bookings/{id}": {
       "get": {
         "summary": "Get a booking by ID",
         "tags": ["Bookings"],
