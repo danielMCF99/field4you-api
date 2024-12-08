@@ -1,15 +1,15 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import axios from 'axios';
-import { User } from '../../domain/entities/User';
-import { registerUser } from '../../application/use-cases/registerUser';
-import { loginUser } from '../../application/use-cases/loginUser';
-import { passwordReset } from '../../application/use-cases/passwordReset';
-import { passwordRecovery } from '../../application/use-cases/passwordRecovery';
-import { userRepository, jwtHelper, mailer } from '../../app';
-import config from '../../config/env';
-import mongoose from 'mongoose';
-import { deleteUser } from '../../application/use-cases/deleteUser';
+import { Request, Response } from "express";
+import bcrypt from "bcryptjs";
+import axios from "axios";
+import { User } from "../../domain/entities/User";
+import { registerUser } from "../../application/use-cases/registerUser";
+import { loginUser } from "../../application/use-cases/loginUser";
+import { passwordReset } from "../../application/use-cases/passwordReset";
+import { passwordRecovery } from "../../application/use-cases/passwordRecovery";
+import { userRepository, jwtHelper, mailer } from "../../app";
+import config from "../../config/env";
+import mongoose from "mongoose";
+import { deleteUser } from "../../application/use-cases/deleteUser";
 
 export const registerUserController = async (req: Request, res: Response) => {
   let { userType, email, password, firstName, lastName, birthDate } = req.body;
@@ -23,7 +23,7 @@ export const registerUserController = async (req: Request, res: Response) => {
     !lastName ||
     !birthDate
   ) {
-    res.status(400).json({ message: 'Bad Request for User creation' });
+    res.status(400).json({ message: "Bad Request for User creation" });
     return;
   }
 
@@ -47,33 +47,41 @@ export const registerUserController = async (req: Request, res: Response) => {
 
     if (!newUser) {
       res.status(500).json({
-        message: 'Something went wrong for new user registration',
+        message: "Something went wrong for new user registration",
       });
       return;
     }
 
     // Send request to create equivalent user in user-microservice
-    await axios
-      .post(config.userGatewayServiceUri + '/create', {
-        authServiceUserId: newUser.getId(),
-        userType: userType,
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        birthDate: birthDate,
-        registerDate: registerDate,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        res.status(500).json({
-          message:
-            'Something went wrong for new user registration in user-service',
+    try {
+      await axios
+        .post(config.userGatewayServiceUri + "/create", {
+          authServiceUserId: newUser.getId(),
+          userType: userType,
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+          birthDate: birthDate,
+          registerDate: registerDate,
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+          res.status(500).json({
+            message:
+              "Something went wrong for new user registration in user-service",
+          });
+          return;
         });
-        return;
+    } catch (erro: any) {
+      res.status(500).json({
+        message:
+          "Something went wrong for new user registration in user-service",
       });
+      return;
+    }
 
     // Generate JWT Token
     const token = await jwtHelper.generateToken(
@@ -83,14 +91,14 @@ export const registerUserController = async (req: Request, res: Response) => {
     );
 
     res.status(200).json({
-      message: 'Successfully registered the user.',
+      message: "Successfully registered the user.",
       token: token,
     });
     return;
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
   }
 };
@@ -99,7 +107,7 @@ export const loginUserController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).json({ message: 'Email and Password are required' });
+    res.status(400).json({ message: "Email and Password are required" });
     return;
   }
 
@@ -121,14 +129,14 @@ export const loginUserController = async (req: Request, res: Response) => {
       email
     );
     res.status(status).json({
-      message: 'Login was successfull.',
+      message: "Login was successfull.",
       token: token,
     });
     return;
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
@@ -141,7 +149,7 @@ export const passwordRecoveryController = async (
   const { email } = req.body;
 
   if (!email) {
-    res.status(400).json({ message: 'Email is required' });
+    res.status(400).json({ message: "Email is required" });
     return;
   }
 
@@ -157,7 +165,7 @@ export const passwordRecoveryController = async (
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
@@ -167,14 +175,14 @@ export const passwordResetController = async (req: Request, res: Response) => {
   let { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).json({ message: 'Email and Password are required' });
+    res.status(400).json({ message: "Email and Password are required" });
     return;
   }
 
   // Extract passwordResetToken from URL
-  const passwordResetToken = req.url.split('/').pop();
+  const passwordResetToken = req.url.split("/").pop();
   if (!passwordResetToken) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
     return;
   }
 
@@ -192,7 +200,7 @@ export const passwordResetController = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
@@ -203,12 +211,12 @@ export const deleteUserController = async (req: Request, res: Response) => {
   const token = await jwtHelper.extractBearerToken(req);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400).json({ message: 'Invalid ID format' });
+    res.status(400).json({ message: "Invalid ID format" });
     return;
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Bearer token required' });
+    res.status(401).json({ message: "Bearer token required" });
     return;
   }
 
@@ -219,7 +227,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Authentication failed',
+      message: "Authentication failed",
     });
     return;
   }

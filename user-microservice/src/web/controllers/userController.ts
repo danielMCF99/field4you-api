@@ -1,14 +1,14 @@
-import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import axios from 'axios';
-import config from '../../config/env';
-import { User } from '../../domain/entities/User';
-import { authMiddleware, jwtHelper, userRepository } from '../../app';
-import { createUser } from '../../application/use-cases/createUser';
-import { getAll } from '../../application/use-cases/getAll';
-import { getById } from '../../application/use-cases/getById';
-import { updateUser } from '../../application/use-cases/updateUser';
-import { deleteUser } from '../../application/use-cases/deleteUser';
+import { Request, Response } from "express";
+import mongoose from "mongoose";
+import axios from "axios";
+import config from "../../config/env";
+import { User } from "../../domain/entities/User";
+import { authMiddleware, jwtHelper, userRepository } from "../../app";
+import { createUser } from "../../application/use-cases/createUser";
+import { getAll } from "../../application/use-cases/getAll";
+import { getById } from "../../application/use-cases/getById";
+import { updateUser } from "../../application/use-cases/updateUser";
+import { deleteUser } from "../../application/use-cases/deleteUser";
 
 export const createUserController = async (req: Request, res: Response) => {
   const {
@@ -32,7 +32,7 @@ export const createUserController = async (req: Request, res: Response) => {
   ) {
     res
       .status(400)
-      .json({ message: 'Bad Request for User creation in user-service' });
+      .json({ message: "Bad Request for User creation in user-service" });
     return;
   }
 
@@ -50,19 +50,19 @@ export const createUserController = async (req: Request, res: Response) => {
 
     if (!newUser) {
       res.status(500).json({
-        message: 'Something went wrong for new user registration',
+        message: "Something went wrong for new user registration",
       });
       return;
     }
 
     res.status(200).json({
-      message: 'Successfully registered the user.',
+      message: "Successfully registered the user.",
     });
     return;
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
@@ -71,13 +71,13 @@ export const createUserController = async (req: Request, res: Response) => {
 export const getAllController = async (req: Request, res: Response) => {
   const token = await jwtHelper.extractBearerToken(req);
   if (!token) {
-    res.status(401).json({ message: 'Bearer token required' });
+    res.status(401).json({ message: "Bearer token required" });
     return;
   }
 
   const decodedPayload = await jwtHelper.decodeBearerToken(token);
   if (!decodedPayload) {
-    res.status(401).json({ message: 'Bearer token required' });
+    res.status(401).json({ message: "Bearer token required" });
     return;
   }
 
@@ -85,7 +85,7 @@ export const getAllController = async (req: Request, res: Response) => {
   const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
 
   if (!tokenExpired) {
-    res.status(401).json({ message: 'Bearer token validation expired' });
+    res.status(401).json({ message: "Bearer token validation expired" });
     return;
   }
 
@@ -96,7 +96,7 @@ export const getAllController = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
@@ -107,18 +107,18 @@ export const getByIdController = async (req: Request, res: Response) => {
   const token = await jwtHelper.extractBearerToken(req);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400).json({ message: 'Invalid ID format' });
+    res.status(400).json({ message: "Invalid ID format" });
     return;
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Bearer token required' });
+    res.status(401).json({ message: "Bearer token required" });
     return;
   }
 
   const decodedPayload = await jwtHelper.decodeBearerToken(token);
   if (!decodedPayload) {
-    res.status(401).json({ message: 'Bearer token required' });
+    res.status(401).json({ message: "Bearer token required" });
     return;
   }
 
@@ -126,7 +126,7 @@ export const getByIdController = async (req: Request, res: Response) => {
   const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
 
   if (!tokenExpired) {
-    res.status(401).json({ message: 'Bearer token validation expired' });
+    res.status(401).json({ message: "Bearer token validation expired" });
     return;
   }
 
@@ -134,8 +134,8 @@ export const getByIdController = async (req: Request, res: Response) => {
     const { found, user } = await getById(id, userRepository);
 
     if (!found) {
-      console.log('User not found');
-      res.status(404).json({ message: 'User for given ID not found' });
+      console.log("User not found");
+      res.status(404).json({ message: "User for given ID not found" });
       return;
     }
 
@@ -144,7 +144,7 @@ export const getByIdController = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
@@ -155,23 +155,23 @@ export const updateUserController = async (req: Request, res: Response) => {
   const token = await jwtHelper.extractBearerToken(req);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400).json({ message: 'Invalid ID format' });
+    res.status(400).json({ message: "Invalid ID format" });
     return;
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Bearer token required' });
+    res.status(401).json({ message: "Bearer token required" });
     return;
   }
 
   // Validate that fields sent in the request body are allowed to be updated
   const allowedFields = [
-    'phoneNumber',
-    'district',
-    'city',
-    'address',
-    'latitude',
-    'longitude',
+    "phoneNumber",
+    "district",
+    "city",
+    "address",
+    "latitude",
+    "longitude",
   ];
 
   const filteredBody: Record<string, any> = {};
@@ -199,7 +199,7 @@ export const updateUserController = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
@@ -210,12 +210,12 @@ export const deleteUserController = async (req: Request, res: Response) => {
   const token = await jwtHelper.extractBearerToken(req);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400).json({ message: 'Invalid ID format' });
+    res.status(400).json({ message: "Invalid ID format" });
     return;
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Bearer token required' });
+    res.status(401).json({ message: "Bearer token required" });
     return;
   }
 
@@ -228,23 +228,29 @@ export const deleteUserController = async (req: Request, res: Response) => {
 
     if (authServiceUserId) {
       // Send request to create equivalent user in user-microservice
-      console.log(authServiceUserId);
-      await axios
-        .delete(config.authGatewayServiceUri + `/${authServiceUserId}`, {
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-          res.status(500).json({
-            message: 'Something went wrong for user delete in auth service',
+      try {
+        await axios
+          .delete(config.authGatewayServiceUri + `/${authServiceUserId}`, {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => {
+            console.log(response.data);
+          })
+          .catch((error) => {
+            console.log(error);
+            res.status(500).json({
+              message: "Something went wrong for user delete in auth service",
+            });
+            return;
           });
-          return;
+      } catch (error) {
+        res.status(500).json({
+          message: "Something went wrong for user delete in auth service",
         });
+        return;
+      }
     }
 
     res.status(status).json({ message: message });
@@ -252,7 +258,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     return;
   }
