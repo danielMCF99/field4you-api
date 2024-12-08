@@ -1,5 +1,5 @@
-import { jwtHelper } from '../../app';
-import { AuthMiddleware } from '../../domain/interfaces/AuthMiddleware';
+import { jwtHelper } from "../../app";
+import { AuthMiddleware } from "../../domain/interfaces/AuthMiddleware";
 
 export class AuthMiddlewareImplementation implements AuthMiddleware {
   private static instance: AuthMiddlewareImplementation;
@@ -27,9 +27,8 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
       return false;
     }
 
-    if (!(userType === 'admin')) {
+    if (!(userType === "admin")) {
       if (!(userId === creatorId)) {
-        console.log('Here');
         return false;
       }
     }
