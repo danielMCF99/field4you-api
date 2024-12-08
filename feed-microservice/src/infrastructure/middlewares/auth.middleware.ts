@@ -29,6 +29,7 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
 
     if (!(userType === 'admin')) {
       if (!(userId === creatorId)) {
+        console.log('Here');
         return false;
       }
     }

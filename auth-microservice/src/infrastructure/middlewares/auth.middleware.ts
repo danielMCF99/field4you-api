@@ -26,12 +26,15 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
     }
 
     const { userId, userType, email, exp } = decodedPayload;
-    if (exp < Date.now()) {
+    if (exp * 1000 < Date.now()) {
       return false;
     }
 
     if (!(userType === 'admin')) {
-      if (!(email === userEmail) || !(userId === authServiceUserId)) {
+      if (!(email === userEmail)) {
+        return false;
+      }
+      if (!(userId === authServiceUserId)) {
         return false;
       }
     }

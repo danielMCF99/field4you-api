@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
-import mongoose from "mongoose";
-import { SportsVenue } from "../../domain/entities/sports-venue";
-import { jwtHelper, sportsVenueRepository } from "../../app";
-import { createSportsVenue } from "../../application/use-cases/createSportsVenue";
-import { updateSportsVenue } from "../../application/use-cases/updateSportsVenue";
-import { getSportsVenueById } from "../../application/use-cases/getSportsVenueById";
-import { deleteSportsVenue } from "../../application/use-cases/deleteSportsVenue";
-import { getAllSportsVenue } from "../../application/use-cases/getAllSportsVenue";
+import { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import { SportsVenue } from '../../domain/entities/sports-venue';
+import { jwtHelper, sportsVenueRepository } from '../../app';
+import { createSportsVenue } from '../../application/use-cases/createSportsVenue';
+import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue';
+import { getSportsVenueById } from '../../application/use-cases/getSportsVenueById';
+import { deleteSportsVenue } from '../../application/use-cases/deleteSportsVenue';
+import { getAllSportsVenue } from '../../application/use-cases/getAllSportsVenue';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -16,7 +16,7 @@ export const createSportsVenueController = async (
     const token = await jwtHelper.extractBearerToken(req);
 
     if (!token) {
-      res.status(401).json({ message: "Bearer token required" });
+      res.status(401).json({ message: 'Bearer token required' });
       return;
     }
 
@@ -33,17 +33,18 @@ export const createSportsVenueController = async (
       hasBar,
     } = req.body;
 
-    if(
+    if (
       !location ||
       !sportsVenueType ||
       !status ||
       !sportsVenueName ||
       !bookingMinDuration ||
       !bookingMinPrice ||
-      !sportsVenuePicture){
-        res.status(400).json({ message: "Missing required fields" });
-        return;
-      }
+      !sportsVenuePicture
+    ) {
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
+    }
 
     const sportsVenue = new SportsVenue({
       location,
@@ -64,14 +65,14 @@ export const createSportsVenueController = async (
       sportsVenueRepository
     );
 
-    if(!newSportsVenue){ 
-      res.status(500).json({ message: "Error creating sports-venue" });
+    if (!newSportsVenue) {
+      res.status(500).json({ message: 'Error creating sports-venue' });
       return;
     }
 
-    res.status(201).json({ message: "Sports venue created successfully" });
+    res.status(201).json({ message: 'Sports venue created successfully' });
   } catch (error) {
-    res.status(500).json({ message: "Error creating sports-venue" });
+    res.status(500).json({ message: 'Error creating sports-venue' });
   }
 };
 
@@ -85,12 +86,12 @@ export const updateSportsVenueController = async (
     const updatedData = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      res.status(400).json({ message: "Invalid ID format" });
+      res.status(400).json({ message: 'Invalid ID format' });
       return;
     }
 
     if (!token) {
-      res.status(401).json({ message: "Bearer token required" });
+      res.status(401).json({ message: 'Bearer token required' });
       return;
     }
 
@@ -102,16 +103,16 @@ export const updateSportsVenueController = async (
     );
 
     if (!updatedSportsVenue) {
-      res.status(404).json({ message: "Sports venue not found" });
+      res.status(404).json({ message: 'Sports venue not found' });
       return;
     }
 
     res.status(200).json({
-      message: "Sports venue updated successfully",
+      message: 'Sports venue updated successfully',
       data: updatedSportsVenue,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error updating sports-venue" });
+    res.status(500).json({ message: 'Error updating sports-venue' });
   }
 };
 
@@ -121,23 +122,27 @@ export const deleteSportsVenueController = async (
 ) => {
   try {
     const id = req.params.id.toString();
-    
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      res.status(400).json({ message: "Invalid ID format" });
-      return;
-    }
-    
-    const token = await jwtHelper.extractBearerToken(req);
-    
-    if(!token){
-      res.status(401).json({ message: "Bearer token required" });
-      return;
-    }
-    const {status, message} = await deleteSportsVenue(id, token, sportsVenueRepository);
 
-    res.status(status).json({message: message });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ message: 'Invalid ID format' });
+      return;
+    }
+
+    const token = await jwtHelper.extractBearerToken(req);
+
+    if (!token) {
+      res.status(401).json({ message: 'Bearer token required' });
+      return;
+    }
+    const { status, message } = await deleteSportsVenue(
+      id,
+      token,
+      sportsVenueRepository
+    );
+
+    res.status(status).json({ message: message });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting sports-venue" });
+    res.status(500).json({ message: 'Error deleting sports-venue' });
   }
 };
 
@@ -151,25 +156,25 @@ export const getSportsVenueByIdController = async (
     const sportsVenue = await getSportsVenueById(id, sportsVenueRepository);
 
     if (!sportsVenue) {
-      res.status(404).json({ message: "Sports venue not found" });
+      res.status(404).json({ message: 'Sports venue not found' });
       return;
     }
 
     res.status(200).json(sportsVenue);
   } catch (error) {
-    res.status(500).json({ message: "Error getting sports-venue by id" });
+    res.status(500).json({ message: 'Error getting sports-venue by id' });
   }
 };
 
 export const getAllSportsVenueController = async (
   _req: Request,
   res: Response
-  ) => {
-    try{
-      const allSportsVenue = await getAllSportsVenue(sportsVenueRepository);
+) => {
+  try {
+    const allSportsVenue = await getAllSportsVenue(sportsVenueRepository);
 
-      res.status(200).json({ SportsVenue: allSportsVenue});
-    } catch(error){
-      res.status(500).json({ error: "Error fetching Sports-Venue: "});
-    }
-  };
+    res.status(200).json({ SportsVenue: allSportsVenue });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching Sports-Venue: ' });
+  }
+};

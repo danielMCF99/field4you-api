@@ -1,5 +1,5 @@
-import { SportsVenue } from "../../domain/entities/sports-venue";
-import { ISportsVenueRepository } from "../../domain/interfaces/SportsVenueRepository";
+import { SportsVenue } from '../../domain/entities/sports-venue';
+import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 
 export const getSportsVenueById = async (
   id: string,

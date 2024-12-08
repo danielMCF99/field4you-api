@@ -23,7 +23,7 @@ export const createPostController = async (req: Request, res: Response) => {
   const { userId, email, exp } = decodedPayload;
   const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
 
-  if (tokenExpired) {
+  if (!tokenExpired) {
     res.status(401).json({ message: 'Bearer token validation expired' });
     return;
   }

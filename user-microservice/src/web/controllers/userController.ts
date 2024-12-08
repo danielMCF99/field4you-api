@@ -84,7 +84,7 @@ export const getAllController = async (req: Request, res: Response) => {
   const { exp } = decodedPayload;
   const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
 
-  if (tokenExpired) {
+  if (!tokenExpired) {
     res.status(401).json({ message: 'Bearer token validation expired' });
     return;
   }
@@ -125,7 +125,7 @@ export const getByIdController = async (req: Request, res: Response) => {
   const { exp } = decodedPayload;
   const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
 
-  if (tokenExpired) {
+  if (!tokenExpired) {
     res.status(401).json({ message: 'Bearer token validation expired' });
     return;
   }
@@ -228,10 +228,11 @@ export const deleteUserController = async (req: Request, res: Response) => {
 
     if (authServiceUserId) {
       // Send request to create equivalent user in user-microservice
+      console.log(authServiceUserId);
       await axios
         .delete(config.authGatewayServiceUri + `/${authServiceUserId}`, {
           headers: {
-            authorization: req.headers.authorization,
+            authorization: `Bearer ${token}`,
           },
         })
         .then((response) => {
@@ -240,8 +241,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
         .catch((error) => {
           console.log(error);
           res.status(500).json({
-            message:
-              'Something went wrong for new user registration in user-service',
+            message: 'Something went wrong for user delete in auth service',
           });
           return;
         });

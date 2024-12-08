@@ -17,6 +17,7 @@ const swaggerEndpoints = [
   `${serviceConfig.users}/swagger`,
   `${serviceConfig.posts}/swagger`,
   `${serviceConfig.bookings}/swagger`,
+  `${serviceConfig['sports-venues']}/swagger`,
 ];
 
 export const generateSwaggerDocument = async () => {
