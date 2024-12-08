@@ -1,6 +1,11 @@
+export enum UserType {
+  'user',
+  'owner',
+}
+
 export class User {
   private id?: string;
-  public userType: string;
+  public userType: UserType;
   public email: string;
   public password: string;
   public firstName: string;
@@ -13,7 +18,7 @@ export class User {
 
   constructor(user: {
     id?: string;
-    userType: string;
+    userType: UserType;
     email: string;
     password: string;
     firstName: string;

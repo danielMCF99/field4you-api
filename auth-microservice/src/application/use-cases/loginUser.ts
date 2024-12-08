@@ -1,4 +1,4 @@
-import { User } from '../../domain/entities/User';
+import { User, UserType } from '../../domain/entities/User';
 import bcrypt from 'bcryptjs';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 
@@ -11,7 +11,7 @@ export const loginUser = async (
   status: number;
   message: string;
   userId?: string;
-  userType: string;
+  userType?: UserType;
 }> => {
   try {
     // Find user by email
@@ -23,8 +23,6 @@ export const loginUser = async (
         success: false,
         status: 404,
         message: 'User not found',
-        userId: 'N/A',
-        userType: 'N/A',
       };
     }
 
@@ -35,8 +33,6 @@ export const loginUser = async (
         success: false,
         status: 401,
         message: 'Invalid password',
-        userId: 'N/A',
-        userType: 'N/A',
       };
     }
 
@@ -58,8 +54,6 @@ export const loginUser = async (
       success: false,
       status: 500,
       message: 'Something went wrong',
-      userId: 'N/A',
-      userType: 'N/A',
     };
   }
 };

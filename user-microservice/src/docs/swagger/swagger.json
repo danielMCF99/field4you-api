@@ -6,10 +6,11 @@
     "description": "User Management API Information"
   },
   "paths": {
-    "/users/create": {
+    "/api/users/create": {
       "post": {
         "summary": "Create a new user",
-        "description": "Registers a new user in the system",
+        "description": "Creates a new user in the user-service.",
+        "tags": ["User"],
         "requestBody": {
           "required": true,
           "content": {
@@ -17,22 +18,47 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "userType": { "type": "string" },
-                  "email": { "type": "string", "format": "email" },
-                  "firstName": { "type": "string" },
-                  "lastName": { "type": "string" },
-                  "birthDate": { "type": "string", "format": "date" },
-                  "registerDate": { "type": "string", "format": "date-time" },
-                  "lastAccessDate": { "type": "string", "format": "date-time" }
+                  "authServiceUserId": {
+                    "type": "string",
+                    "example": "123456"
+                  },
+                  "userType": {
+                    "type": "string",
+                    "enum": ["ADMIN", "USER"],
+                    "example": "USER"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "birthDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "1990-01-01"
+                  },
+                  "registerDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2024-12-07T12:00:00Z"
+                  }
                 },
                 "required": [
+                  "authServiceUserId",
                   "userType",
                   "email",
                   "firstName",
                   "lastName",
                   "birthDate",
-                  "registerDate",
-                  "lastAccessDate"
+                  "registerDate"
                 ]
               }
             }
@@ -40,39 +66,48 @@
         },
         "responses": {
           "200": {
-            "description": "User created successfully",
+            "description": "User successfully created.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully registered the user."
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad request, required fields are missing.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request for User creation in user-service"
+                    }
                   }
                 }
               }
             }
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal server error during user creation.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong for new user registration"
+                    }
                   }
                 }
               }
@@ -81,13 +116,19 @@
         }
       }
     },
-    "/users/all": {
+    "/api/users/all": {
       "get": {
         "summary": "Get all users",
-        "description": "Retrieves all registered users",
+        "description": "Fetches all users from the user-service.",
+        "tags": ["User"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of users",
+            "description": "Successfully fetched all users.",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,7 +137,50 @@
                     "users": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/User"
+                        "type": "object",
+                        "properties": {
+                          "authServiceUserId": {
+                            "type": "string",
+                            "example": "123456"
+                          },
+                          "userType": {
+                            "type": "string",
+                            "enum": ["ADMIN", "USER"],
+                            "example": "USER"
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                          },
+                          "firstName": {
+                            "type": "string",
+                            "example": "John"
+                          },
+                          "lastName": {
+                            "type": "string",
+                            "example": "Doe"
+                          },
+                          "birthDate": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "1990-01-01"
+                          },
+                          "registerDate": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-12-07T12:00:00Z"
+                          }
+                        },
+                        "required": [
+                          "authServiceUserId",
+                          "userType",
+                          "email",
+                          "firstName",
+                          "lastName",
+                          "birthDate",
+                          "registerDate"
+                        ]
                       }
                     }
                   }
@@ -104,14 +188,33 @@
               }
             }
           },
-          "500": {
-            "description": "Internal Server Error",
+          "401": {
+            "description": "Unauthorized. Token is either missing or expired.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error while fetching users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong"
+                    }
                   }
                 }
               }
@@ -120,28 +223,78 @@
         }
       }
     },
-    "/users/{id}": {
+    "/api/users/{id}": {
       "get": {
         "summary": "Get user by ID",
-        "description": "Retrieves a user by their ID",
+        "description": "Fetches a specific user by their ID.",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
+            "description": "ID of the user to fetch",
             "schema": {
-              "type": "string"
-            },
-            "description": "The ID of the user"
+              "type": "string",
+              "example": "605c72ef153207001f8e4e1"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
           }
         ],
         "responses": {
           "200": {
-            "description": "User details",
+            "description": "Successfully fetched the user.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "type": "object",
+                  "properties": {
+                    "authServiceUserId": {
+                      "type": "string",
+                      "example": "123456"
+                    },
+                    "userType": {
+                      "type": "string",
+                      "enum": ["ADMIN", "USER"],
+                      "example": "USER"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "example": "user@example.com"
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "example": "John"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "example": "Doe"
+                    },
+                    "birthDate": {
+                      "type": "string",
+                      "format": "date",
+                      "example": "1990-01-01"
+                    },
+                    "registerDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-07T12:00:00Z"
+                    }
+                  },
+                  "required": [
+                    "authServiceUserId",
+                    "userType",
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "birthDate",
+                    "registerDate"
+                  ]
                 }
               }
             }
@@ -153,33 +306,58 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Token is either missing or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
                   }
                 }
               }
             }
           },
           "404": {
-            "description": "User not found",
+            "description": "User not found for the given ID.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "User for given ID not found"
+                    }
                   }
                 }
               }
             }
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal server error while fetching the user.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong"
+                    }
                   }
                 }
               }
@@ -188,17 +366,29 @@
         }
       },
       "put": {
-        "summary": "Update",
-        "description": "Updates a user",
+        "summary": "Update user by ID",
+        "description": "Updates a specific user's details. The user must be authenticated via Bearer token.",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
+            "description": "ID of the user to update",
             "schema": {
-              "type": "string"
-            },
-            "description": "The ID of the user"
+              "type": "string",
+              "example": "605c72ef153207001f8e4e1"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Bearer token for authentication",
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-token-here"
+            }
           }
         ],
         "requestBody": {
@@ -208,24 +398,200 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "phoneNumber": { "type": "string" },
-                  "district": { "type": "string" },
-                  "city": { "type": "string" },
-                  "address": { "type": "string" },
-                  "latitude": { "type": "number" },
-                  "longitude": { "type": "number" }
-                }
+                  "phoneNumber": {
+                    "type": "string",
+                    "example": "+1234567890"
+                  },
+                  "district": {
+                    "type": "string",
+                    "example": "Central"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "New York"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 40.7128
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "format": "float",
+                    "example": -74.006
+                  }
+                },
+                "required": [
+                  "phoneNumber",
+                  "district",
+                  "city",
+                  "address",
+                  "latitude",
+                  "longitude"
+                ]
               }
             }
           }
         },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "User details",
+            "description": "Successfully updated the user.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "type": "object",
+                  "properties": {
+                    "authServiceUserId": {
+                      "type": "string",
+                      "example": "123456"
+                    },
+                    "userType": {
+                      "type": "string",
+                      "enum": ["ADMIN", "USER"],
+                      "example": "USER"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "example": "user@example.com"
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "example": "John"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "example": "Doe"
+                    },
+                    "birthDate": {
+                      "type": "string",
+                      "format": "date",
+                      "example": "1990-01-01"
+                    },
+                    "registerDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-07T12:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format or bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found for the given ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User with given ID not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error while updating the user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong with user update"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user by ID",
+        "description": "Deletes a specific user based on the provided ID. The user must be authenticated via Bearer token.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the user to delete",
+            "schema": {
+              "type": "string",
+              "example": "605c72ef153207001f8e4e1"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Bearer token for authentication",
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-token-here"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Resource deleted"
+                    }
+                  }
                 }
               }
             }
@@ -237,33 +603,58 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
                   }
                 }
               }
             }
           },
           "404": {
-            "description": "User not found",
+            "description": "User not found for the given ID",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "User with given ID not found"
+                    }
                   }
                 }
               }
             }
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal server error while deleting the user",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong"
+                    }
                   }
                 }
               }
@@ -278,6 +669,9 @@
       "User": {
         "type": "object",
         "properties": {
+          "id": { "type": "string" },
+          "authServiceUserId": { "type": "string" },
+          "userType": { "type": "string" },
           "firstName": { "type": "string" },
           "lastName": { "type": "string" },
           "email": { "type": "string", "format": "email" },
@@ -288,9 +682,15 @@
           "latitude": { "type": "number" },
           "longitude": { "type": "number" },
           "birthDate": { "type": "string", "format": "date" },
-          "registerDate": { "type": "string", "format": "date-time" },
-          "lastAccessDate": { "type": "string", "format": "date-time" }
+          "registerDate": { "type": "string", "format": "date-time" }
         }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

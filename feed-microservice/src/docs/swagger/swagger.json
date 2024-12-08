@@ -1,0 +1,339 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Posts API",
+    "version": "1.0.0",
+    "description": "API for creating, retrieving, and deleting posts."
+  },
+  "paths": {
+    "/api/posts/create": {
+      "post": {
+        "summary": "Create a new post",
+        "description": "Creates a new post with an image and comments. Requires authentication via Bearer token.",
+        "tags": ["Post"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Bearer token for authentication",
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-token-here"
+            }
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "description": "Image file for the post",
+            "type": "file"
+          },
+          {
+            "name": "comments",
+            "in": "body",
+            "required": true,
+            "description": "The comments to include with the post",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "type": "string",
+                  "example": "This is my first post!"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created the post",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully created the post."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, missing image or comments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Please upload an Image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error during post creation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/last10": {
+      "get": {
+        "summary": "Get the last 10 posts",
+        "description": "Fetches the last 10 posts from the repository. Requires authentication via Bearer token.",
+        "tags": ["Post"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Bearer token for authentication",
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-token-here"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the last 10 posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error while fetching posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{id}": {
+      "delete": {
+        "summary": "Delete a post",
+        "description": "Deletes a post by its ID. Requires authentication via Bearer token.",
+        "tags": ["Post"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the post to delete",
+            "schema": {
+              "type": "string",
+              "example": "1234567890abcdef"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Bearer token for authentication",
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-token-here"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the post",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Resource deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Post with given ID not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error occurred during deletion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Something went wrong with post delete"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the post."
+          },
+          "creatorId": {
+            "type": "string",
+            "description": "ID of the creator."
+          },
+          "creatorEmail": {
+            "type": "string",
+            "description": "Email of the creator."
+          },
+          "comments": {
+            "type": "string",
+            "description": "Comments about the post."
+          },
+          "imageName": {
+            "type": "string",
+            "description": "Name of the uploaded image file."
+          },
+          "imageURL": {
+            "type": "string",
+            "description": "URL of the uploaded image."
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the post was created."
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

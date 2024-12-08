@@ -32,7 +32,6 @@ export const updateUser = async (
     }
 
     const updatedUser = await repository.update(user.getId(), {
-      lastAccessDate: new Date(),
       ...updatedData,
     });
     console.log('Updated user info');

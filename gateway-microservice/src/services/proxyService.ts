@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import FormData from 'form-data';
 import { logger } from '../logging/logger';
 import { serviceConfig } from '../config/env';
 
@@ -9,7 +10,8 @@ class ProxyService {
     method: string,
     data?: any,
     query?: any,
-    headers?: Record<string, any>
+    headers?: Record<string, any>,
+    file?: any
   ) {
     const baseUrl = serviceConfig[serviceName as keyof typeof serviceConfig];
 
@@ -18,14 +20,24 @@ class ProxyService {
       throw new Error(`Service '${serviceName}' is not configured.`);
     }
 
+    if (file) {
+      const formData = new FormData();
+      formData.append('image', file.buffer, file.originalname);
+      data = formData;
+      headers = {
+        ...headers,
+        ...formData.getHeaders(),
+      };
+    }
+
     try {
       const url = `${baseUrl}${path}`;
       const config: AxiosRequestConfig = {
         method: method as AxiosRequestConfig['method'],
         url,
         params: query,
-        data,
         headers,
+        data,
       };
 
       logger.info(`Forwarding ${method} request to ${url}`);

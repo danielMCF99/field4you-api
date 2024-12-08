@@ -1,0 +1,537 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sports Venues API",
+    "version": "1.0.0",
+    "description": "API for managing sports venues in the Field4You system."
+  },
+  "paths": {
+    "/api/sports-venues/create": {
+      "post": {
+        "summary": "Create a new Sports Venue",
+        "tags": ["Sports Venues"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "example": "Barcelos, Braga, Portugal"
+                  },
+                  "sportsVenueType": {
+                    "type": "string",
+                    "example": "11x11",
+                    "enum": ["5x5", "7x7", "9x9", "11x11"]
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active",
+                    "enum": ["active", "inactive"]
+                  },
+                  "sportsVenueName": {
+                    "type": "string",
+                    "example": "City sports Arena",
+                    "format": "string"
+                  },
+                  "bookingMinDuration": {
+                    "type": "number",
+                    "example": 60,
+                    "format": "int32"
+                  },
+                  "bookingMinPrice": {
+                    "type": "number",
+                    "format": "int32",
+                    "example": "25"
+                  },
+                  "sportsVenuePicture": {
+                    "type": "string",
+                    "format": "binary",
+                    "example": "https://example.com/image.jpg"
+                  },
+                  "hasParking": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "hasShower": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "hasBar": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                },
+                "required": [
+                  "location",
+                  "sportsVenueType",
+                  "status",
+                  "sportsVenueName",
+                  "bookingMinDuration",
+                  "bookingMinPrice",
+                  "sportsVenuePicture",
+                  "hasParking",
+                  "hasShower",
+                  "hasBar"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sports Venue created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue created successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Missing required fields"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error creating sports venue"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sports-venues/all": {
+      "get": {
+        "summary": "Get all sports-venues",
+        "tags": ["Sports Venues"],
+        "responses": {
+          "200": {
+            "description": "List of all sports-venues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bookings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/sports-venue"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fetching sports-venues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error fetching sports-venues:"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sports-venues/{id}": {
+      "get": {
+        "summary": "Get a sports-venue by ID",
+        "tags": ["Sports Venues"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "Sports Venue ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sport Venues details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sports-venue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sports Venue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a sports-venue by ID",
+        "tags": ["Sports Venues"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "Sports Venue ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sports Venue deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sports Venue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a sports-venue by ID",
+        "tags": ["Sports Venues"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "Sports Venue ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "example": "Barcelos, Braga, Portugal"
+                  },
+                  "sportsVenueType": {
+                    "type": "string",
+                    "example": "11x11",
+                    "enum": ["5x5", "7x7", "9x9", "11x11"]
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active",
+                    "enum": ["active", "inactive"]
+                  },
+                  "sportsVenueName": {
+                    "type": "string",
+                    "example": "City sports Arena",
+                    "format": "string"
+                  },
+                  "bookingMinDuration": {
+                    "type": "number",
+                    "example": 60,
+                    "format": "int32"
+                  },
+                  "bookingMinPrice": {
+                    "type": "number",
+                    "format": "int32",
+                    "example": "25"
+                  },
+                  "sportsVenuePicture": {
+                    "type": "string",
+                    "format": "binary",
+                    "example": "https://example.com/image.jpg"
+                  },
+                  "hasParking": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "hasShower": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "hasBar": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sports Venue updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/sports-venue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bearer token required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sports Venue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error updating sports-venue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error updating sports-venue"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "sports-venue": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
+          "ownerId": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
+          "location": {
+            "type": "string",
+            "example": "Barcelos, Braga, Portugal"
+          },
+          "sportsVenueType": {
+            "type": "string",
+            "example": "11x11",
+            "enum": ["5x5", "7x7", "9x9", "11x11"]
+          },
+          "status": {
+            "type": "string",
+            "example": "active",
+            "enum": ["active", "inactive"]
+          },
+          "sportsVenueName": {
+            "type": "string",
+            "example": "City Sports Arena"
+          },
+          "bookingMinDuration": {
+            "type": "number",
+            "format": "int32",
+            "example": 60
+          },
+          "bookingMinPrice": {
+            "type": "number",
+            "format": "int32",
+            "example": 25
+          },
+          "sportsVenuePicture": {
+            "type": "string",
+            "format": "binary",
+            "example": "https://example.com/image.jpg"
+          },
+          "hasParking": {
+            "type": "boolean",
+            "example": true
+          },
+          "hasShower": {
+            "type": "boolean",
+            "example": true
+          },
+          "hasBar": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      }
+    }
+  }
+}
