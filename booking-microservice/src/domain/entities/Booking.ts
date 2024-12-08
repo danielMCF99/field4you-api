@@ -1,11 +1,11 @@
 export enum BookingType {
-  "regular",
-  "event",
+  'regular',
+  'event',
 }
 
 export enum BookingStatus {
-  "active",
-  "inactive",
+  'active',
+  'inactive',
 }
 
 export class Booking {
@@ -44,10 +44,10 @@ export class Booking {
     this.invitedUsersIds = booking.invitedUsersIds || [];
   }
   getId(): string {
-    return this.id ? this.id : "N/A";
+    return this.id ? this.id : 'N/A';
   }
   getOwnerId(): string {
-    return this.ownerId ? this.ownerId : "N/A";
+    return this.ownerId ? this.ownerId : 'N/A';
   }
 
   static fromMongooseDocument(doc: any): Booking {
@@ -61,6 +61,7 @@ export class Booking {
       bookingStartDate: doc.bookingStartDate,
       bookingEndDate: doc.bookingEndDate,
       isPublic: doc.isPublic,
+      invitedUsersIds: doc.invitedUsersIds,
     });
   }
 }
