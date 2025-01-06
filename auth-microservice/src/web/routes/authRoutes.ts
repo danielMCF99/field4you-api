@@ -19,6 +19,4 @@ userRoutes.post('/auth/password-recovery', passwordRecoveryController);
 userRoutes.put('/auth/reset-password/*', passwordResetController);
 userRoutes.delete('/auth/:id', deleteUserController);
 
-
-
 export default userRoutes;

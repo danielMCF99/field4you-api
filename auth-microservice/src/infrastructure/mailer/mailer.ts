@@ -1,11 +1,22 @@
+import nodemailer, { SentMessageInfo, Transporter } from 'nodemailer';
 import { Mailer } from '../../domain/interfaces/Mailer';
 import config from '../../config/env';
-import { SentMessageInfo } from 'nodemailer';
 
 export class MailerImplementation implements Mailer {
   private static instance: MailerImplementation;
+  private mailTransporter: Transporter;
 
-  private constructor() {}
+  private constructor() {
+    this.mailTransporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: config.mailAccount,
+        pass: config.mailPassword,
+      },
+    });
+  }
 
   public static getInstance(): MailerImplementation {
     if (!MailerImplementation.instance) {
@@ -17,7 +28,7 @@ export class MailerImplementation implements Mailer {
 
   async sendMail(to: string, text: string): Promise<SentMessageInfo> {
     try {
-      return config.mailTransporter.sendMail({
+      return this.mailTransporter.sendMail({
         from: config.mailAccount,
         to: to,
         subject: 'Password recovery for Field4You App',

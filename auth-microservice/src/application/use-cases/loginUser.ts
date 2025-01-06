@@ -1,26 +1,34 @@
-import { User, UserType } from '../../domain/entities/User';
+import { Request } from 'express';
 import bcrypt from 'bcryptjs';
+import { User, UserType } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
+import { jwtHelper } from '../../app';
 
 export const loginUser = async (
-  email: string,
-  password: string,
+  req: Request,
   repository: IUserRepository
 ): Promise<{
-  success: boolean;
   status: number;
-  message: string;
-  userId?: string;
-  userType?: UserType;
+  message?: string;
+  token?: string;
 }> => {
   try {
+    // Validate request body integrity
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return {
+        status: 400,
+        message: 'Email and Password are required',
+      };
+    }
+
     // Find user by email
     const user: User | undefined = await repository.findByEmail(email);
 
     // If user not found return 404 status with customized message
     if (!user) {
       return {
-        success: false,
         status: 404,
         message: 'User not found',
       };
@@ -30,11 +38,17 @@ export const loginUser = async (
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return {
-        success: false,
         status: 401,
         message: 'Invalid password',
       };
     }
+
+    // Generate JWT Token
+    const token = await jwtHelper.generateToken(
+      user.getId(),
+      user.userType.toString(),
+      email
+    );
 
     // Update the last access date of the User
     const lastAccessDate = new Date();
@@ -42,16 +56,13 @@ export const loginUser = async (
     console.log('Updated user last access date');
 
     return {
-      success: true,
       status: 200,
-      message: 'Valid credentials for login',
-      userId: user.getId(),
-      userType: user.userType,
+      message: 'Login was successfull.',
+      token: token,
     };
   } catch (error) {
     console.log(error);
     return {
-      success: false,
       status: 500,
       message: 'Something went wrong',
     };

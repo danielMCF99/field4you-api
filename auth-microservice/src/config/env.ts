@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import nodemailer from 'nodemailer';
 
 dotenv.config();
 
@@ -21,16 +20,6 @@ if (!mailAccount || !mailPassword) {
   );
 }
 
-const mailTransporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: mailAccount,
-    pass: mailPassword,
-  },
-});
-
 // Configure properties related to user-microservice
 const userGatewayServiceUri = process.env.USER_GATEWAY_SERVICE_URL;
 if (!userGatewayServiceUri) {
@@ -44,6 +33,6 @@ export default {
   port: process.env.PORT || 3000,
   jwtSecret: process.env.JWT_SECRET || 'secret',
   mailAccount,
-  mailTransporter,
+  mailPassword,
   userGatewayServiceUri,
 };
