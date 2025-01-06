@@ -4,6 +4,7 @@ import routes from './routes/routes';
 import { logger } from './logging/logger';
 import { generateSwaggerDocument } from './services/swagger';
 import { serve, setup } from 'swagger-ui-express';
+import { authenticate } from './middlewares/auth.middleware';
 
 const app: Application = express();
 
@@ -11,10 +12,7 @@ const startServer = async () => {
   try {
     // Middleware
     app.use(express.json());
-    app.use((req, res, next) => {
-      logger.info(`Incoming request: ${req.method} ${req.url}`);
-      next();
-    });
+    app.use(authenticate);
 
     app.use(
       '/swagger',

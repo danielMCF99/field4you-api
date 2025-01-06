@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import bcrypt from 'bcryptjs';
-import { User, UserType } from '../../domain/entities/User';
+import { User } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { jwtHelper } from '../../app';
 

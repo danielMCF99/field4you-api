@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import crypto from 'crypto';
+import { jwtHelper } from '../../app';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { Mailer } from '../../domain/interfaces/Mailer';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
@@ -32,7 +32,11 @@ export const passwordRecovery = async (
     }
 
     // Generate token for the password recovery
-    const token = crypto.randomBytes(20).toString('hex');
+    const token = await jwtHelper.generateToken(
+      user.getId(),
+      user.email,
+      user.userType.toString()
+    );
 
     const newResetPasswordToken = token;
     const newResetPasswordExpires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour

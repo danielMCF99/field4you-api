@@ -1,7 +1,11 @@
+import { CustomJwtPayload } from './JwtHelper';
+
 export interface AuthMiddleware {
-  authenticate(
+  extractPayload(token: string): Promise<CustomJwtPayload>;
+  validateToken(token: string): Promise<boolean>;
+  validateUserPermission(
     authServiceUserId: string,
-    email: string,
+    userEmail: string,
     token: string
   ): Promise<boolean>;
 }

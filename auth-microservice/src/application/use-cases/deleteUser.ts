@@ -33,14 +33,14 @@ export const deleteUser = async (
       };
     }
 
-    // Authenticate user
-    const authenticated = await authMiddleware.authenticate(
-      id,
+    // Validate User Permission
+    const isValid = await authMiddleware.validateUserPermission(
+      user.getId(),
       user.email,
       token
     );
 
-    if (!authenticated) {
+    if (!isValid) {
       throw new UnauthorizedException('Authentication failed');
     }
 

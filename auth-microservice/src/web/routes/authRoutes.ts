@@ -5,6 +5,7 @@ import {
   passwordRecoveryController,
   passwordResetController,
   deleteUserController,
+  verifyTokenController,
 } from '../controllers/authController';
 import swaggerDocument from '../../docs/swagger/swagger.json';
 
@@ -18,5 +19,6 @@ userRoutes.post('/auth/login', loginUserController);
 userRoutes.post('/auth/password-recovery', passwordRecoveryController);
 userRoutes.put('/auth/reset-password/*', passwordResetController);
 userRoutes.delete('/auth/:id', deleteUserController);
+userRoutes.post('/auth/verify-token', verifyTokenController);
 
 export default userRoutes;

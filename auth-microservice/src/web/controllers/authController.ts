@@ -5,6 +5,7 @@ import { passwordReset } from '../../application/use-cases/passwordReset';
 import { passwordRecovery } from '../../application/use-cases/passwordRecovery';
 import { userRepository, mailer } from '../../app';
 import { deleteUser } from '../../application/use-cases/deleteUser';
+import { verifyToken } from '../../application/use-cases/verifyToken';
 
 export const registerUserController = async (req: Request, res: Response) => {
   try {
@@ -76,6 +77,20 @@ export const deleteUserController = async (req: Request, res: Response) => {
   try {
     const { status, message } = await deleteUser(req, userRepository);
     res.status(status).json({ message: message });
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({
+      message: error.message,
+    });
+    return;
+  }
+};
+
+export const verifyTokenController = async (req: Request, res: Response) => {
+  try {
+    console.log('Here');
+    const isValid = await verifyToken(req, userRepository);
+    res.status(200).json({ isValid: isValid });
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({
