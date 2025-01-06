@@ -30,6 +30,13 @@ export const registerUser = async (
     );
   }
 
+  // Check if given email already exists
+  const user = await repository.findByEmail(email);
+
+  if (!user) {
+    throw new BadRequestException('Given email is already being used.');
+  }
+
   // Encrypt password
   password = await bcrypt.hash(password, 10);
   const registerDate = new Date();
