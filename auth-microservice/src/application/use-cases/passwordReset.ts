@@ -1,20 +1,37 @@
+import { Request } from 'express';
+import bcrypt from 'bcryptjs';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const passwordReset = async (
-  email: string,
-  newPassword: string,
-  passwordResetToken: string,
+  req: Request,
   repository: IUserRepository
 ): Promise<{ status: number; message: string }> => {
+  let { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new BadRequestException(
+      'Missing fields for user password reset. Please try again.'
+    );
+  }
+
+  // Extract passwordResetToken from URL
+  const passwordResetToken = req.url.split('/').pop();
+  if (!passwordResetToken) {
+    throw new InternalServerErrorException(
+      'Unable to retrieve password reset token.'
+    );
+  }
+
   try {
     // Find user by email
     const user = await repository.findByEmail(email);
 
     if (!user) {
-      return {
-        status: 404,
-        message: 'User with given email not found',
-      };
+      throw new NotFoundException('User with given email not found.');
     }
 
     // If user not found return 404 status with customized message
@@ -25,35 +42,32 @@ export const passwordReset = async (
       !userResetPasswordToken ||
       userResetPasswordToken != passwordResetToken
     ) {
-      return {
-        status: 401,
-        message: 'Invalid information sent for given user to reset password',
-      };
+      throw new UnauthorizedException(
+        'Invalid information sent for given user to reset password'
+      );
     }
 
     if (
       !user.resetPasswordExpires ||
       Date.now() > user.resetPasswordExpires.getTime()
     ) {
-      return {
-        status: 401,
-        message: 'Token validation for password recovery has expired',
-      };
+      throw new UnauthorizedException(
+        'Token validation for password recovery has expired'
+      );
     }
 
     // Update user with new password
-    await repository.update(user.getId(), { password: newPassword });
+    await repository.update(user.getId(), {
+      password: await bcrypt.hash(password, 10),
+    });
     console.log('Updated user password');
 
     return {
       status: 200,
       message: 'Password reset successfull',
     };
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
-    return {
-      status: 500,
-      message: 'Something went wrong with password reset',
-    };
+    throw new InternalServerErrorException(error.message);
   }
 };

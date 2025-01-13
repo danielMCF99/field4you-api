@@ -1,5 +1,7 @@
 import { jwtHelper } from '../../app';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { AuthMiddleware } from '../../domain/interfaces/AuthMiddleware';
+import { CustomJwtPayload } from '../../domain/interfaces/JwtHelper';
 
 export class AuthMiddlewareImplementation implements AuthMiddleware {
   private static instance: AuthMiddlewareImplementation;
@@ -15,20 +17,36 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
     return AuthMiddlewareImplementation.instance;
   }
 
-  async authenticate(
-    authServiceUserId: string,
-    userEmail: string,
-    token: string
-  ): Promise<boolean> {
+  async extractPayload(token: string): Promise<CustomJwtPayload> {
+    const decodedPayload = await jwtHelper.decodeBearerToken(token);
+
+    if (decodedPayload) {
+      return decodedPayload;
+    } else {
+      throw new InternalServerErrorException('Error extracting payload');
+    }
+  }
+
+  async validateToken(token: string): Promise<boolean> {
     const decodedPayload = await jwtHelper.decodeBearerToken(token);
     if (!decodedPayload) {
       return false;
     }
 
-    const { userId, userType, email, exp } = decodedPayload;
+    const { exp } = decodedPayload;
     if (exp * 1000 < Date.now()) {
       return false;
     }
+
+    return true;
+  }
+
+  async validateUserPermission(
+    authServiceUserId: string,
+    userEmail: string,
+    token: string
+  ): Promise<boolean> {
+    const { userId, userType, email } = await this.extractPayload(token);
 
     if (!(userType === 'admin')) {
       if (!(email === userEmail)) {
