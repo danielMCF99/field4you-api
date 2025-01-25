@@ -1,13 +1,33 @@
-import { IBookingRepository } from "../../domain/interfaces/BookingRepository";
+import { Request } from "express";
 import { Booking } from "../../domain/entities/Booking";
+import { authMiddleware, bookingRepository, jwtHelper } from "../../app";
+import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
+import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
 
-export const getAllBookings = async (
-  repository: IBookingRepository
-): Promise<Booking[]> => {
+export const getAllBookings = async (req: Request): Promise<Booking[]> => {
   try {
-    const allBookings = await repository.findAll();
+    const token = await jwtHelper.extractBearerToken(req);
+    if (!token) {
+      throw new UnauthorizedException("Bearer token required");
+    }
+    const decodedPayload = await jwtHelper.decodeBearerToken(token);
+    if (!decodedPayload) {
+      throw new UnauthorizedException("Bearer token required");
+    }
+
+    const { exp } = decodedPayload;
+    const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+    if (tokenExpired) {
+      throw new UnauthorizedException("Bearer token validation expired");
+    }
+    const allBookings = await bookingRepository.findAll();
     return allBookings;
   } catch (error) {
-    return [];
+    if (error instanceof UnauthorizedException) {
+      throw new Error("Error getting all bookings");
+    } else {
+      throw new InternalServerErrorException("Error getting all bookings");
+    }
   }
 };

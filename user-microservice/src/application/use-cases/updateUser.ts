@@ -1,51 +1,83 @@
-import { authMiddleware } from '../../app';
+import { Request } from 'express';
+import { authMiddleware, jwtHelper, userRepository } from '../../app';
 import { User } from '../../domain/entities/User';
-import { IUserRepository } from '../../domain/interfaces/UserRepository';
+import mongoose from 'mongoose';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 
-export const updateUser = async (
-  id: string,
-  token: string,
-  updatedData: Partial<User>,
-  repository: IUserRepository
-): Promise<{ status: number; message: string; user?: User }> => {
+export const updateUser = async (req: Request): Promise<User> => {
+  const id = req.params.id.toString();
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new BadRequestException('Invalid ID format');
+  }
+
+  const token = await jwtHelper.extractBearerToken(req);
+  if (!token) {
+    throw new UnauthorizedException('Authentication token is required');
+  }
+
+  const isValidToken = await authMiddleware.validateToken(token);
+  if (!isValidToken) {
+    throw new UnauthorizedException('Authentication token has expired');
+  }
+
+  // Validate that fields sent in the request body are allowed to be updated
+  const allowedFields = [
+    'phoneNumber',
+    'district',
+    'city',
+    'address',
+    'latitude',
+    'longitude',
+  ];
+
+  const filteredBody: Record<string, any> = {};
+  Object.keys(req.body).forEach((key) => {
+    if (allowedFields.includes(key)) {
+      filteredBody[key] = req.body[key];
+    }
+  });
+
   try {
-    const user = await repository.getById(id);
+    const user = await userRepository.getById(id);
 
     if (!user) {
-      return {
-        status: 404,
-        message: 'User with given ID not found',
-      };
+      throw new NotFoundException('User not found');
     }
 
-    const authenticated = await authMiddleware.authenticate(
-      user.getAuthServiceUserId(),
+    const authServiceUserId = await user.getAuthServiceUserId();
+    const hasValidPermissions = await authMiddleware.validateUserPermission(
+      authServiceUserId,
       user.email,
       token
     );
-
-    if (!authenticated) {
-      return {
-        status: 401,
-        message: 'Authentication failed',
-      };
+    if (!hasValidPermissions) {
+      throw new ForbiddenException(
+        'User does not have permission to perform this action'
+      );
     }
 
-    const updatedUser = await repository.update(user.getId(), {
-      ...updatedData,
+    const updatedUser = await userRepository.update(user.getId(), {
+      ...filteredBody,
     });
-    console.log('Updated user info');
+    if (!updatedUser) {
+      throw new InternalServerErrorException(
+        'Internal server error when updating the user'
+      );
+    }
 
-    return {
-      status: 200,
-      message: 'User updated successfull',
-      user: updatedUser,
-    };
-  } catch (error) {
-    console.log(error);
-    return {
-      status: 500,
-      message: 'Something went wrong with user update',
-    };
+    console.log('Updated user info');
+    return updatedUser;
+  } catch (error: any) {
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException(error.message);
+    } else if (error instanceof ForbiddenException) {
+      throw new ForbiddenException(error.message);
+    } else {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 };

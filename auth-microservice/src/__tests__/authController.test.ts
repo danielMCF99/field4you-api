@@ -59,7 +59,7 @@ describe('POST /auth/login', () => {
 
     // Assertions
     expect(response.status).toBe(401);
-    expect(response.body).toHaveProperty('message', 'Invalid password');
+    expect(response.body).toHaveProperty('message', 'Invalid credentials');
   });
 });
 

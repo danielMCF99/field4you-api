@@ -1,16 +1,13 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { jwtHelper } from '../../app';
-import { IUserRepository } from '../../domain/interfaces/UserRepository';
+import { jwtHelper, userRepository } from '../../app';
 import { authMiddleware } from '../../app';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
-export const deleteUser = async (
-  req: Request,
-  repository: IUserRepository
-): Promise<{ status: number; message: string }> => {
+export const deleteUser = async (req: Request): Promise<Boolean> => {
   const id = req.params.id.toString();
   const token = await jwtHelper.extractBearerToken(req);
 
@@ -24,13 +21,10 @@ export const deleteUser = async (
 
   try {
     // Get User from Database
-    const user = await repository.getById(id);
+    const user = await userRepository.getById(id);
 
     if (!user) {
-      return {
-        status: 404,
-        message: 'User with given ID not found',
-      };
+      throw new NotFoundException('User not found');
     }
 
     // Validate User Permission
@@ -45,14 +39,16 @@ export const deleteUser = async (
     }
 
     // Delete User from Database
-    await repository.delete(id);
+    await userRepository.delete(id);
 
-    return {
-      status: 200,
-      message: 'User deleted',
-    };
+    return true;
   } catch (error: any) {
-    console.log(error);
-    throw new InternalServerErrorException(error.message);
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException(error.message);
+    } else if (error instanceof UnauthorizedException) {
+      throw new UnauthorizedException(error.message);
+    } else {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 };

@@ -10,11 +10,11 @@ if (!mongoUri) {
   );
 }
 const sportsVenueGatewayServiceUri = process.env.SPORTS_VENUE_SERVICE_URL;
-if (!sportsVenueGatewayServiceUri) {
+/*if (!sportsVenueGatewayServiceUri) {
   throw new Error(
-    "The environment variables USER_GATEWAY_SERVICE_URL is required but is not defined."
+    "The environment variables Sports_Venue_GATEWAY_SERVICE_URL is required but is not defined."
   );
-}
+}*/
 export default {
   mongoUri,
   port: process.env.PORT || 3000,

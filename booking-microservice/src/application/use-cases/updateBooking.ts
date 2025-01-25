@@ -1,35 +1,55 @@
-import { IBookingRepository } from "../../domain/interfaces/BookingRepository";
+import { Request } from "express";
 import { Booking } from "../../domain/entities/Booking";
-import { authMiddleware } from "../../app";
+import { authMiddleware, bookingRepository, jwtHelper } from "../../app";
 import { checkBookingConflicts } from "./checkBookingConflicts";
+import mongoose from "mongoose";
+import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
+import { BadRequestException } from "../../domain/exceptions/BadRequestException";
+import { ConflictException } from "../../domain/exceptions/ConflictException";
+import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
 
-export const updateBooking = async (
-  id: string,
-  token: string,
-  updatedData: Partial<Booking>,
-  repository: IBookingRepository
-): Promise<{ status: number; message: string; booking?: Booking }> => {
+export const updateBooking = async (req: Request): Promise<Booking> => {
   try {
-    const booking = await repository.findById(id);
+    const id = req.params.id.toString();
+    const token = await jwtHelper.extractBearerToken(req);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException("Invalid ID format");
+    }
+
+    if (!token) {
+      throw new UnauthorizedException("Bearer token required");
+    }
+    const booking = await bookingRepository.findById(id);
     if (!booking) {
-      return { status: 404, message: "Booking not found" };
+      throw new BadRequestException("Booking not found");
     }
     if (!booking.ownerId) {
-      return {
-        status: 404,
-        message: "Owner not found",
-      };
+      throw new BadRequestException("Owner ID not found");
     }
     const authenticated = await authMiddleware.authenticate(
       booking.ownerId,
       token
     );
     if (!authenticated) {
-      return {
-        status: 401,
-        message: "Authentication failed",
-      };
+      throw new UnauthorizedException("Authentication failed");
     }
+
+    const allowedFields = [
+      "bookingType",
+      "status",
+      "title",
+      "bookingStartDate",
+      "bookingEndDate",
+      "isPublic",
+      "invitedUsersIds",
+    ];
+    const updatedData: Record<string, any> = {};
+    Object.keys(req.body).forEach((key) => {
+      if (allowedFields.includes(key)) {
+        updatedData[key] = req.body[key];
+      }
+    });
     const isSportsVenueIdChanged =
       updatedData.sportsVenueId &&
       updatedData.sportsVenueId !== booking.sportsVenueId;
@@ -44,7 +64,7 @@ export const updateBooking = async (
 
     if (isSportsVenueIdChanged || isStartDateChanged || isEndDateChanged) {
       const hasConflicts = await checkBookingConflicts(
-        repository,
+        bookingRepository,
         updatedData.sportsVenueId || booking.sportsVenueId,
         new Date(updatedData.bookingStartDate || booking.bookingStartDate),
         new Date(updatedData.bookingEndDate || booking.bookingEndDate),
@@ -52,26 +72,26 @@ export const updateBooking = async (
       );
 
       if (hasConflicts) {
-        return {
-          status: 400,
-          message: "Conflicting booking exists",
-        };
+        throw new ConflictException("Booking conflicts found");
       }
     }
-    const updatedBooking = await repository.update(booking.getId(), {
+    const updatedBooking = await bookingRepository.update(booking.getId(), {
       ...updatedData,
     });
     console.log("Updated booking info");
-
-    return {
-      status: 200,
-      message: "Booking update successfull",
-      booking: updatedBooking,
-    };
+    if (!updatedBooking) {
+      throw new BadRequestException("Error updating booking");
+    }
+    return updatedBooking;
   } catch (error) {
-    return {
-      status: 500,
-      message: "Something went wrong with booking update",
-    };
+    if (error instanceof UnauthorizedException) {
+      throw new UnauthorizedException(error.message);
+    } else if (error instanceof BadRequestException) {
+      throw new BadRequestException(error.message);
+    } else if (error instanceof ConflictException) {
+      throw new ConflictException(error.message);
+    } else {
+      throw new InternalServerErrorException("Internal Server Error");
+    }
   }
 };

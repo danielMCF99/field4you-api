@@ -75,9 +75,9 @@ describe('PUT /users/:id', () => {
 
     // Assertions
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('email');
     expect(response.body).not.toBeNull();
-    expect(response.body.district).toBe('Porto');
+    expect(response.body).toHaveProperty('user');
+    expect(response.body.user.district).toBe('Porto');
   });
 
   it('should not update for field not allowed to be updated', async () => {
@@ -123,8 +123,11 @@ describe('PUT /users/:id', () => {
       .set('Authorization', `Bearer ${authToken}`);
 
     // Assertions
-    expect(response.status).toBe(401);
-    expect(response.body).toHaveProperty('message', 'Authentication failed');
+    expect(response.status).toBe(403);
+    expect(response.body).toHaveProperty(
+      'message',
+      'User does not have permission to perform this action'
+    );
   });
 });
 
@@ -193,6 +196,9 @@ describe('DELETE /users/:id', () => {
 
     // Assertions
     expect(response.status).toBe(401);
-    expect(response.body).toHaveProperty('message', 'Authentication failed');
+    expect(response.body).toHaveProperty(
+      'message',
+      'Authentication token has expired'
+    );
   });
 });
