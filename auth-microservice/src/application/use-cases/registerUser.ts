@@ -4,6 +4,7 @@ import axios from 'axios';
 import { jwtHelper, mailer, userRepository } from '../../app';
 import config from '../../config/env';
 import { User } from '../../domain/entities/User';
+import { publishUserCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
@@ -56,7 +57,7 @@ export const registerUser = async (req: Request): Promise<String> => {
     await mailer.sendMail(newUser.email, 'Welcome! Thank you for registering!');
 
     // Send request to create equivalent user in user-microservice
-    await axios.post(config.userGatewayServiceUri + '/create', {
+    /*await axios.post(config.userGatewayServiceUri + '/create', {
       authServiceUserId: newUser.getId(),
       userType: userType,
       email: email,
@@ -64,6 +65,17 @@ export const registerUser = async (req: Request): Promise<String> => {
       lastName: lastName,
       birthDate: birthDate,
       registerDate: registerDate,
+    });*/
+
+    // Publish event to RabbitMQ
+    await publishUserCreation({
+      authServiceUserId: newUser.getId(),
+      email: newUser.email,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      userType: newUser.userType.toString(),
+      birthDate: birthDate,
+      registerDate: registerDate.toString(),
     });
 
     // Generate JWT Token

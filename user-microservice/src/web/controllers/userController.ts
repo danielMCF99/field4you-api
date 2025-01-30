@@ -5,7 +5,7 @@ import { getById } from '../../application/use-cases/getById';
 import { updateUser } from '../../application/use-cases/updateUser';
 import { deleteUser } from '../../application/use-cases/deleteUser';
 
-export const createUserController = async (req: Request, res: Response) => {
+/*export const createUserController = async (req: Request, res: Response) => {
   try {
     const user = await createUser(req);
     res.status(200).json({
@@ -16,7 +16,7 @@ export const createUserController = async (req: Request, res: Response) => {
     res.status(error.statusCode).json({ message: error.message });
     return;
   }
-};
+};*/
 
 export const getAllController = async (req: Request, res: Response) => {
   try {

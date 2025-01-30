@@ -28,6 +28,14 @@ if (!userGatewayServiceUri) {
   );
 }
 
+// Configure RabbitMQ
+const rabbitmqURL = process.env.RABBITMQ_URL;
+if (!rabbitmqURL) {
+  throw new Error(
+    'The environment variables RABBITMQ_URL is required but is not defined.'
+  );
+}
+
 export default {
   mongoUri,
   port: process.env.PORT || 3000,
@@ -35,4 +43,5 @@ export default {
   mailAccount,
   mailPassword,
   userGatewayServiceUri,
+  rabbitmqURL,
 };

@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import {
-  createUserController,
+  //createUserController,
   deleteUserController,
   getAllController,
   getByIdController,
@@ -14,7 +14,7 @@ userRoutes.get('/users/swagger', async (req: Request, res: Response) => {
   res.status(200).send(swaggerDocument);
 });
 
-userRoutes.post('/users/create', createUserController);
+//userRoutes.post('/users/create', createUserController);
 userRoutes.get('/users/all', getAllController);
 userRoutes.get('/users/:id', getByIdController);
 userRoutes.put('/users/:id', updateUserController);
