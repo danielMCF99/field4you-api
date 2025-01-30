@@ -52,12 +52,12 @@ router.all(
       logger.error(
         `Error in route for service '${serviceName}': ${error.message}`
       );
-
       // Handle fallback or non-circuit-related errors
       if (error.fallback) {
         res.status(503).json({ message: "Service temporarily unavailable" });
       } else {
-        res.status(500).json({ message: error.message });
+        const statusCode = error.response?.status || 503;
+        res.status(statusCode).json({ message: error.message });
       }
     }
   }
