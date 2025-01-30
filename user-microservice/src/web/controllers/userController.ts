@@ -1,22 +1,8 @@
 import { Request, Response } from 'express';
-import { createUser } from '../../application/use-cases/createUser';
 import { getAll } from '../../application/use-cases/getAll';
 import { getById } from '../../application/use-cases/getById';
 import { updateUser } from '../../application/use-cases/updateUser';
 import { deleteUser } from '../../application/use-cases/deleteUser';
-
-/*export const createUserController = async (req: Request, res: Response) => {
-  try {
-    const user = await createUser(req);
-    res.status(200).json({
-      user: user,
-    });
-    return;
-  } catch (error: any) {
-    res.status(error.statusCode).json({ message: error.message });
-    return;
-  }
-};*/
 
 export const getAllController = async (req: Request, res: Response) => {
   try {

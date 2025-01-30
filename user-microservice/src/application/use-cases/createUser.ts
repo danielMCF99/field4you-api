@@ -4,7 +4,7 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { userRepository } from '../../app';
 
-export const createUser = async (req: Request): Promise<User | undefined> => {
+export const createUser = async (user: any): Promise<User | undefined> => {
   const {
     authServiceUserId,
     userType,
@@ -13,7 +13,7 @@ export const createUser = async (req: Request): Promise<User | undefined> => {
     lastName,
     birthDate,
     registerDate,
-  } = req.body;
+  } = user;
 
   if (
     !authServiceUserId ||

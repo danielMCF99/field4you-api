@@ -1,8 +1,8 @@
-import CircuitBreaker from "opossum";
-import axios, { AxiosRequestConfig } from "axios";
-import FormData from "form-data";
-import { logger } from "../logging/logger";
-import { serviceConfig } from "../config/env";
+import CircuitBreaker from 'opossum';
+import axios, { AxiosRequestConfig } from 'axios';
+import FormData from 'form-data';
+import { logger } from '../logging/logger';
+import { serviceConfig } from '../config/env';
 
 interface ProxyResponse {
   status: number;
@@ -31,16 +31,16 @@ class ProxyService {
         this.circuitOptions
       );
 
-      this.breakers[serviceName].on("open", () =>
+      this.breakers[serviceName].on('open', () =>
         logger.warn(`Circuit for ${serviceName} is open`)
       );
-      this.breakers[serviceName].on("close", () =>
+      this.breakers[serviceName].on('close', () =>
         logger.info(`Circuit for ${serviceName} is closed`)
       );
-      this.breakers[serviceName].on("halfOpen", () =>
+      this.breakers[serviceName].on('halfOpen', () =>
         logger.info(`Circuit for ${serviceName} is half-open`)
       );
-      this.breakers[serviceName].on("fallback", () =>
+      this.breakers[serviceName].on('fallback', () =>
         logger.info(`Fallback triggered for ${serviceName}`)
       );
 
@@ -71,7 +71,7 @@ class ProxyService {
 
     if (file) {
       const formData = new FormData();
-      formData.append("image", file.buffer, file.originalname);
+      formData.append('image', file.buffer, file.originalname);
       data = formData;
       headers = {
         ...headers,
@@ -82,7 +82,7 @@ class ProxyService {
     try {
       const url = `${baseUrl}${path}`;
       const config: AxiosRequestConfig = {
-        method: method as AxiosRequestConfig["method"],
+        method: method as AxiosRequestConfig['method'],
         url,
         params: query,
         headers,
@@ -108,7 +108,7 @@ class ProxyService {
           data: error.response.data,
         };
       }
-      throw new Error("Failed to communicate with the service.");
+      throw new Error('Failed to communicate with the service.');
     }
   }
 }
