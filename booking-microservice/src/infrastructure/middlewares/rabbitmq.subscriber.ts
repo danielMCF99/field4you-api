@@ -2,7 +2,7 @@ import amqp, { Connection } from 'amqplib';
 import config from '../../config/env';
 import { createUser } from '../../application/use-cases/createUser';
 
-const QUEUE = 'user_service_user_registration_queue';
+const QUEUE = 'booking_service_user_registration_queue';
 
 async function connectWithRetry(
   retries: number = 5,

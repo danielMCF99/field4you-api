@@ -10,14 +10,6 @@ if (!mongoUri) {
   );
 }
 
-// Configure properties related to auth-microservice
-const authGatewayServiceUri = process.env.AUTH_GATEWAY_SERVICE_URL;
-if (!authGatewayServiceUri) {
-  throw new Error(
-    'The environment variables AUTH_GATEWAY_SERVICE_URL is required but is not defined.'
-  );
-}
-
 // Configure RabbitMQ
 const rabbitmqURL = process.env.RABBITMQ_URL;
 if (!rabbitmqURL) {
@@ -30,6 +22,5 @@ export default {
   mongoUri,
   port: process.env.PORT || 3002,
   jwtSecret: process.env.JWT_SECRET || 'secret',
-  authGatewayServiceUri,
   rabbitmqURL,
 };

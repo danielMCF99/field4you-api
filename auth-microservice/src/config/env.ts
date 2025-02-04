@@ -20,14 +20,6 @@ if (!mailAccount || !mailPassword) {
   );
 }
 
-// Configure properties related to user-microservice
-const userGatewayServiceUri = process.env.USER_GATEWAY_SERVICE_URL;
-if (!userGatewayServiceUri) {
-  throw new Error(
-    'The environment variables USER_GATEWAY_SERVICE_URL is required but is not defined.'
-  );
-}
-
 // Configure RabbitMQ
 const rabbitmqURL = process.env.RABBITMQ_URL;
 if (!rabbitmqURL) {
@@ -42,6 +34,5 @@ export default {
   jwtSecret: process.env.JWT_SECRET || 'secret',
   mailAccount,
   mailPassword,
-  userGatewayServiceUri,
   rabbitmqURL,
 };
