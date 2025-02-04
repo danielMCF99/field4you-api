@@ -52,13 +52,21 @@ router.all(
       logger.error(
         `Error in route for service '${serviceName}': ${error.message}`
       );
-      // Handle fallback or non-circuit-related errors
-      if (error.fallback) {
-        res.status(503).json({ message: "Service temporarily unavailable" });
+      var errorMessage = "An unexpected error occurred";
+      var statusCode = 400;
+      if (error.response) {
+        if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+        statusCode = error.response.status || 400;
+      } else if (error.request) {
+        errorMessage = "No response from the server";
+        statusCode = 503;
       } else {
-        const statusCode = error.response?.status || 503;
-        res.status(statusCode).json({ message: error.message });
+        errorMessage = error.message;
       }
+      console.error("Error:", errorMessage);
+      res.status(statusCode).json({ message: errorMessage });
     }
   }
 );
