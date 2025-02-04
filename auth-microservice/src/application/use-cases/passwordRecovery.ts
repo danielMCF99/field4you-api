@@ -1,19 +1,10 @@
 import { Request } from 'express';
-import { jwtHelper } from '../../app';
-import { IUserRepository } from '../../domain/interfaces/UserRepository';
-import { Mailer } from '../../domain/interfaces/Mailer';
+import { jwtHelper, mailer, userRepository } from '../../app';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
-export const passwordRecovery = async (
-  req: Request,
-  repository: IUserRepository,
-  mailer: Mailer
-): Promise<{
-  status: number;
-  message: string;
-}> => {
+export const passwordRecovery = async (req: Request): Promise<string> => {
   const { email } = req.body;
 
   if (!email) {
@@ -24,7 +15,7 @@ export const passwordRecovery = async (
 
   try {
     // Find user by email
-    const user = await repository.findByEmail(email);
+    const user = await userRepository.findByEmail(email);
 
     // If user not found return 404 status with customized message
     if (!user) {
@@ -42,7 +33,7 @@ export const passwordRecovery = async (
     const newResetPasswordExpires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
 
     // Updated given user fields related to password recovery
-    await repository.update(user.getId(), {
+    await userRepository.update(user.getId(), {
       password: 'shouldBeRandomString',
       resetPasswordToken: newResetPasswordToken,
       resetPasswordExpires: newResetPasswordExpires,
@@ -55,12 +46,8 @@ export const passwordRecovery = async (
       `You requested a password reset. Click the link to reset your password: ${resetURL}`
     );
 
-    return {
-      status: 200,
-      message: 'Successfully sent email for password recovery to user',
-    };
+    return 'Successfully sent email for password recovery to user';
   } catch (error: any) {
-    console.log(error);
     throw new InternalServerErrorException(error.message);
   }
 };

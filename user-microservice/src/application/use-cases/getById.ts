@@ -1,21 +1,41 @@
+import { Request } from 'express';
+import mongoose from 'mongoose';
 import { User } from '../../domain/entities/User';
-import { IUserRepository } from '../../domain/interfaces/UserRepository';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { authMiddleware, jwtHelper, userRepository } from '../../app';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
-export const getById = async (
-  id: string,
-  repository: IUserRepository
-): Promise<{ found: boolean; user?: User }> => {
+export const getById = async (req: Request): Promise<User> => {
+  const id = req.params.id.toString();
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new BadRequestException('Invalid ID format');
+  }
+
+  const token = await jwtHelper.extractBearerToken(req);
+  if (!token) {
+    throw new UnauthorizedException('Authentication token is required');
+  }
+
+  const tokenExpired = await authMiddleware.validateToken(token);
+
+  if (!tokenExpired) {
+    throw new UnauthorizedException('Bearer token validation expired');
+  }
+
   try {
-    const user = await repository.getById(id);
+    const user = await userRepository.getById(id);
 
-    let foundUser = true;
     if (!user) {
-      foundUser = false;
+      throw new NotFoundException('User not found');
     }
-
-    return { found: foundUser, user: user };
-  } catch (error) {
-    console.log(error);
-    return { found: false, user: undefined };
+    return user;
+  } catch (error: any) {
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException(error.message);
+    } else {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 };

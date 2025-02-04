@@ -4,25 +4,9 @@ import { InternalServerErrorException } from '../../domain/exceptions/InternalSe
 import { userRepository } from '../../app';
 
 export const createUser = async (user: any): Promise<User | undefined> => {
-  const {
-    authServiceUserId,
-    userType,
-    email,
-    firstName,
-    lastName,
-    birthDate,
-    registerDate,
-  } = user;
+  const { authServiceUserId, userType, email, firstName, lastName } = user;
 
-  if (
-    !authServiceUserId ||
-    !userType ||
-    !email ||
-    !firstName ||
-    !lastName ||
-    !birthDate ||
-    !registerDate
-  ) {
+  if (!authServiceUserId || !userType || !email || !firstName || !lastName) {
     throw new BadRequestException(
       'Missing fields for user registration. Please try again.'
     );
@@ -36,8 +20,6 @@ export const createUser = async (user: any): Promise<User | undefined> => {
         email,
         firstName,
         lastName,
-        birthDate,
-        registerDate,
       })
     );
     return newUser;

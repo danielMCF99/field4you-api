@@ -3,14 +3,12 @@ import { registerUser } from '../../application/use-cases/registerUser';
 import { loginUser } from '../../application/use-cases/loginUser';
 import { passwordReset } from '../../application/use-cases/passwordReset';
 import { passwordRecovery } from '../../application/use-cases/passwordRecovery';
-import { userRepository, mailer } from '../../app';
 import { deleteUser } from '../../application/use-cases/deleteUser';
 import { verifyToken } from '../../application/use-cases/verifyToken';
 
 export const registerUserController = async (req: Request, res: Response) => {
   try {
-    const token = await registerUser(req, userRepository, mailer);
-
+    const token = await registerUser(req);
     res.status(200).json({
       message: 'Successfully registered the user.',
       token: token,
@@ -24,17 +22,14 @@ export const registerUserController = async (req: Request, res: Response) => {
 
 export const loginUserController = async (req: Request, res: Response) => {
   try {
-    const { status, message, token } = await loginUser(req, userRepository);
-
-    res.status(status).json({
-      message: message,
+    const token = await loginUser(req);
+    res.status(200).json({
+      message: 'Login was successfull.',
       token: token,
     });
     return;
   } catch (error: any) {
-    res.status(error.statusCode).json({
-      message: error.message,
-    });
+    res.status(error.statusCode).json({ message: error.message });
     return;
   }
 };
@@ -44,13 +39,9 @@ export const passwordRecoveryController = async (
   res: Response
 ) => {
   try {
-    const { status, message } = await passwordRecovery(
-      req,
-      userRepository,
-      mailer
-    );
+    const message = await passwordRecovery(req);
 
-    res.status(status).json({ message: message });
+    res.status(200).json({ message: message });
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({
@@ -62,8 +53,8 @@ export const passwordRecoveryController = async (
 
 export const passwordResetController = async (req: Request, res: Response) => {
   try {
-    const { status, message } = await passwordReset(req, userRepository);
-    res.status(status).json({ message: message });
+    const message = await passwordReset(req);
+    res.status(200).json({ message: message });
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({
@@ -75,8 +66,8 @@ export const passwordResetController = async (req: Request, res: Response) => {
 
 export const deleteUserController = async (req: Request, res: Response) => {
   try {
-    const { status, message } = await deleteUser(req, userRepository);
-    res.status(status).json({ message: message });
+    const isDeleted = await deleteUser(req);
+    res.status(200).json({ isDeleted: isDeleted });
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({
@@ -88,8 +79,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
 
 export const verifyTokenController = async (req: Request, res: Response) => {
   try {
-    console.log('Here');
-    const isValid = await verifyToken(req, userRepository);
+    const isValid = await verifyToken(req);
     res.status(200).json({ isValid: isValid });
     return;
   } catch (error: any) {

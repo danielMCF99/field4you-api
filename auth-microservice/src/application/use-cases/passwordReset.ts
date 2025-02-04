@@ -1,15 +1,12 @@
 import { Request } from 'express';
 import bcrypt from 'bcryptjs';
-import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { userRepository } from '../../app';
 
-export const passwordReset = async (
-  req: Request,
-  repository: IUserRepository
-): Promise<{ status: number; message: string }> => {
+export const passwordReset = async (req: Request): Promise<string> => {
   let { email, password } = req.body;
 
   if (!email || !password) {
@@ -28,7 +25,7 @@ export const passwordReset = async (
 
   try {
     // Find user by email
-    const user = await repository.findByEmail(email);
+    const user = await userRepository.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User with given email not found.');
@@ -57,17 +54,19 @@ export const passwordReset = async (
     }
 
     // Update user with new password
-    await repository.update(user.getId(), {
+    await userRepository.update(user.getId(), {
       password: await bcrypt.hash(password, 10),
     });
     console.log('Updated user password');
 
-    return {
-      status: 200,
-      message: 'Password reset successfull',
-    };
+    return 'Password reset successfull';
   } catch (error: any) {
-    console.log(error);
-    throw new InternalServerErrorException(error.message);
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException(error.message);
+    } else if (error instanceof UnauthorizedException) {
+      throw new UnauthorizedException(error.message);
+    } else {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 };

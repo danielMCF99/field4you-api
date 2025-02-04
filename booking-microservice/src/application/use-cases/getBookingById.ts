@@ -1,20 +1,46 @@
-import { IBookingRepository } from "../../domain/interfaces/BookingRepository";
+import { Request } from "express";
 import { Booking } from "../../domain/entities/Booking";
+import { authMiddleware, bookingRepository, jwtHelper } from "../../app";
+import mongoose from "mongoose";
+import { BadRequestException } from "../../domain/exceptions/BadRequestException";
+import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
+import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
 
-export const getBookingById = async (
-  id: string,
-  repository: IBookingRepository
-): Promise<{ found: boolean; booking?: Booking }> => {
+export const getBookingById = async (req: Request): Promise<Booking> => {
   try {
-    const booking = await repository.findById(id);
-
-    let foundBooking = true;
-    if (!booking) {
-      foundBooking = false;
+    const id = req.params.id.toString();
+    const token = await jwtHelper.extractBearerToken(req);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException("Invalid ID format");
     }
-    return { found: foundBooking, booking: booking };
+    if (!token) {
+      throw new UnauthorizedException("Bearer token required");
+    }
+
+    const decodedPayload = await jwtHelper.decodeBearerToken(token);
+    if (!decodedPayload) {
+      throw new UnauthorizedException("Bearer token required");
+    }
+
+    const { exp } = decodedPayload;
+    const tokenExpired = await authMiddleware.validateTokenExpirationDate(exp);
+
+    if (tokenExpired) {
+      throw new UnauthorizedException("Bearer token validation expired");
+    }
+    const booking = await bookingRepository.findById(id);
+
+    if (!booking) {
+      throw new BadRequestException("Booking not found");
+    }
+    return booking;
   } catch (error) {
-    console.log(error);
-    return { found: false, booking: undefined };
+    if (error instanceof BadRequestException) {
+      throw new BadRequestException("Booking not found");
+    } else if (error instanceof UnauthorizedException) {
+      throw new UnauthorizedException("Invalid token");
+    } else {
+      throw new InternalServerErrorException("Error fetching booking");
+    }
   }
 };

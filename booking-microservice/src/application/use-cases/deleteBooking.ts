@@ -1,19 +1,24 @@
-import { IBookingRepository } from "../../domain/interfaces/BookingRepository";
-import { authMiddleware } from "../../app";
+import { Request } from "express";
+import { authMiddleware, bookingRepository, jwtHelper } from "../../app";
+import { BadRequestException } from "../../domain/exceptions/BadRequestException";
+import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
+import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
+import mongoose from "mongoose";
 
-export const deleteBooking = async (
-  id: string,
-  token: string,
-  repository: IBookingRepository
-): Promise<{ status: number; message: string; authServiceUserId?: string }> => {
+export const deleteBooking = async (req: Request): Promise<Boolean> => {
   try {
-    const booking = await repository.findById(id);
+    const id = req.params.id.toString();
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException("Invalid ID format");
+    }
+    const token = await jwtHelper.extractBearerToken(req);
+    if (!token) {
+      throw new UnauthorizedException("Bearer token required");
+    }
+    const booking = await bookingRepository.findById(id);
 
     if (!booking) {
-      return {
-        status: 404,
-        message: "Booking with given ID not found",
-      };
+      throw new BadRequestException("Booking not found");
     }
 
     const authenticated = await authMiddleware.authenticate(
@@ -22,30 +27,22 @@ export const deleteBooking = async (
     );
 
     if (!authenticated) {
-      return {
-        status: 401,
-        message: "Authentication failed",
-      };
+      throw new UnauthorizedException("Authentication failed");
     }
 
-    const isDeleted = await repository.delete(id);
+    const isDeleted = await bookingRepository.delete(id);
     if (!isDeleted) {
-      return {
-        status: 500,
-        message: "Error when deleting resource",
-      };
+      throw new BadRequestException("Error deleting booking");
     }
 
-    return {
-      status: 200,
-      message: "Booking deleted",
-      authServiceUserId: booking.getId(),
-    };
+    return true;
   } catch (error) {
-    console.log(error);
-    return {
-      status: 500,
-      message: "Something went wrong with booking delete",
-    };
+    if (error instanceof BadRequestException) {
+      throw new Error("Error deleting booking");
+    } else if (error instanceof UnauthorizedException) {
+      throw new Error("Error deleting booking");
+    } else {
+      throw new InternalServerErrorException("Error deleting booking");
+    }
   }
 };

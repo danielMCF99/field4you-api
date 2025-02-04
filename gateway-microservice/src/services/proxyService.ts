@@ -1,9 +1,58 @@
+import CircuitBreaker from 'opossum';
 import axios, { AxiosRequestConfig } from 'axios';
 import FormData from 'form-data';
 import { logger } from '../logging/logger';
 import { serviceConfig } from '../config/env';
 
+interface ProxyResponse {
+  status: number;
+  headers: Record<string, any>;
+  data: any;
+}
+
 class ProxyService {
+  static circuitOptions = {
+    timeout: 5000,
+    errorThresholdPercentage: 50,
+    resetTimeout: 10000,
+  };
+
+  static breakers: Record<string, CircuitBreaker<any, ProxyResponse>> = {};
+
+  static getBreaker(serviceName: string): CircuitBreaker<any, ProxyResponse> {
+    if (!this.breakers[serviceName]) {
+      this.breakers[serviceName] = new CircuitBreaker(
+        async (config: AxiosRequestConfig) =>
+          axios(config).then((res) => ({
+            status: res.status,
+            headers: res.headers,
+            data: res.data,
+          })),
+        this.circuitOptions
+      );
+
+      this.breakers[serviceName].on('open', () =>
+        logger.warn(`Circuit for ${serviceName} is open`)
+      );
+      this.breakers[serviceName].on('close', () =>
+        logger.info(`Circuit for ${serviceName} is closed`)
+      );
+      this.breakers[serviceName].on('halfOpen', () =>
+        logger.info(`Circuit for ${serviceName} is half-open`)
+      );
+      this.breakers[serviceName].on('fallback', () =>
+        logger.info(`Fallback triggered for ${serviceName}`)
+      );
+
+      /*this.breakers[serviceName].fallback(() => ({
+        status: 503,
+        headers: {},
+        data: { message: "Service temporarily unavailable" },
+      }));*/
+    }
+    return this.breakers[serviceName];
+  }
+
   static async forwardRequest(
     serviceName: string,
     path: string,
@@ -12,7 +61,7 @@ class ProxyService {
     query?: any,
     headers?: Record<string, any>,
     file?: any
-  ) {
+  ): Promise<ProxyResponse> {
     const baseUrl = serviceConfig[serviceName as keyof typeof serviceConfig];
 
     if (!baseUrl) {
@@ -43,7 +92,6 @@ class ProxyService {
       logger.info(`Forwarding ${method} request to ${url}`);
       const response = await axios(config);
 
-      //return response.data;
       return {
         status: response.status,
         headers: response.headers,

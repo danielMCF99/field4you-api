@@ -1,18 +1,16 @@
-version: "3.3"
+version: '3.3'
 
 services:
-  #mongo:
-  #  image: mongo
-  #  container_name: mongo-docker
-  #  environment:
-  #    MONGO_INITDB_ROOT_USERNAME: mongoadmin
-  #    MONGO_INITDB_ROOT_PASSWORD: mongoadmin
-  #  ports:
-  #    - '27017:27017'
-  #  volumes:
-  #    - type: volume
-  #      source: mongodb_data_volume
-  #      target: /data/db
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    container_name: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
 
   gateway-microservice:
     build:
@@ -37,13 +35,16 @@ services:
       - JWT_SECRET=field4you2024
       - MAIL_ACCOUNT=field4youapi@gmail.com
       - MAIL_PASSWORD=smrazgjluryzsbgp
-      - USER_GATEWAY_SERVICE_URL=http://gateway-microservice:3000/api/users
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
     depends_on:
       - gateway-microservice
 
   user-microservice:
     build:
       context: ./user-microservice
+    depends_on:
+      - gateway-microservice
+      - rabbitmq
     ports:
       - 3002:3002
     environment:
@@ -51,12 +52,14 @@ services:
       - MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/user-microservice?retryWrites=true&w=majority&appName=field4you-cluster
       - AUTH_GATEWAY_SERVICE_URL=http://gateway-microservice:3000/api/auth
       - JWT_SECRET=field4you2024
-    depends_on:
-      - gateway-microservice
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
 
   booking-microservice:
     build:
       context: ./booking-microservice
+    depends_on:
+      - gateway-microservice
+      - rabbitmq
     ports:
       - 3003:3003
     environment:
@@ -64,8 +67,7 @@ services:
       - MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/booking-microservice?retryWrites=true&w=majority&appName=field4you-cluster
       - JWT_SECRET=field4you2024
       - SPORTS_VENUE_SERVICE_URL=http://gateway-microservice:3000/api/sports-venues
-    depends_on:
-      - gateway-microservice
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
 
   sports-venue-microservice:
     build:
