@@ -6,6 +6,8 @@ import { JwtHelperImplementation } from './infrastructure/jwt/jwtHelper';
 import { AuthMiddlewareImplementation } from './infrastructure/middlewares/auth.middleware';
 
 const app: Application = express();
+app.disable('x-powered-by');
+
 export const userRepository = MongoUserRepository.getInstance();
 export const jwtHelper = JwtHelperImplementation.getInstance();
 export const authMiddleware = AuthMiddlewareImplementation.getInstance();

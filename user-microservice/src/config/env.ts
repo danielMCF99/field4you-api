@@ -20,7 +20,7 @@ if (!rabbitmqURL) {
 
 export default {
   mongoUri,
-  port: process.env.PORT || 3002,
-  jwtSecret: process.env.JWT_SECRET || 'secret',
+  port: process.env.PORT ?? 3002,
+  jwtSecret: process.env.JWT_SECRET ?? 'secret',
   rabbitmqURL,
 };

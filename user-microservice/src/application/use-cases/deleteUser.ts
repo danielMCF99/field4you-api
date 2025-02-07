@@ -7,7 +7,7 @@ import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedExcep
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import mongoose from 'mongoose';
 
-export const deleteUser = async (req: Request): Promise<Boolean> => {
+export const deleteUser = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new BadRequestException('Invalid ID format');

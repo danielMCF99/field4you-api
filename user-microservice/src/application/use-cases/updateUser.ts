@@ -48,7 +48,7 @@ export const updateUser = async (req: Request): Promise<User> => {
       throw new NotFoundException('User not found');
     }
 
-    const authServiceUserId = await user.getAuthServiceUserId();
+    const authServiceUserId = user.getAuthServiceUserId();
     const hasValidPermissions = await authMiddleware.validateUserPermission(
       authServiceUserId,
       user.email,

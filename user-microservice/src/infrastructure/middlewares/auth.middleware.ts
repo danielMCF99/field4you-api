@@ -48,11 +48,11 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
   ): Promise<boolean> {
     const { userId, userType, email } = await this.extractPayload(token);
 
-    if (!(userType === 'admin')) {
-      if (!(email === userEmail)) {
+    if (userType !== 'admin') {
+      if (email !== userEmail) {
         return false;
       }
-      if (!(userId === authServiceUserId)) {
+      if (userId !== authServiceUserId) {
         return false;
       }
     }

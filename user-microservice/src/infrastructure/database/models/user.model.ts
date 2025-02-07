@@ -2,7 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 
 interface IUserDocument extends Document {
   _id: Types.ObjectId;
-  authServiceUserId: String;
+  authServiceUserId: string;
   userType: string;
   email: string;
   phoneNumber: string;
@@ -24,7 +24,7 @@ const userSchema = new Schema<IUserDocument>({
     type: String,
     required: true,
     unique: true,
-    match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+    match: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
   },
   phoneNumber: { type: String, required: false, length: 9 },
   firstName: { type: String, required: true, minlength: 3 },

@@ -4,8 +4,8 @@ export enum UserType {
 }
 
 export class User {
-  private id?: string;
-  private authServiceUserId: string;
+  private readonly id?: string;
+  private readonly authServiceUserId: string;
   public userType: UserType;
   public email: string;
   public phoneNumber?: string;
