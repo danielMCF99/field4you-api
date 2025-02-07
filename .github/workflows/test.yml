@@ -2,7 +2,7 @@ name: Test Workflow
 
 on:
   workflow_call:
-    
+
 jobs:
   test:
     runs-on: ['ubuntu-latest']
@@ -16,17 +16,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - name: Change to user microservice directory
-        run: |
-          cd ./user-microservice
-          ls
 
       - name: Run NPM Clean Install
         run: npm ci
+        working-directory: ./user-microservice
 
       - name: Run tests
         run: npm run test
+        working-directory: ./user-microservice
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
