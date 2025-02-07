@@ -1,9 +1,10 @@
 name: User Service Docker Image
 
 on:
-  release:
-    types:
-      - 'published'
+  workflow_call:
+  #release:
+  #  types:
+  #    - 'published'
 
 permissions:
   contents: read
