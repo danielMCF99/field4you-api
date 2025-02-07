@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [created]
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+
+  build-and-publish:
+    if: ${{ github.event_name == 'release' }}
+    needs: test
+    uses: ./.github/workflows/build-and-publish.yml
+    secrets: inherit
