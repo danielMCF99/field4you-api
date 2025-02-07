@@ -18,8 +18,10 @@ jobs:
           node-version: 20
       
       - name: Change to user microservice directory
-        run: cd user-microservice
-        
+        run: |
+          ls
+          cd user-microservice
+
       - name: Run NPM Clean Install
         run: npm ci
 
