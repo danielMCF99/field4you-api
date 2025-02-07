@@ -19,8 +19,8 @@ jobs:
       
       - name: Change to user microservice directory
         run: |
-          ls
           cd ./user-microservice
+          ls
 
       - name: Run NPM Clean Install
         run: npm ci
