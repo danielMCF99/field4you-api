@@ -21,5 +21,5 @@ jobs:
   build-and-publish:
     if: ${{ github.event_name == 'release' }}
     needs: test
-    uses: ./.github/workflows/build-and-publish.yml
+    uses: ./.github/workflows/user-build-and-publish.yml
     secrets: inherit

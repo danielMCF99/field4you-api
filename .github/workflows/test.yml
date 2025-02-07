@@ -16,7 +16,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
+      
+      - name: Change to user microservice directory
+        run: cd user-microservice
+        
       - name: Run NPM Clean Install
         run: npm ci
 
