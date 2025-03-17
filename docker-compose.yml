@@ -23,6 +23,8 @@ services:
       - BOOKING_SERVICE_URL=http://booking-microservice:3003/bookings
       - SPORTS_VENUE_SERVICE_URL=http://sports-venue-microservice:3004/sports-venues
       - FEED_SERVICE_URL=http://feed-microservice:3005/posts
+    depends_on:
+      - rabbitmq
 
   auth-microservice:
     build:
@@ -42,9 +44,6 @@ services:
   user-microservice:
     build:
       context: ./user-microservice
-    depends_on:
-      - gateway-microservice
-      - rabbitmq
     ports:
       - 3002:3002
     environment:
@@ -53,13 +52,12 @@ services:
       - AUTH_GATEWAY_SERVICE_URL=http://gateway-microservice:3000/api/auth
       - JWT_SECRET=field4you2024
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
+    depends_on:
+      - gateway-microservice
 
   booking-microservice:
     build:
       context: ./booking-microservice
-    depends_on:
-      - gateway-microservice
-      - rabbitmq
     ports:
       - 3003:3003
     environment:
@@ -68,6 +66,8 @@ services:
       - JWT_SECRET=field4you2024
       - SPORTS_VENUE_SERVICE_URL=http://gateway-microservice:3000/api/sports-venues
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
+    depends_on:
+      - gateway-microservice
 
   sports-venue-microservice:
     build:
@@ -78,6 +78,7 @@ services:
       - PORT=3004
       - MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/sports-venue-microservice?retryWrites=true&w=majority&appName=field4you-cluster
       - JWT_SECRET=field4you2024
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
     depends_on:
       - gateway-microservice
 

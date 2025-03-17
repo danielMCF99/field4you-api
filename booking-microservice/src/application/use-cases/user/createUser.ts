@@ -1,7 +1,7 @@
-import { User } from '../../domain/entities/User';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { userRepository } from '../../app';
+import { User } from '../../../domain/entities/User';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { userRepository } from '../../../app';
 
 export const createUser = async (user: any): Promise<User | undefined> => {
   const { authServiceUserId, userType, email, firstName, lastName } = user;

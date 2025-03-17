@@ -1,8 +1,10 @@
 import amqp, { Connection } from 'amqplib';
 import config from '../../config/env';
-import { createUser } from '../../application/use-cases/createUser';
+import { createUser } from '../../application/use-cases/user/createUser';
 
-const QUEUE = 'booking_service_user_registration_queue';
+const USER_CREATION_QUEUE = 'booking_service_user_registration_queue';
+const SPORTS_VENUE_CREATION_QUEUE =
+  'booking_service_sports_venue_creation_queue';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -35,12 +37,42 @@ export async function subscribeUserCreation() {
     const channel = await connection.createChannel();
 
     // Ensure queue is durable
-    await channel.assertQueue(QUEUE, { durable: true });
+    await channel.assertQueue(USER_CREATION_QUEUE, { durable: true });
 
     console.log(` [*] Waiting for user registration events...`);
 
     channel.consume(
-      QUEUE,
+      USER_CREATION_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const user = JSON.parse(msg.content.toString());
+          console.log(` [x] Received user registration event:`, user);
+
+          await createUser(user);
+
+          // Acknowledge message after processing
+          channel.ack(msg);
+        }
+      },
+      { noAck: false } // Ensure message is acknowledged only after processing
+    );
+  } catch (error) {
+    console.error('Error subscribing to queue:', error);
+  }
+}
+
+export async function subscribeSportsVenueCreation() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    // Ensure queue is durable
+    await channel.assertQueue(SPORTS_VENUE_CREATION_QUEUE, { durable: true });
+
+    console.log(` [*] Waiting for user registration events...`);
+
+    channel.consume(
+      SPORTS_VENUE_CREATION_QUEUE,
       async (msg) => {
         if (msg?.content) {
           const user = JSON.parse(msg.content.toString());
