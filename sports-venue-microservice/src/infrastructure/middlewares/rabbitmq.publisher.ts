@@ -1,12 +1,12 @@
-import amqp from 'amqplib';
-import config from '../../config/env';
+import amqp from "amqplib";
+import config from "../../config/env";
 
-const BOOKING_SERVICE_QUEUE = 'booking_service_sports_venue_creation_queue';
+const BOOKING_SERVICE_QUEUE = "booking_service_sports_venue_creation_queue";
 
 const queueList = [BOOKING_SERVICE_QUEUE];
 
 export async function publishSportsVenueCreation(sportsVenuePayload: {
-  authServiceUserId: string;
+  sportsVenueId: string;
   ownerId: string;
   location: string;
   sportsVenueType: string;
@@ -36,6 +36,6 @@ export async function publishSportsVenueCreation(sportsVenuePayload: {
       }, 500);
     });
   } catch (error) {
-    console.error('Error publishing message:', error);
+    console.error("Error publishing message:", error);
   }
 }
