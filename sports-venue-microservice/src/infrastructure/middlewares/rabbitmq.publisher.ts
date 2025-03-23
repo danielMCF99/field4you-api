@@ -29,7 +29,7 @@ export async function publishSportsVenueCreation(sportsVenuePayload: {
 
       const message = JSON.stringify(sportsVenuePayload);
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
-      console.log(` [x] Sent user registration event: ${message}`);
+      console.log(` [x] Sent Sports Venue registration event: ${message}`);
 
       setTimeout(() => {
         connection.close();

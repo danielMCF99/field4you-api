@@ -1,10 +1,11 @@
-import amqp, { Connection } from 'amqplib';
-import config from '../../config/env';
-import { createUser } from '../../application/use-cases/user/createUser';
+import amqp, { Connection } from "amqplib";
+import config from "../../config/env";
+import { createUser } from "../../application/use-cases/user/createUser";
+import { createSportsVenue } from "../../application/use-cases/sportsVenue/createSportsVenue";
 
-const USER_CREATION_QUEUE = 'booking_service_user_registration_queue';
+const USER_CREATION_QUEUE = "booking_service_user_registration_queue";
 const SPORTS_VENUE_CREATION_QUEUE =
-  'booking_service_sports_venue_creation_queue';
+  "booking_service_sports_venue_creation_queue";
 
 async function connectWithRetry(
   retries: number = 5,
@@ -16,7 +17,7 @@ async function connectWithRetry(
         `Attempting to connect to RabbitMQ (Attempt ${i + 1}/${retries})...`
       );
       const connection = await amqp.connect(config.rabbitmqURL);
-      console.log('Connected to RabbitMQ');
+      console.log("Connected to RabbitMQ");
       return connection;
     } catch (error) {
       console.error(`RabbitMQ connection failed: ${(error as Error).message}`);
@@ -24,11 +25,11 @@ async function connectWithRetry(
         console.log(`Retrying in ${delay / 1000} seconds...`);
         await new Promise((res) => setTimeout(res, delay));
       } else {
-        throw new Error('RabbitMQ is unreachable after multiple attempts.');
+        throw new Error("RabbitMQ is unreachable after multiple attempts.");
       }
     }
   }
-  throw new Error('Exhausted retries for RabbitMQ connection.');
+  throw new Error("Exhausted retries for RabbitMQ connection.");
 }
 
 export async function subscribeUserCreation() {
@@ -57,7 +58,7 @@ export async function subscribeUserCreation() {
       { noAck: false } // Ensure message is acknowledged only after processing
     );
   } catch (error) {
-    console.error('Error subscribing to queue:', error);
+    console.error("Error subscribing to queue:", error);
   }
 }
 
@@ -69,16 +70,19 @@ export async function subscribeSportsVenueCreation() {
     // Ensure queue is durable
     await channel.assertQueue(SPORTS_VENUE_CREATION_QUEUE, { durable: true });
 
-    console.log(` [*] Waiting for user registration events...`);
+    console.log(` [*] Waiting for Sportvenue registration events...`);
 
     channel.consume(
       SPORTS_VENUE_CREATION_QUEUE,
       async (msg) => {
         if (msg?.content) {
-          const user = JSON.parse(msg.content.toString());
-          console.log(` [x] Received user registration event:`, user);
+          const sportsVenue = JSON.parse(msg.content.toString());
+          console.log(
+            ` [x] Received Sportvenue registration event:`,
+            sportsVenue
+          );
 
-          await createUser(user);
+          await createSportsVenue(sportsVenue);
 
           // Acknowledge message after processing
           channel.ack(msg);
@@ -87,6 +91,6 @@ export async function subscribeSportsVenueCreation() {
       { noAck: false } // Ensure message is acknowledged only after processing
     );
   } catch (error) {
-    console.error('Error subscribing to queue:', error);
+    console.error("Error subscribing to queue:", error);
   }
 }
