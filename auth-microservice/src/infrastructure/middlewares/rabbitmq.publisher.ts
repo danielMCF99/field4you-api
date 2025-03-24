@@ -25,12 +25,13 @@ export async function publishUserCreation(userPayload: {
 
       const message = JSON.stringify(userPayload);
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
-      console.log(` [x] Sent user registration event: ${message}`);
-
-      setTimeout(() => {
-        connection.close();
-      }, 500);
+      console.log(
+        ` [x] Sent user registration event: ${message} for Queue: ${queue}s`
+      );
     });
+    setTimeout(() => {
+      connection.close();
+    }, 500);
   } catch (error) {
     console.error('Error publishing message:', error);
   }
