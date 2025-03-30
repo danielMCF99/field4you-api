@@ -1,6 +1,7 @@
-import { SportsVenue } from '../../domain/entities/SportsVenue';
-import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
-import { SportsVenueModel } from '../database/models/sports-venue.model';
+import mongoose from "mongoose";
+import { SportsVenue } from "../../domain/entities/SportsVenue";
+import { ISportsVenueRepository } from "../../domain/interfaces/SportsVenueRepository";
+import { SportsVenueModel } from "../database/models/sports-venue.model";
 
 export class MongoSportsVenueRepository implements ISportsVenueRepository {
   private static instance: MongoSportsVenueRepository;
@@ -25,11 +26,19 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     id: string,
     updatedData: Partial<SportsVenue>
   ): Promise<SportsVenue | null> {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.error("ID inválido:", id);
+      return null;
+    }
+
+    const dataToUpdate = (updatedData as any).updatedData || updatedData;
+
     const updatedSportsVenue = await SportsVenueModel.findByIdAndUpdate(
-      id,
-      updatedData,
+      new mongoose.Types.ObjectId(id),
+      { $set: dataToUpdate },
       { new: true, runValidators: true }
     );
+
     return updatedSportsVenue
       ? SportsVenue.fromMongooseDocument(updatedSportsVenue)
       : null;

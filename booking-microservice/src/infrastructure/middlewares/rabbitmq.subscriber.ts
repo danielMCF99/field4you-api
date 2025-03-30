@@ -2,10 +2,15 @@ import amqp, { Connection } from "amqplib";
 import config from "../../config/env";
 import { createUser } from "../../application/use-cases/user/createUser";
 import { createSportsVenue } from "../../application/use-cases/sportsVenue/createSportsVenue";
+import { deleteSportsVenue } from "../../application/use-cases/sportsVenue/deleteSportsVenue";
+import { updateSportsVenue } from "../../application/use-cases/sportsVenue/updateSportsVenue";
 
 const USER_CREATION_QUEUE = "booking_service_user_registration_queue";
 const SPORTS_VENUE_CREATION_QUEUE =
   "booking_service_sports_venue_creation_queue";
+const SPORTS_VENUE_DELETION_QUEUE =
+  "booking_service_sports_venue_deletion_queue";
+const SPORTS_VENUE_UPDATE_QUEUE = "booking_service_sports_venue_update_queue";
 
 async function connectWithRetry(
   retries: number = 5,
@@ -92,5 +97,64 @@ export async function subscribeSportsVenueCreation() {
     );
   } catch (error) {
     console.error("Error subscribing to queue:", error);
+  }
+}
+
+export async function subscribeSportsVenueDeletion() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    await channel.assertQueue(SPORTS_VENUE_DELETION_QUEUE, { durable: true });
+
+    console.log(` [*] Waiting for Sportvenue deletion events...`);
+
+    channel.consume(
+      SPORTS_VENUE_DELETION_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const sportsVenue = JSON.parse(msg.content.toString());
+          console.log(` [x] Received Sportvenue deletion event:`, sportsVenue);
+
+          await deleteSportsVenue(sportsVenue.sportsVenueId);
+          channel.ack(msg);
+        }
+      },
+      { noAck: false }
+    );
+  } catch (error) {
+    console.error("Error subscribing to deletion queue:", error);
+  }
+}
+
+export async function subscribeSportsVenueUpdates() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    await channel.assertQueue(SPORTS_VENUE_UPDATE_QUEUE, { durable: true });
+    console.log("[*] Waiting for Sports Venue update events...");
+
+    channel.consume(
+      SPORTS_VENUE_UPDATE_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const updatedSportsVenue = JSON.parse(msg.content.toString());
+          console.log(
+            "[x] Received Sports Venue update event:",
+            updatedSportsVenue
+          );
+
+          await updateSportsVenue(
+            updatedSportsVenue.sportsVenueId,
+            updatedSportsVenue
+          );
+          channel.ack(msg);
+        }
+      },
+      { noAck: false }
+    );
+  } catch (error) {
+    console.error("Error subscribing to update queue:", error);
   }
 }

@@ -4,6 +4,8 @@ import app from "./app";
 import {
   subscribeSportsVenueCreation,
   subscribeUserCreation,
+  subscribeSportsVenueDeletion,
+  subscribeSportsVenueUpdates,
 } from "./infrastructure/middlewares/rabbitmq.subscriber";
 
 const startServer = async () => {
@@ -11,6 +13,8 @@ const startServer = async () => {
     await connectDB();
     subscribeUserCreation();
     subscribeSportsVenueCreation();
+    subscribeSportsVenueDeletion();
+    subscribeSportsVenueUpdates();
     app.listen(config.port, () => {
       console.log(`Server running on port ${config.port}`);
     });
