@@ -16,9 +16,14 @@ interface ISportsVenue extends Document {
 }
 
 const SportsVenueSchema = new Schema<ISportsVenue>({
+  _id: { type: Schema.ObjectId, required: true },
   ownerId: { type: String, required: true },
   location: { type: String, required: true },
-  sportsVenueType: { type: String, required: true, enum: ["5x5", "7x7", "9x9", "11x11"] },
+  sportsVenueType: {
+    type: String,
+    required: true,
+    enum: ["5x5", "7x7", "9x9", "11x11"],
+  },
   status: { type: String, required: true, enum: ["active", "inactive"] },
   sportsVenueName: { type: String, required: true },
   bookingMinDuration: { type: Number, required: true },
@@ -29,4 +34,7 @@ const SportsVenueSchema = new Schema<ISportsVenue>({
   hasBar: { type: Boolean, required: true },
 });
 
-export const SportsVenueModel = model<ISportsVenue>("SportsVenue", SportsVenueSchema);
+export const SportsVenueModel = model<ISportsVenue>(
+  "SportsVenue",
+  SportsVenueSchema
+);

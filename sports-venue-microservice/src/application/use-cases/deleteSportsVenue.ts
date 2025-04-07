@@ -1,54 +1,62 @@
-import { authMiddleware } from '../../app';
-import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
+import { Request } from "express";
+import mongoose from "mongoose";
+import { authMiddleware, jwtHelper, sportsVenueRepository } from "../../app";
+import { BadRequestException } from "../../domain/exceptions/BadRequestException";
+import { ForbiddenException } from "../../domain/exceptions/ForbiddenException";
+import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
+import { NotFoundException } from "../../domain/exceptions/NotFoundException";
+import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
+import { publishSportsVenueDeletion } from "../../infrastructure/middlewares/rabbitmq.publisher";
 
 export const deleteSportsVenue = async (
-  id: string,
-  token: string,
-  repository: ISportsVenueRepository
+  req: Request
 ): Promise<{ status: number; message: string }> => {
   try {
-    const sportsVenue = await repository.findById(id);
+    const id = req.params.id.toString();
+    const token = await jwtHelper.extractBearerToken(req);
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException("Invalid ID format");
+    }
+
+    if (!token) {
+      throw new UnauthorizedException("Authentication token is required");
+    }
+
+    const ownerId = await jwtHelper.verifyToken(token);
+    if (!ownerId) {
+      throw new UnauthorizedException("Invalid authentication token");
+    }
+
+    const sportsVenue = await sportsVenueRepository.findById(id);
     if (!sportsVenue) {
-      return {
-        status: 404,
-        message: 'Sports Venue with given ID not found',
-      };
+      throw new NotFoundException("Sports Venue with given ID not found");
     }
 
-    if (!sportsVenue.ownerId) {
-      return { message: 'Sports Venue with given ID not found', status: 404 };
+    if (sportsVenue.ownerId.toString() !== ownerId.toString()) {
+      throw new ForbiddenException(
+        "User is not authorized to delete this venue"
+      );
     }
 
-    const authenticated = await authMiddleware.authenticate(
-      sportsVenue.ownerId,
-      token
-    );
-
-    if (!authenticated) {
-      return {
-        status: 401,
-        message: 'Authenticated failed',
-      };
-    }
-
-    const isDeleted = await repository.delete(id);
+    const isDeleted = await sportsVenueRepository.delete(id);
     if (!isDeleted) {
-      return {
-        status: 500,
-        message: 'Error when deleting resource',
-      };
+      throw new InternalServerErrorException("Error when deleting resource");
     }
 
-    return {
-      status: 200,
-      message: 'Sports Venue Deleted',
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      status: 500,
-      message: 'Something went wrong with sports-venue delete',
-    };
+    await publishSportsVenueDeletion({ sportsVenueId: id, ownerId });
+    return { status: 200, message: "Sports Venue Deleted" };
+  } catch (error: any) {
+    if (
+      error instanceof BadRequestException ||
+      error instanceof UnauthorizedException ||
+      error instanceof NotFoundException ||
+      error instanceof ForbiddenException
+    ) {
+      throw error;
+    }
+    throw new InternalServerErrorException(
+      "Something went wrong with sports-venue delete"
+    );
   }
 };

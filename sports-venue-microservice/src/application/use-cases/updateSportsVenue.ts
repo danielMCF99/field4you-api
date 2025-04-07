@@ -1,54 +1,64 @@
+import { Request } from "express";
+import mongoose from "mongoose";
+import { authMiddleware, jwtHelper, sportsVenueRepository } from "../../app";
 import { SportsVenue } from "../../domain/entities/sports-venue";
-import { ISportsVenueRepository } from "../../domain/interfaces/SportsVenueRepository";
-import { authMiddleware } from "../../app";
+import { NotFoundException } from "../../domain/exceptions/NotFoundException";
+import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
+import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
+import { BadRequestException } from "../../domain/exceptions/BadRequestException";
+import { publishSportsVenueUpdate } from "../../infrastructure/middlewares/rabbitmq.publisher";
 
 export const updateSportsVenue = async (
-  id: string,
-  token: string,
-  updatedData: Partial<SportsVenue>,
-  repository: ISportsVenueRepository
+  req: Request
 ): Promise<{ status: number; message: string; sportsVenue?: SportsVenue }> => {
   try {
-    // Buscar o campo desportivo pelo ID
-    const sportsVenue = await repository.findById(id);
+    const id = req.params.id.toString();
+    const token = await jwtHelper.extractBearerToken(req);
+    const updatedData = req.body;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException("Invalid ID format");
+    }
 
-    // Verificar se o campo desportivo foi encontrado
+    if (!token) {
+      throw new UnauthorizedException("Authentication token is required");
+    }
+    const sportsVenue = await sportsVenueRepository.findById(id);
     if (!sportsVenue) {
-      return { status: 404, message: "Sports Venue not found" };
+      throw new NotFoundException("Sports Venue not found");
     }
-
-    // Verificar se o ownerId está definido
     if (!sportsVenue.ownerId) {
-      return { status: 404, message: "Owner not found" };
+      throw new NotFoundException("Owner not found");
     }
 
-    // Validar o token para o proprietário
     const authenticated = await authMiddleware.authenticate(
       sportsVenue.ownerId,
       token
     );
-
     if (!authenticated) {
-      return { status: 401, message: "Authentication failed" };
+      throw new UnauthorizedException("Authentication failed");
     }
 
-    // Atualizar o campo desportivo
-    const updatedSportsVenue = await repository.update(sportsVenue.getId(), {
-      ...sportsVenue, // Manter os dados existentes
-      ...updatedData, // Sobrescrever com os dados atualizados
+    const updatedSportsVenue = await sportsVenueRepository.update(id, {
+      ...sportsVenue,
+      ...updatedData,
     });
 
     if (!updatedSportsVenue) {
-      return { status: 404, message: "Failed to update Sports Venue" };
+      throw new InternalServerErrorException("Failed to update Sports Venue");
     }
-
+    await publishSportsVenueUpdate({
+      sportsVenueId: id,
+      ownerId: sportsVenue.ownerId,
+      updatedData,
+    });
     return {
       status: 200,
       message: "Sports Venue updated successfully",
       sportsVenue: updatedSportsVenue,
     };
-  } catch (error) {
-    console.error("Error updating sports venue:", error);
-    return { status: 500, message: "Internal server error" };
+  } catch (error: any) {
+    throw new InternalServerErrorException(
+      error.message || "Internal server error"
+    );
   }
 };
