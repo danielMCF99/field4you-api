@@ -6,6 +6,7 @@ import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import mongoose from 'mongoose';
+import { publishUserDeletion } from '../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const deleteUser = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();
@@ -47,6 +48,8 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
         'Internal server error when deleting the user'
       );
     }
+
+    await publishUserDeletion({ userId: id });
 
     return deletedUser;
   } catch (error: any) {
