@@ -2,7 +2,8 @@ import amqp, { Connection } from 'amqplib';
 import config from '../../config/env';
 import { createUser } from '../../application/use-cases/createUser';
 
-const QUEUE = 'user_service_user_registration_queue';
+const USER_CREATION_QUEUE = 'user_service_user_registration_queue';
+const USER_DELETION_QUEUE = 'user_service_user_deletion_queue';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -35,18 +36,46 @@ export async function subscribeUserCreation() {
     const channel = await connection.createChannel();
 
     // Ensure queue is durable
-    await channel.assertQueue(QUEUE, { durable: true });
+    await channel.assertQueue(USER_CREATION_QUEUE, { durable: true });
 
     console.log(` [*] Waiting for user registration events...`);
 
     channel.consume(
-      QUEUE,
+      USER_CREATION_QUEUE,
       async (msg) => {
         if (msg?.content) {
           const user = JSON.parse(msg.content.toString());
           console.log(` [x] Received user registration event:`, user);
 
           await createUser(user);
+
+          // Acknowledge message after processing
+          channel.ack(msg);
+        }
+      },
+      { noAck: false } // Ensure message is acknowledged only after processing
+    );
+  } catch (error) {
+    console.error('Error subscribing to queue:', error);
+  }
+}
+
+export async function subscribeUserDeletion() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    // Ensure queue is durable
+    await channel.assertQueue(USER_DELETION_QUEUE, { durable: true });
+
+    console.log(` [*] Waiting for user deletion events...`);
+
+    channel.consume(
+      USER_DELETION_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const user = JSON.parse(msg.content.toString());
+          console.log(` [x] Received user deletion event:`, user);
 
           // Acknowledge message after processing
           channel.ack(msg);
