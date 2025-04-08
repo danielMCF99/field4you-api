@@ -1,11 +1,11 @@
-import { Request } from 'express';
 import bcrypt from 'bcryptjs';
-import { User } from '../../domain/entities/User';
+import { Request } from 'express';
 import { jwtHelper, userRepository } from '../../app';
+import { User } from '../../domain/entities/User';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export const loginUser = async (req: Request): Promise<string> => {
   // Validate request body integrity
@@ -42,7 +42,6 @@ export const loginUser = async (req: Request): Promise<string> => {
     await userRepository.update(user.getId(), {
       lastAccessDate: lastAccessDate,
     });
-    console.log('Updated user last access date');
 
     return token;
   } catch (error: any) {

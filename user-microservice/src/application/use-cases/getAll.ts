@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { User } from '../../domain/entities/User';
 import { authMiddleware, jwtHelper, userRepository } from '../../app';
+import { User } from '../../domain/entities/User';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 

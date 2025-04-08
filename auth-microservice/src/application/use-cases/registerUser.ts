@@ -37,7 +37,6 @@ export const registerUser = async (req: Request): Promise<String> => {
   const registerDate = new Date();
   const lastAccessDate = new Date();
 
-  let token = 'N/A';
   try {
     // Create new User in database
     const newUser = await userRepository.create(
@@ -53,23 +52,23 @@ export const registerUser = async (req: Request): Promise<String> => {
       })
     );
 
-    // Send greeting email
-    await mailer.sendMail(newUser.email, 'Welcome! Thank you for registering!');
+    // Generate JWT Token
+    const token = await jwtHelper.generateToken(
+      newUser.getId(),
+      newUser.userType.toString(),
+      newUser.email
+    );
 
-    // Send request to create equivalent user in user-microservice
-    /*await axios.post(config.userGatewayServiceUri + '/create', {
-      authServiceUserId: newUser.getId(),
-      userType: userType,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      birthDate: birthDate,
-      registerDate: registerDate,
-    });*/
+    // Send greeting email
+    mailer.sendMail(
+      newUser.email,
+      'Welcome to Field4You',
+      'Welcome! Thank you for registering!'
+    );
 
     // Publish event to RabbitMQ
-    await publishUserCreation({
-      authServiceUserId: newUser.getId(),
+    publishUserCreation({
+      userId: newUser.getId(),
       email: newUser.email,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
@@ -78,15 +77,8 @@ export const registerUser = async (req: Request): Promise<String> => {
       registerDate: registerDate.toString(),
     });
 
-    // Generate JWT Token
-    token = await jwtHelper.generateToken(
-      newUser.getId(),
-      newUser.userType.toString(),
-      newUser.email
-    );
+    return token;
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);
   }
-
-  return token;
 };

@@ -1,22 +1,22 @@
-import { Request } from "express";
-import { SportsVenue } from "../../domain/entities/sports-venue";
-import { ISportsVenueRepository } from "../../domain/interfaces/SportsVenueRepository";
-import { jwtHelper, sportsVenueRepository } from "../../app";
-import { publishSportsVenueCreation } from "../../infrastructure/middlewares/rabbitmq.publisher";
-import { BadRequestException } from "../../domain/exceptions/BadRequestException";
-import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
-import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
+import { Request } from 'express';
+import { SportsVenue } from '../../domain/entities/sports-venue';
+import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
+import { jwtHelper, sportsVenueRepository } from '../../app';
+import { publishSportsVenueCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   try {
     const token = await jwtHelper.extractBearerToken(req);
     if (!token) {
-      throw new UnauthorizedException("Authentication token is required");
+      throw new UnauthorizedException('Authentication token is required');
     }
 
     const ownerId = await jwtHelper.verifyToken(token);
     if (!ownerId) {
-      throw new UnauthorizedException("Invalid authentication token");
+      throw new UnauthorizedException('Invalid authentication token');
     }
 
     const {
@@ -41,7 +41,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       !bookingMinPrice ||
       !sportsVenuePicture
     ) {
-      throw new BadRequestException("Missing required fields");
+      throw new BadRequestException('Missing required fields');
     }
 
     const sportsVenue = new SportsVenue({
@@ -60,7 +60,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
 
     const newSportsVenue = await sportsVenueRepository.create(sportsVenue);
     if (!newSportsVenue) {
-      throw new InternalServerErrorException("Failed to create sports venue");
+      throw new InternalServerErrorException('Failed to create sports venue');
     }
 
     await publishSportsVenueCreation({
@@ -79,12 +79,11 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     });
     return newSportsVenue;
   } catch (error: any) {
-    if (
-      error instanceof UnauthorizedException ||
-      error instanceof BadRequestException
-    ) {
-      throw error;
+    if (error instanceof UnauthorizedException) {
+      throw new UnauthorizedException(error.message);
+    } else if (error instanceof BadRequestException) {
+      throw new BadRequestException(error.message);
     }
-    throw new InternalServerErrorException("Internal Server Error");
+    throw new InternalServerErrorException('Internal Server Error');
   }
 };

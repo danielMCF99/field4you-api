@@ -1,5 +1,6 @@
-import { SportsVenue } from "../../../domain/entities/SportsVenue";
-import { sportsVenueRepository } from "../../../app";
+import { SportsVenue } from '../../../domain/entities/SportsVenue';
+import { sportsVenueRepository } from '../../../app';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
 export const createSportsVenue = async (
   sportsVenue: any
@@ -21,11 +22,9 @@ export const createSportsVenue = async (
   } = sportsVenue;
   try {
     sportsVenue._id = sportsVenue.sportsVenueId.toString();
-    console.log("Sports", sportsVenue);
     const newSportsVenue = await sportsVenueRepository.create(sportsVenue);
     return newSportsVenue;
-  } catch (error) {
-    console.log(error);
-    return undefined;
+  } catch (error: any) {
+    throw new InternalServerErrorException(error.message);
   }
 };

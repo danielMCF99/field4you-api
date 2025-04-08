@@ -1,11 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { User } from '../../domain/entities/User';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { authMiddleware, jwtHelper, userRepository } from '../../app';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { User } from '../../domain/entities/User';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const getById = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();

@@ -64,19 +64,6 @@ export const passwordResetController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUserController = async (req: Request, res: Response) => {
-  try {
-    const isDeleted = await deleteUser(req);
-    res.status(200).json({ isDeleted: isDeleted });
-    return;
-  } catch (error: any) {
-    res.status(error.statusCode).json({
-      message: error.message,
-    });
-    return;
-  }
-};
-
 export const verifyTokenController = async (req: Request, res: Response) => {
   try {
     const isValid = await verifyToken(req);

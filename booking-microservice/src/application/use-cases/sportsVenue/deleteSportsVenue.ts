@@ -1,5 +1,5 @@
-import { SportsVenue } from "../../../domain/entities/SportsVenue";
-import { sportsVenueRepository } from "../../../app";
+import { SportsVenue } from '../../../domain/entities/SportsVenue';
+import { sportsVenueRepository } from '../../../app';
 
 export const deleteSportsVenue = async (
   id: string
