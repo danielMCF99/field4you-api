@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
-import { CustomJwtPayload, JwtHelper } from '../../domain/interfaces/JwtHelper';
+import { CustomJwtPayload, JwtHelper } from './domain/JwtHelper';
 
 export class JwtHelperImplementation implements JwtHelper {
   private static instance: JwtHelperImplementation;
@@ -17,9 +17,12 @@ export class JwtHelperImplementation implements JwtHelper {
 
   async extractBearerToken(req: Request): Promise<string | undefined> {
     const authHeader = req.headers.authorization;
-    return authHeader?.startsWith('Bearer ')
-      ? authHeader.split(' ')[1]
-      : undefined;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.split(' ')[1];
+    } else {
+      return undefined;
+    }
   }
 
   async decodeBearerToken(
@@ -29,6 +32,7 @@ export class JwtHelperImplementation implements JwtHelper {
       const decoded = jwt.decode(token);
 
       if (!decoded) {
+        console.log('Invalid token');
         return undefined;
       }
       return decoded as CustomJwtPayload;

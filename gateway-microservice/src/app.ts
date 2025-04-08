@@ -1,10 +1,13 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
-import { serviceConfig } from './config/env';
-import routes from './routes/routes';
-import { logger } from './logging/logger';
-import { generateSwaggerDocument } from './services/swagger';
 import { serve, setup } from 'swagger-ui-express';
+import { serviceConfig } from './config/env';
+import { JwtHelperImplementation } from './jwt/jwtHelper';
+import { logger } from './logging/logger';
 import { authenticate } from './middlewares/auth.middleware';
+import routes from './routes/routes';
+import { generateSwaggerDocument } from './services/swagger';
+
+export const jwtHelper = JwtHelperImplementation.getInstance();
 
 const app: Application = express();
 

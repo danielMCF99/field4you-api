@@ -16,6 +16,7 @@ router.get('/bookings/swagger', async (req: Request, res: Response) => {
 
 router.post('/bookings/create', createBookingController);
 router.get('/bookings/all', getAllBookingsController);
+router.put('/bookings/:id/status', updateBookingController);
 router.put('/bookings/:id', updateBookingController);
 router.get('/bookings/:id', getBookingByIdController);
 router.delete('/bookings/:id', deleteBookingController);

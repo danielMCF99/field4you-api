@@ -5,7 +5,8 @@ export enum BookingType {
 
 export enum BookingStatus {
   'active',
-  'inactive',
+  'cancelled',
+  'done',
 }
 
 export class Booking {

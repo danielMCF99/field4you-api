@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { jwtHelper, sportsVenueRepository } from '../../app';
+import { sportsVenueRepository } from '../../app';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
@@ -11,30 +11,25 @@ import { publishSportsVenueDeletion } from '../../infrastructure/middlewares/rab
 export const deleteSportsVenue = async (
   req: Request
 ): Promise<{ status: number; message: string }> => {
+  const id = req.params.id.toString();
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new BadRequestException('Invalid ID format');
+  }
+
+  const ownerId = req.headers['x-user-id'] as string | undefined;
+  const userType = req.headers['x-user-type'] as string | undefined;
+  if (!ownerId || !userType) {
+    throw new InternalServerErrorException('Internal Server Error');
+  }
+
   try {
-    const id = req.params.id.toString();
-    const token = await jwtHelper.extractBearerToken(req);
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid ID format');
-    }
-
-    if (!token) {
-      throw new UnauthorizedException('Authentication token is required');
-    }
-
-    const ownerId = await jwtHelper.verifyToken(token);
-    if (!ownerId) {
-      throw new UnauthorizedException('Invalid authentication token');
-    }
-
     const sportsVenue = await sportsVenueRepository.findById(id);
     if (!sportsVenue) {
       throw new NotFoundException('Sports Venue with given ID not found');
     }
 
     if (sportsVenue.ownerId.toString() !== ownerId.toString()) {
-      throw new ForbiddenException(
+      throw new UnauthorizedException(
         'User is not authorized to delete this venue'
       );
     }

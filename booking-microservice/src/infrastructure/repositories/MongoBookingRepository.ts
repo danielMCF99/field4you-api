@@ -1,6 +1,6 @@
-import { Booking } from "../../domain/entities/Booking";
-import { IBookingRepository } from "../../domain/interfaces/BookingRepository";
-import { BookingModel } from "../database/models/booking.model";
+import { Booking } from '../../domain/entities/Booking';
+import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
+import { BookingModel } from '../database/models/booking.model';
 
 export class MongoBookingRepository implements IBookingRepository {
   private static instance: MongoBookingRepository;
@@ -21,6 +21,17 @@ export class MongoBookingRepository implements IBookingRepository {
 
   async findById(id: string): Promise<Booking | undefined> {
     const booking = await BookingModel.findById(id);
+    if (!booking) {
+      return undefined;
+    }
+    return Booking.fromMongooseDocument(booking);
+  }
+
+  async findByIdAndOwnerId(
+    id: string,
+    ownerId: string
+  ): Promise<Booking | undefined> {
+    const booking = await BookingModel.findOne({ _id: id, ownerId }).exec();
     if (!booking) {
       return undefined;
     }

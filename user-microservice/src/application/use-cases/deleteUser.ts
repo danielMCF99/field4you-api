@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { authMiddleware, jwtHelper, userRepository } from '../../app';
+import { userRepository } from '../../app';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
@@ -14,34 +14,23 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
     throw new BadRequestException('Invalid ID format');
   }
 
-  const token = await jwtHelper.extractBearerToken(req);
-  if (!token) {
-    throw new UnauthorizedException('Authentication token is required');
+  const authUserId = req.headers['x-user-id'] as string | undefined;
+  if (!authUserId) {
+    throw new InternalServerErrorException('Internal Server Error');
   }
 
-  const isValidToken = await authMiddleware.validateToken(token);
-  if (!isValidToken) {
-    throw new UnauthorizedException('Authentication token has expired');
+  const user = await userRepository.getById(id);
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  if (!(user.getId() != authUserId)) {
+    throw new UnauthorizedException(
+      "You don't have permission to edit this user"
+    );
   }
 
   try {
-    const user = await userRepository.getById(id);
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const hasValidPermissions = await authMiddleware.validateUserPermission(
-      id,
-      user.email,
-      token
-    );
-    if (!hasValidPermissions) {
-      throw new ForbiddenException(
-        'User does not have permission to perform this action'
-      );
-    }
-
     const deletedUser = await userRepository.delete(user.getId());
     if (!deletedUser) {
       throw new InternalServerErrorException(

@@ -1,48 +1,52 @@
-import { Request } from "express";
-import { Booking } from "../../domain/entities/Booking";
-import { authMiddleware, bookingRepository, jwtHelper } from "../../app";
-import { checkBookingConflicts } from "./checkBookingConflicts";
-import mongoose from "mongoose";
-import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
-import { BadRequestException } from "../../domain/exceptions/BadRequestException";
-import { ConflictException } from "../../domain/exceptions/ConflictException";
-import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
+import { Request } from 'express';
+import { Booking } from '../../domain/entities/Booking';
+import { bookingRepository } from '../../app';
+import { checkBookingConflicts } from './checkBookingConflicts';
+import mongoose from 'mongoose';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { ConflictException } from '../../domain/exceptions/ConflictException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {
-  try {
-    const id = req.params.id.toString();
-    const token = await jwtHelper.extractBearerToken(req);
+  const id = req.params.id.toString();
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException("Invalid ID format");
-    }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new BadRequestException('Invalid ID format');
+  }
 
-    if (!token) {
-      throw new UnauthorizedException("Bearer token required");
-    }
-    const booking = await bookingRepository.findById(id);
+  const ownerId = req.headers['x-user-id'] as string | undefined;
+  const userType = req.headers['x-user-type'] as string | undefined;
+  if (!ownerId || !userType) {
+    throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  let booking;
+  if (userType != 'admin') {
+    // Check if booking belongs to the user
+    const booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
     if (!booking) {
-      throw new BadRequestException("Booking not found");
+      throw new NotFoundException(
+        'Booking with given ID not found for authenticated user'
+      );
     }
-    if (!booking.ownerId) {
-      throw new BadRequestException("Owner ID not found");
-    }
-    const authenticated = await authMiddleware.authenticate(
-      booking.ownerId,
-      token
-    );
-    if (!authenticated) {
-      throw new UnauthorizedException("Authentication failed");
-    }
+  } else {
+    booking = await bookingRepository.findById(id);
+  }
 
+  if (!booking) {
+    throw new NotFoundException('Booking not found');
+  }
+
+  try {
     const allowedFields = [
-      "bookingType",
-      "status",
-      "title",
-      "bookingStartDate",
-      "bookingEndDate",
-      "isPublic",
-      "invitedUsersIds",
+      'bookingType',
+      'title',
+      'bookingStartDate',
+      'bookingEndDate',
+      'isPublic',
+      'invitedUsersIds',
     ];
     const updatedData: Record<string, any> = {};
     Object.keys(req.body).forEach((key) => {
@@ -72,15 +76,15 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
       );
 
       if (hasConflicts) {
-        throw new ConflictException("Booking conflicts found");
+        throw new ConflictException('Booking conflicts found');
       }
     }
     const updatedBooking = await bookingRepository.update(booking.getId(), {
       ...updatedData,
     });
-    console.log("Updated booking info");
+    console.log('Updated booking info');
     if (!updatedBooking) {
-      throw new BadRequestException("Error updating booking");
+      throw new BadRequestException('Error updating booking');
     }
     return updatedBooking;
   } catch (error) {
@@ -91,7 +95,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     } else if (error instanceof ConflictException) {
       throw new ConflictException(error.message);
     } else {
-      throw new InternalServerErrorException("Internal Server Error");
+      throw new InternalServerErrorException('Internal Server Error');
     }
   }
 };

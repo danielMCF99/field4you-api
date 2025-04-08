@@ -1,17 +1,15 @@
 // Load environment variables
-import express, { Application } from 'express';
 import bodyParser from 'body-parser';
-import authRoutes from './web/routes/authRoutes';
-import { MongoUserRepository } from './infrastructure/repositories/MongoUserRepository';
+import express, { Application } from 'express';
 import { JwtHelperImplementation } from './infrastructure/jwt/jwtHelper';
 import { MailerImplementation } from './infrastructure/mailer/mailer';
-import { AuthMiddlewareImplementation } from './infrastructure/middlewares/auth.middleware';
+import { MongoUserRepository } from './infrastructure/repositories/MongoUserRepository';
+import authRoutes from './web/routes/authRoutes';
 
 const app: Application = express();
 export const userRepository = MongoUserRepository.getInstance();
 export const jwtHelper = JwtHelperImplementation.getInstance();
 export const mailer = MailerImplementation.getInstance();
-export const authMiddleware = AuthMiddlewareImplementation.getInstance();
 
 /* Middlewares */
 app.use(express.json());

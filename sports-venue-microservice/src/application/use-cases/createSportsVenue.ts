@@ -1,28 +1,29 @@
 import { Request } from 'express';
+import { sportsVenueRepository } from '../../app';
 import { SportsVenue } from '../../domain/entities/sports-venue';
-import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
-import { jwtHelper, sportsVenueRepository } from '../../app';
-import { publishSportsVenueCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { publishSportsVenueCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
+  const ownerId = req.headers['x-user-id'] as string | undefined;
+  const userType = req.headers['x-user-type'] as string | undefined;
+  if (!ownerId || !userType) {
+    throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  if (userType != 'owner') {
+    throw new ForbiddenException(
+      'Regular users are not able to create a sports venue'
+    );
+  }
+
   try {
-    const token = await jwtHelper.extractBearerToken(req);
-    if (!token) {
-      throw new UnauthorizedException('Authentication token is required');
-    }
-
-    const ownerId = await jwtHelper.verifyToken(token);
-    if (!ownerId) {
-      throw new UnauthorizedException('Invalid authentication token');
-    }
-
     const {
       location,
       sportsVenueType,
-      status,
       sportsVenueName,
       bookingMinDuration,
       bookingMinPrice,
@@ -35,7 +36,6 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     if (
       !location ||
       !sportsVenueType ||
-      !status ||
       !sportsVenueName ||
       !bookingMinDuration ||
       !bookingMinPrice ||
@@ -48,7 +48,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       ownerId,
       location,
       sportsVenueType,
-      status,
+      status: 'inactive',
       sportsVenueName,
       bookingMinDuration,
       bookingMinPrice,
