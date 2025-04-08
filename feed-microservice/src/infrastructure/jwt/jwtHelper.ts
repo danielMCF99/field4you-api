@@ -1,6 +1,6 @@
+import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { CustomJwtPayload, JwtHelper } from '../../domain/interfaces/JwtHelper';
-import { Request } from 'express';
 
 export class JwtHelperImplementation implements JwtHelper {
   private static instance: JwtHelperImplementation;
@@ -32,7 +32,6 @@ export class JwtHelperImplementation implements JwtHelper {
       const decoded = jwt.decode(token);
 
       if (!decoded) {
-        console.log('Invalid token');
         return undefined;
       }
       return decoded as CustomJwtPayload;

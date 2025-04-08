@@ -57,7 +57,6 @@ export const passwordReset = async (req: Request): Promise<string> => {
     await userRepository.update(user.getId(), {
       password: await bcrypt.hash(password, 10),
     });
-    console.log('Updated user password');
 
     return 'Password reset successfull';
   } catch (error: any) {
