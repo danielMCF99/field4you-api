@@ -1,12 +1,11 @@
-import amqp from "amqplib";
-import config from "../../config/env";
-import { SportsVenue } from "../../domain/entities/sports-venue";
+import amqp from 'amqplib';
+import config from '../../config/env';
+import { SportsVenue } from '../../domain/entities/sports-venue';
 
-const BOOKING_SERVICE_QUEUE = "booking_service_sports_venue_creation_queue";
+const BOOKING_SERVICE_QUEUE = 'booking_serv_sports_venue_creation_queue';
 const BOOKING_SERVICE_QUEUE_DELETION =
-  "booking_service_sports_venue_deletion_queue";
-const BOOKING_SERVICE_QUEUE_UPDATE =
-  "booking_service_sports_venue_update_queue";
+  'booking_serv_sports_venue_deletion_queue';
+const BOOKING_SERVICE_QUEUE_UPDATE = 'booking_serv_sports_venue_update_queue';
 
 const queueList = [BOOKING_SERVICE_QUEUE];
 
@@ -34,14 +33,14 @@ export async function publishSportsVenueCreation(sportsVenuePayload: {
 
       const message = JSON.stringify(sportsVenuePayload);
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
-      console.log(` [x] Sent Sports Venue registration event: ${message}`);
+      console.log(`[x] Sent Sports Venue registration event: ${message}`);
 
       setTimeout(() => {
         connection.close();
       }, 500);
     });
   } catch (error) {
-    console.error("Error publishing message:", error);
+    console.error('Error publishing message:', error);
   }
 }
 
@@ -59,13 +58,13 @@ export async function publishSportsVenueDeletion(sportsVenuePayload: {
     channel.sendToQueue(BOOKING_SERVICE_QUEUE_DELETION, Buffer.from(message), {
       persistent: true,
     });
-    console.log(` [x] Sent Sports Venue deletion event: ${message}`);
+    console.log(`[x] Sent Sports Venue deletion event: ${message}`);
 
     setTimeout(() => {
       connection.close();
     }, 500);
   } catch (error) {
-    console.error("Error publishing deletion message:", error);
+    console.error('Error publishing deletion message:', error);
   }
 }
 
@@ -84,12 +83,12 @@ export async function publishSportsVenueUpdate(updatePayload: {
     channel.sendToQueue(BOOKING_SERVICE_QUEUE_UPDATE, Buffer.from(message), {
       persistent: true,
     });
-    console.log(` [x] Sent Sports Venue update event: ${message}`);
+    console.log(`[x] Sent Sports Venue update event: ${message}`);
 
     setTimeout(() => {
       connection.close();
     }, 500);
   } catch (error) {
-    console.error("Error publishing update message:", error);
+    console.error('Error publishing update message:', error);
   }
 }

@@ -1,7 +1,3 @@
 export interface AuthMiddleware {
-    authenticate(
-      authServiceUserId: string,
-      email: string,
-      token: string
-    ): Promise<boolean>;
-  }
+  authenticate(userId: string, email: string, token: string): Promise<boolean>;
+}

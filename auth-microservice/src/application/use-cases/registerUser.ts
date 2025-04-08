@@ -54,22 +54,15 @@ export const registerUser = async (req: Request): Promise<String> => {
     );
 
     // Send greeting email
-    await mailer.sendMail(newUser.email, 'Welcome! Thank you for registering!');
-
-    // Send request to create equivalent user in user-microservice
-    /*await axios.post(config.userGatewayServiceUri + '/create', {
-      authServiceUserId: newUser.getId(),
-      userType: userType,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      birthDate: birthDate,
-      registerDate: registerDate,
-    });*/
+    await mailer.sendMail(
+      newUser.email,
+      'Welcome to Field4You',
+      'Welcome! Thank you for registering!'
+    );
 
     // Publish event to RabbitMQ
     await publishUserCreation({
-      authServiceUserId: newUser.getId(),
+      userId: newUser.getId(),
       email: newUser.email,
       firstName: newUser.firstName,
       lastName: newUser.lastName,

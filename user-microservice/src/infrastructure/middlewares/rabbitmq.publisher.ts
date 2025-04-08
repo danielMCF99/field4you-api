@@ -1,10 +1,10 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
 
-const USER_SERVICE_DELETE_QUEUE = 'user_service_user_delete_queue';
-const BOOKING_SERVICE_DELETE_QUEUE = 'booking_service_user_delete_queue';
+const AUTH_SERVICE_DELETE_QUEUE = 'auth_serv_user_deletion_queue';
+const BOOKING_SERVICE_DELETE_QUEUE = 'booking_serv_user_deletion_queue';
 
-const queueList = [USER_SERVICE_DELETE_QUEUE, BOOKING_SERVICE_DELETE_QUEUE];
+const queueList = [AUTH_SERVICE_DELETE_QUEUE, BOOKING_SERVICE_DELETE_QUEUE];
 
 export async function publishUserDeletion(userPayload: { userId: string }) {
   try {
@@ -18,7 +18,7 @@ export async function publishUserDeletion(userPayload: { userId: string }) {
       const message = JSON.stringify(userPayload);
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
       console.log(
-        ` [x] Sent user registration event: ${message} for Queue: ${queue}s`
+        `[x] Sent User delete event: ${message} for Queue: ${queue}s`
       );
     });
     setTimeout(() => {

@@ -1,6 +1,6 @@
 import nodemailer, { SentMessageInfo, Transporter } from 'nodemailer';
-import { Mailer } from '../../domain/interfaces/Mailer';
 import config from '../../config/env';
+import { Mailer } from '../../domain/interfaces/Mailer';
 
 export class MailerImplementation implements Mailer {
   private static instance: MailerImplementation;
@@ -26,12 +26,16 @@ export class MailerImplementation implements Mailer {
     return MailerImplementation.instance;
   }
 
-  async sendMail(to: string, text: string): Promise<SentMessageInfo> {
+  async sendMail(
+    to: string,
+    subject: string,
+    text: string
+  ): Promise<SentMessageInfo> {
     try {
       return this.mailTransporter.sendMail({
         from: config.mailAccount,
         to: to,
-        subject: 'Password recovery for Field4You App',
+        subject: subject,
         text: text,
       });
     } catch (error: any) {

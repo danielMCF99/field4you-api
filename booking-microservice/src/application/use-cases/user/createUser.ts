@@ -1,27 +1,15 @@
-import { User } from '../../../domain/entities/User';
-import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { userRepository } from '../../../app';
+import { User } from '../../../domain/entities/User';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
 export const createUser = async (user: any): Promise<User | undefined> => {
-  const { authServiceUserId, userType, email, firstName, lastName } = user;
-
-  if (!authServiceUserId || !userType || !email || !firstName || !lastName) {
-    throw new BadRequestException(
-      'Missing fields for user registration. Please try again.'
-    );
-  }
+  const userId = user.userId;
+  const { userType, email, firstName, lastName, birthDate, registerDate } =
+    user;
 
   try {
-    const newUser = await userRepository.create(
-      new User({
-        authServiceUserId,
-        userType,
-        email,
-        firstName,
-        lastName,
-      })
-    );
+    user._id = userId.toString();
+    const newUser = await userRepository.create(user);
     return newUser;
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);

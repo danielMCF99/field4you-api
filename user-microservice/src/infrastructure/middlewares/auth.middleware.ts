@@ -42,7 +42,7 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
   }
 
   async validateUserPermission(
-    authServiceUserId: string,
+    _userId: string,
     userEmail: string,
     token: string
   ): Promise<boolean> {
@@ -52,7 +52,7 @@ export class AuthMiddlewareImplementation implements AuthMiddleware {
       if (email !== userEmail) {
         return false;
       }
-      if (userId !== authServiceUserId) {
+      if (userId !== _userId) {
         return false;
       }
     }

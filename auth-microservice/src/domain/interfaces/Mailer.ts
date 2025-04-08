@@ -1,3 +1,3 @@
 export interface Mailer {
-  sendMail(to: string, text: string): Promise<boolean>;
+  sendMail(to: string, subject: string, text: string): Promise<boolean>;
 }

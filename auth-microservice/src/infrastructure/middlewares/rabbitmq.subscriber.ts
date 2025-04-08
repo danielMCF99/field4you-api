@@ -1,8 +1,8 @@
 import amqp, { Connection } from 'amqplib';
-import { createUser } from '../../application/use-cases/createUser';
 import config from '../../config/env';
+import { deleteUser } from '../../application/use-cases/deleteUser';
 
-const USER_CREATION_QUEUE = 'user_serv_user_registration_queue';
+const AUTH_SERVICE_DELETE_QUEUE = 'auth_serv_user_deletion_queue';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -29,24 +29,24 @@ async function connectWithRetry(
   throw new Error('Exhausted retries for RabbitMQ connection.');
 }
 
-export async function subscribeUserCreation() {
+export async function subscribeUserDeletion() {
   try {
     const connection = await connectWithRetry();
     const channel = await connection.createChannel();
 
     // Ensure queue is durable
-    await channel.assertQueue(USER_CREATION_QUEUE, { durable: true });
+    await channel.assertQueue(AUTH_SERVICE_DELETE_QUEUE, { durable: true });
 
-    console.log(`[*] Waiting for User registration events...`);
+    console.log(`[*] Waiting for User delete events...`);
 
     channel.consume(
-      USER_CREATION_QUEUE,
+      AUTH_SERVICE_DELETE_QUEUE,
       async (msg) => {
         if (msg?.content) {
           const user = JSON.parse(msg.content.toString());
-          console.log(`[x] Received User registration event:`, user);
+          console.log(`[x] Received User delete event:`, user);
 
-          await createUser(user);
+          await deleteUser(user.userId);
 
           // Acknowledge message after processing
           channel.ack(msg);

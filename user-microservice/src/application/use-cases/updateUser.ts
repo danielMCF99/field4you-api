@@ -1,12 +1,12 @@
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { authMiddleware, jwtHelper, userRepository } from '../../app';
 import { User } from '../../domain/entities/User';
-import mongoose from 'mongoose';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const updateUser = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();
@@ -48,9 +48,8 @@ export const updateUser = async (req: Request): Promise<User> => {
       throw new NotFoundException('User not found');
     }
 
-    const authServiceUserId = user.getAuthServiceUserId();
     const hasValidPermissions = await authMiddleware.validateUserPermission(
-      authServiceUserId,
+      user.getId(),
       user.email,
       token
     );

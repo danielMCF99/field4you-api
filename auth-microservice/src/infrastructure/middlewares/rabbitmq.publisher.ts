@@ -1,13 +1,13 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
 
-const USER_SERVICE_QUEUE = 'user_service_user_registration_queue';
-const BOOKING_SERVICE_QUEUE = 'booking_service_user_registration_queue';
+const USER_SERVICE_QUEUE = 'user_serv_user_registration_queue';
+const BOOKING_SERVICE_QUEUE = 'booking_serv_user_registration_queue';
 
 const queueList = [USER_SERVICE_QUEUE, BOOKING_SERVICE_QUEUE];
 
 export async function publishUserCreation(userPayload: {
-  authServiceUserId: string;
+  userId: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -26,7 +26,7 @@ export async function publishUserCreation(userPayload: {
       const message = JSON.stringify(userPayload);
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
       console.log(
-        ` [x] Sent user registration event: ${message} for Queue: ${queue}s`
+        `[x] Sent user registration event: ${message} for Queue: ${queue}s`
       );
     });
     setTimeout(() => {

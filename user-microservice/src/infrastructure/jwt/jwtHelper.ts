@@ -17,7 +17,9 @@ export class JwtHelperImplementation implements JwtHelper {
 
   async extractBearerToken(req: Request): Promise<string | undefined> {
     const authHeader = req.headers.authorization;
-    return authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
+    return authHeader?.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : undefined;
   }
 
   async decodeBearerToken(

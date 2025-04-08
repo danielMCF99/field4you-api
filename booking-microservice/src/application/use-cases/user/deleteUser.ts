@@ -1,5 +1,5 @@
-import { userRepository } from '../../app';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { userRepository } from '../../../app';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
 export const deleteUser = async (id: string): Promise<Boolean> => {
   try {

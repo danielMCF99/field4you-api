@@ -2,7 +2,6 @@ import { Schema, model, Document, Types } from 'mongoose';
 
 interface IUserDocument extends Document {
   _id: Types.ObjectId;
-  authServiceUserId: String;
   userType: string;
   email: string;
   phoneNumber: string;
@@ -11,7 +10,6 @@ interface IUserDocument extends Document {
 }
 
 const userSchema = new Schema<IUserDocument>({
-  authServiceUserId: { type: String, required: true },
   userType: { type: String, required: true, enum: ['user', 'owner'] },
   email: {
     type: String,

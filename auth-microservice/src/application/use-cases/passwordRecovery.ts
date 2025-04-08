@@ -43,6 +43,7 @@ export const passwordRecovery = async (req: Request): Promise<string> => {
 
     await mailer.sendMail(
       email,
+      'Password recovery for Field4You App',
       `You requested a password reset. Click the link to reset your password: ${resetURL}`
     );
 
