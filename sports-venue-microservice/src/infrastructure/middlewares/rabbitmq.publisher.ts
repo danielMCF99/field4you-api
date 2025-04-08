@@ -7,8 +7,6 @@ const BOOKING_SERVICE_QUEUE_DELETION =
   'booking_serv_sports_venue_deletion_queue';
 const BOOKING_SERVICE_QUEUE_UPDATE = 'booking_serv_sports_venue_update_queue';
 
-const queueList = [BOOKING_SERVICE_QUEUE];
-
 export async function publishSportsVenueCreation(sportsVenuePayload: {
   sportsVenueId: string;
   ownerId: string;
@@ -27,20 +25,19 @@ export async function publishSportsVenueCreation(sportsVenuePayload: {
     const connection = await amqp.connect(config.rabbitmqURL);
     const channel = await connection.createChannel();
 
-    queueList.forEach((queue) => {
-      // Ensure queue is durable
-      channel.assertQueue(queue, { durable: true });
+    channel.assertQueue(BOOKING_SERVICE_QUEUE, { durable: true });
 
-      const message = JSON.stringify(sportsVenuePayload);
-      channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
-      console.log(`[x] Sent Sports Venue registration event: ${message}`);
-
-      setTimeout(() => {
-        connection.close();
-      }, 500);
+    const message = JSON.stringify(sportsVenuePayload);
+    channel.sendToQueue(BOOKING_SERVICE_QUEUE, Buffer.from(message), {
+      persistent: true,
     });
+    console.log(`[x] Sent Sports Venue creation event: ${message}`);
+
+    setTimeout(() => {
+      connection.close();
+    }, 500);
   } catch (error) {
-    console.error('Error publishing message:', error);
+    console.error('Error publishing creation message:', error);
   }
 }
 
