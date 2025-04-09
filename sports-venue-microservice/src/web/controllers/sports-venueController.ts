@@ -12,13 +12,10 @@ export const createSportsVenueController = async (
 ) => {
   try {
     const sportsVenue = await createSportsVenue(req);
-    res.status(201).json({
-      message: 'Sports venue created successfully',
-      data: sportsVenue,
-    });
+    res.status(201).json({ sportsVenue });
     return;
   } catch (error: any) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    res.status(error.statusCode).json({ message: error.message });
     return;
   }
 };
@@ -28,11 +25,11 @@ export const updateSportsVenueController = async (
   res: Response
 ) => {
   try {
-    const { status, message, sportsVenue } = await updateSportsVenue(req);
-    res.status(status).json({ message, data: sportsVenue });
+    const sportsVenue = await updateSportsVenue(req);
+    res.status(200).json({ sportsVenue });
     return;
   } catch (error: any) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    res.status(error.statusCode).json({ message: error.message });
     return;
   }
 };
@@ -42,11 +39,11 @@ export const updateSportsVenueStatusController = async (
   res: Response
 ) => {
   try {
-    const { status, message, sportsVenue } = await updateSportsVenueStatus(req);
-    res.status(status).json({ message, data: sportsVenue });
+    const sportsVenue = await updateSportsVenueStatus(req);
+    res.status(200).json({ sportsVenue });
     return;
   } catch (error: any) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    res.status(error.statusCode).json({ message: error.message });
     return;
   }
 };
@@ -56,11 +53,13 @@ export const deleteSportsVenueController = async (
   res: Response
 ) => {
   try {
-    const { status, message } = await deleteSportsVenue(req);
-    res.status(status).json({ message });
+    const isDeleted = await deleteSportsVenue(req);
+    res
+      .status(200)
+      .json({ message: 'Sports Venue was deleted', isDeleted: isDeleted });
     return;
   } catch (error: any) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    res.status(error.statusCode).json({ message: error.message });
     return;
   }
 };
@@ -73,7 +72,7 @@ export const getSportsVenueByIdController = async (
     const sportsVenue = await getSportsVenueById(req);
     res.status(200).json(sportsVenue);
   } catch (error: any) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    res.status(error.statusCode).json({ message: error.message });
   }
 };
 
@@ -83,8 +82,8 @@ export const getAllSportsVenueController = async (
 ) => {
   try {
     const allSportsVenue = await getAllSportsVenue();
-    res.status(200).json({ SportsVenue: allSportsVenue });
+    res.status(200).json({ sportVenues: allSportsVenue });
   } catch (error: any) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    res.status(error.statusCode).json({ message: error.message });
   }
 };

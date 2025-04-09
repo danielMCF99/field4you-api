@@ -5,7 +5,7 @@ import { jwtHelper } from '../app';
 const whitelist = [
   { method: 'POST', path: '/api/auth/login' },
   { method: 'POST', path: '/api/auth/register' },
-  { method: 'POST', path: '/api/auth/reset-password' },
+  { method: 'PUT', path: '/api/auth/reset-password' },
   { method: 'POST', path: '/api/auth/password-recovery' },
 ];
 
@@ -16,7 +16,9 @@ export const authenticate = async (
 ): Promise<void> => {
   // Check if given route is whitelisted
   const isWhitelisted = whitelist.some(
-    (route) => route.method === req.method && route.path === req.path
+    (route) =>
+      route.method === req.method &&
+      (route.path === req.path || req.path.includes('/api/auth/reset-password'))
   );
 
   if (isWhitelisted) {

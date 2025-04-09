@@ -10,7 +10,7 @@ import { publishSportsVenueUpdate } from '../../infrastructure/middlewares/rabbi
 
 export const updateSportsVenueStatus = async (
   req: Request
-): Promise<{ status: number; message: string; sportsVenue?: SportsVenue }> => {
+): Promise<SportsVenue> => {
   const id = req.params.id.toString();
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new BadRequestException('Invalid ID format');
@@ -27,40 +27,30 @@ export const updateSportsVenueStatus = async (
     throw new BadRequestException('Invalid status update request');
   }
 
-  try {
-    const sportsVenue = await sportsVenueRepository.findById(id);
-    if (!sportsVenue) {
-      throw new NotFoundException('Sports Venue not found');
-    }
-    if (sportsVenue.ownerId != ownerId) {
-      throw new UnauthorizedException(
-        'User is not authorized to update this venue'
-      );
-    }
-
-    const updatedSportsVenue = await sportsVenueRepository.update(id, {
-      ...sportsVenue,
-      ...{ status: status },
-    });
-
-    if (!updatedSportsVenue) {
-      throw new InternalServerErrorException('Failed to update Sports Venue');
-    }
-    await publishSportsVenueUpdate({
-      sportsVenueId: id,
-      ownerId: sportsVenue.ownerId,
-      updatedData: {
-        status,
-      },
-    });
-    return {
-      status: 200,
-      message: 'Sports Venue updated successfully',
-      sportsVenue: updatedSportsVenue,
-    };
-  } catch (error: any) {
-    throw new InternalServerErrorException(
-      error.message || 'Internal server error'
+  const sportsVenue = await sportsVenueRepository.findById(id);
+  if (!sportsVenue) {
+    throw new NotFoundException('Sports Venue not found');
+  }
+  if (sportsVenue.ownerId != ownerId) {
+    throw new UnauthorizedException(
+      'User is not authorized to update this venue'
     );
   }
+
+  const updatedSportsVenue = await sportsVenueRepository.update(id, {
+    ...sportsVenue,
+    ...{ status: status },
+  });
+
+  if (!updatedSportsVenue) {
+    throw new InternalServerErrorException('Failed to update Sports Venue');
+  }
+  await publishSportsVenueUpdate({
+    sportsVenueId: id,
+    ownerId: sportsVenue.ownerId,
+    updatedData: {
+      status,
+    },
+  });
+  return updatedSportsVenue;
 };

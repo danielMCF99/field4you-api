@@ -2,7 +2,6 @@ import { Request } from 'express';
 import mongoose from 'mongoose';
 import { userRepository } from '../../app';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
@@ -30,24 +29,14 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
     );
   }
 
-  try {
-    const deletedUser = await userRepository.delete(user.getId());
-    if (!deletedUser) {
-      throw new InternalServerErrorException(
-        'Internal server error when deleting the user'
-      );
-    }
-
-    await publishUserDeletion({ userId: id });
-
-    return deletedUser;
-  } catch (error: any) {
-    if (error instanceof NotFoundException) {
-      throw new NotFoundException(error.message);
-    } else if (error instanceof ForbiddenException) {
-      throw new ForbiddenException(error.message);
-    } else {
-      throw new InternalServerErrorException(error.message);
-    }
+  const deletedUser = await userRepository.delete(user.getId());
+  if (!deletedUser) {
+    throw new InternalServerErrorException(
+      'Internal server error when deleting the user'
+    );
   }
+
+  await publishUserDeletion({ userId: id });
+
+  return deletedUser;
 };

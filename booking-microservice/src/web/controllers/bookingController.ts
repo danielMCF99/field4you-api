@@ -10,7 +10,7 @@ export const createBookingController = async (req: Request, res: Response) => {
   try {
     const booking = await createBooking(req);
 
-    res.status(201).json({ message: 'Booking created successfully' });
+    res.status(201).json(booking);
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
@@ -21,7 +21,7 @@ export const createBookingController = async (req: Request, res: Response) => {
 export const updateBookingController = async (req: Request, res: Response) => {
   try {
     const booking = await updateBooking(req);
-    res.status(200).json({ booking: booking });
+    res.status(200).json(booking);
     return booking;
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });
@@ -34,7 +34,7 @@ export const updateBookingStatusController = async (
 ) => {
   try {
     const booking = await updateBookingStatus(req);
-    res.status(200).json({ booking: booking });
+    res.status(200).json(booking);
     return booking;
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });
@@ -63,9 +63,10 @@ export const getAllBookingsController = async (req: Request, res: Response) => {
 
 export const deleteBookingController = async (req: Request, res: Response) => {
   try {
-    const status = await deleteBooking(req);
+    const isDeleted = await deleteBooking(req);
     res.status(200).json({
-      deleted: status,
+      isDeleted: isDeleted,
+      message: 'Booking was deleted',
     });
     return;
   } catch (error: any) {

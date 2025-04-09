@@ -21,6 +21,7 @@ export class MongoBookingRepository implements IBookingRepository {
 
   async findById(id: string): Promise<Booking | undefined> {
     const booking = await BookingModel.findById(id);
+    console.log(booking);
     if (!booking) {
       return undefined;
     }

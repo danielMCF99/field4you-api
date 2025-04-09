@@ -53,23 +53,12 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     throw new NotFoundException('Booking not found');
   }
 
-  try {
-    const updatedBooking = await bookingRepository.update(booking.getId(), {
-      ...updatedData,
-    });
+  const updatedBooking = await bookingRepository.update(booking.getId(), {
+    ...updatedData,
+  });
 
-    if (!updatedBooking) {
-      throw new InternalServerErrorException('Error updating booking');
-    }
-    return updatedBooking;
-  } catch (error: any) {
-    switch (error) {
-      case error instanceof NotFoundException:
-        throw new NotFoundException(error.message);
-      case error instanceof BadRequestException:
-        throw new BadRequestException(error.message);
-      default:
-        throw new InternalServerErrorException('Internal Server Error');
-    }
+  if (!updatedBooking) {
+    throw new InternalServerErrorException('Error updating booking');
   }
+  return updatedBooking;
 };

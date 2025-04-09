@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { userRepository } from '../../app';
 import { User } from '../../domain/entities/User';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
@@ -47,24 +46,14 @@ export const updateUser = async (req: Request): Promise<User> => {
     }
   });
 
-  try {
-    const updatedUser = await userRepository.update(user.getId(), {
-      ...filteredBody,
-    });
-    if (!updatedUser) {
-      throw new InternalServerErrorException(
-        'Internal server error when updating the user'
-      );
-    }
-
-    return updatedUser;
-  } catch (error: any) {
-    if (error instanceof NotFoundException) {
-      throw new NotFoundException(error.message);
-    } else if (error instanceof ForbiddenException) {
-      throw new ForbiddenException(error.message);
-    } else {
-      throw new InternalServerErrorException(error.message);
-    }
+  const updatedUser = await userRepository.update(user.getId(), {
+    ...filteredBody,
+  });
+  if (!updatedUser) {
+    throw new InternalServerErrorException(
+      'Internal server error when updating the user'
+    );
   }
+
+  return updatedUser;
 };

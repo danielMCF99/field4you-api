@@ -1,8 +1,8 @@
-import CircuitBreaker from 'opossum';
 import axios, { AxiosRequestConfig } from 'axios';
 import FormData from 'form-data';
-import { logger } from '../logging/logger';
+import CircuitBreaker from 'opossum';
 import { serviceConfig } from '../config/env';
+import { logger } from '../logging/logger';
 
 interface ProxyResponse {
   status: number;
@@ -13,8 +13,8 @@ interface ProxyResponse {
 class ProxyService {
   static circuitOptions = {
     timeout: 5000,
-    errorThresholdPercentage: 50,
-    resetTimeout: 10000,
+    errorThresholdPercentage: 90,
+    resetTimeout: 2000,
   };
 
   static breakers: Record<string, CircuitBreaker<any, ProxyResponse>> = {};
