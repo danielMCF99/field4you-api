@@ -20,7 +20,6 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   }
 
   const {
-    location,
     sportsVenueType,
     sportsVenueName,
     bookingMinDuration,
@@ -29,22 +28,30 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     hasParking,
     hasShower,
     hasBar,
+    district,
+    city,
+    address,
+    latitude,
+    longitude,
   } = req.body;
 
   if (
-    !location ||
     !sportsVenueType ||
     !sportsVenueName ||
     !bookingMinDuration ||
     !bookingMinPrice ||
-    !sportsVenuePicture
+    !sportsVenuePicture ||
+    !district ||
+    !city ||
+    !address ||
+    !latitude ||
+    !longitude
   ) {
     throw new BadRequestException('Missing required fields');
   }
 
   const sportsVenue = new SportsVenue({
     ownerId,
-    location,
     sportsVenueType,
     status: 'inactive',
     sportsVenueName,
@@ -64,7 +71,6 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   await publishSportsVenueCreation({
     sportsVenueId: newSportsVenue.getId(),
     ownerId: ownerId,
-    location: newSportsVenue.location,
     sportsVenueType: newSportsVenue.sportsVenueType,
     status: newSportsVenue.status,
     sportsVenueName: newSportsVenue.sportsVenueName,

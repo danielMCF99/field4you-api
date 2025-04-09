@@ -3,7 +3,6 @@ import { Schema, model, Document, Types } from 'mongoose';
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;
   ownerId: string;
-  location: string;
   sportsVenueType: string;
   status: string;
   sportsVenueName: string;
@@ -22,7 +21,6 @@ interface ISportsVenue extends Document {
 
 const SportsVenueSchema = new Schema<ISportsVenue>({
   ownerId: { type: String, required: true },
-  location: { type: String, required: true },
   sportsVenueType: {
     type: String,
     required: true,
