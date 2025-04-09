@@ -70,6 +70,22 @@ export class MongoBookingRepository implements IBookingRepository {
     }
     return Booking.fromMongooseDocument(updatedBooking);
   }
+
+  async updateStatus(id: string, status: string): Promise<Booking | undefined> {
+    const updatedBooking = await BookingModel.findByIdAndUpdate(
+      id,
+      { status: status },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return updatedBooking
+      ? Booking.fromMongooseDocument(updatedBooking)
+      : undefined;
+  }
+
   async findConflictingBookings(
     sportsVenueId: string,
     bookingStartDate: Date,

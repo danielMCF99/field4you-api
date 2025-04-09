@@ -31,6 +31,7 @@ export const updateSportsVenueStatus = async (
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue not found');
   }
+
   if (sportsVenue.ownerId != ownerId) {
     throw new UnauthorizedException(
       'User is not authorized to update this venue'

@@ -14,7 +14,7 @@ class ProxyService {
   static circuitOptions = {
     timeout: 5000,
     errorThresholdPercentage: 90,
-    resetTimeout: 2000,
+    resetTimeout: 200,
   };
 
   static breakers: Record<string, CircuitBreaker<any, ProxyResponse>> = {};

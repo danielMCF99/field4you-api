@@ -39,7 +39,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   let booking;
   if (userType != 'admin') {
     // Check if booking belongs to the user
-    const booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
+    booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
     if (!booking) {
       throw new NotFoundException(
         'Booking with given ID not found for authenticated user'
@@ -53,12 +53,11 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     throw new NotFoundException('Booking not found');
   }
 
-  const updatedBooking = await bookingRepository.update(booking.getId(), {
-    ...updatedData,
-  });
+  const updatedBooking = await bookingRepository.updateStatus(id, newStatus);
 
   if (!updatedBooking) {
     throw new InternalServerErrorException('Error updating booking');
   }
+
   return updatedBooking;
 };

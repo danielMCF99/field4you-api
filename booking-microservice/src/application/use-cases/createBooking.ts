@@ -57,7 +57,7 @@ export const createBooking = async (
   const booking = new Booking({
     sportsVenueId,
     bookingType,
-    status,
+    status: 'active',
     title,
     bookingStartDate,
     bookingEndDate,
