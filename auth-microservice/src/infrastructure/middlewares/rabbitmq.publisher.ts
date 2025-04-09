@@ -11,6 +11,11 @@ export async function publishUserCreation(userPayload: {
   email: string;
   firstName: string;
   lastName: string;
+  district?: string;
+  city?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
   userType: string;
   birthDate: string;
   registerDate: string;

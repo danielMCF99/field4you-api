@@ -7,7 +7,19 @@ import { publishUserCreation } from '../../infrastructure/middlewares/rabbitmq.p
 
 export const registerUser = async (req: Request): Promise<String> => {
   // Validate request sent for any necessary fields missing
-  let { userType, email, password, firstName, lastName, birthDate } = req.body;
+  let {
+    userType,
+    email,
+    password,
+    firstName,
+    lastName,
+    birthDate,
+    district,
+    city,
+    address,
+    latitude,
+    longitude,
+  } = req.body;
 
   if (
     !userType ||
@@ -42,6 +54,11 @@ export const registerUser = async (req: Request): Promise<String> => {
       password,
       firstName,
       lastName,
+      district,
+      city,
+      address,
+      latitude,
+      longitude,
       birthDate,
       registerDate,
       lastAccessDate,
@@ -71,6 +88,11 @@ export const registerUser = async (req: Request): Promise<String> => {
     userType: newUser.userType.toString(),
     birthDate: birthDate,
     registerDate: registerDate.toString(),
+    district: newUser.district,
+    city: newUser.city,
+    address: newUser.address,
+    latitude: newUser.latitude,
+    longitude: newUser.longitude,
   });
 
   return token;
