@@ -10,6 +10,11 @@ export class User {
   public phoneNumber?: string;
   public firstName: string;
   public lastName: string;
+  public address?: string;
+  public city?: string;
+  public district?: string;
+  public latitude?: number;
+  public longitude?: number;
 
   constructor(user: {
     id?: string;
@@ -18,6 +23,11 @@ export class User {
     phoneNumber?: string;
     firstName: string;
     lastName: string;
+    district?: string;
+    city?: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
   }) {
     this.id = user.id;
     this.userType = user.userType;
@@ -25,6 +35,11 @@ export class User {
     this.phoneNumber = user.phoneNumber;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
+    this.district = user.district;
+    this.city = user.city;
+    this.address = user.address;
+    this.latitude = user.latitude;
+    this.longitude = user.longitude;
   }
 
   getId(): string {
@@ -39,6 +54,11 @@ export class User {
       phoneNumber: doc.phoneNumber,
       firstName: doc.firstName,
       lastName: doc.lastName,
+      district: doc.district,
+      city: doc.city,
+      address: doc.address,
+      latitude: doc.latitude,
+      longitude: doc.longitude,
     });
   }
 }

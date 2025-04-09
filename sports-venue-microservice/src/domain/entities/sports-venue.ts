@@ -1,7 +1,6 @@
 export class SportsVenue {
   public id?: string;
   public ownerId: string;
-  public location: string;
   public sportsVenueType: string;
   public status: string;
   public sportsVenueName: string;
@@ -11,11 +10,15 @@ export class SportsVenue {
   public hasParking: boolean;
   public hasShower: boolean;
   public hasBar: boolean;
+  public address?: string;
+  public city?: string;
+  public district?: string;
+  public latitude?: number;
+  public longitude?: number;
 
   constructor(sportsVenue: {
     id?: string;
     ownerId: string;
-    location: string;
     sportsVenueType: string;
     status: string;
     sportsVenueName: string;
@@ -25,10 +28,14 @@ export class SportsVenue {
     hasParking: boolean;
     hasShower: boolean;
     hasBar: boolean;
+    district?: string;
+    city?: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
   }) {
     this.id = sportsVenue.id;
     this.ownerId = sportsVenue.ownerId;
-    this.location = sportsVenue.location;
     this.sportsVenueType = sportsVenue.sportsVenueType;
     this.status = sportsVenue.status;
     this.sportsVenueName = sportsVenue.sportsVenueName;
@@ -38,6 +45,11 @@ export class SportsVenue {
     this.hasParking = sportsVenue.hasParking;
     this.hasShower = sportsVenue.hasShower;
     this.hasBar = sportsVenue.hasBar;
+    this.district = sportsVenue.district;
+    this.city = sportsVenue.city;
+    this.address = sportsVenue.address;
+    this.latitude = sportsVenue.latitude;
+    this.longitude = sportsVenue.longitude;
   }
   getId(): string {
     return this.id ? this.id : 'N/A';
@@ -47,7 +59,6 @@ export class SportsVenue {
     return new SportsVenue({
       id: doc._id.toString(),
       ownerId: doc.ownerId.toString(),
-      location: doc.location,
       sportsVenueType: doc.sportsVenueType,
       status: doc.status,
       sportsVenueName: doc.sportsVenueName,
@@ -57,6 +68,11 @@ export class SportsVenue {
       hasParking: doc.hasParking,
       hasShower: doc.hasShower,
       hasBar: doc.hasBar,
+      district: doc.district,
+      city: doc.city,
+      address: doc.address,
+      latitude: doc.latitude,
+      longitude: doc.longitude,
     });
   }
 }

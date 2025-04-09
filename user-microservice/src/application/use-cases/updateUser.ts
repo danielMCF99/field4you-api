@@ -23,7 +23,7 @@ export const updateUser = async (req: Request): Promise<User> => {
     throw new NotFoundException('User not found');
   }
 
-  if (!(user.getId() != authUserId)) {
+  if (user.getId() != authUserId) {
     throw new UnauthorizedException(
       "You don't have permission to edit this user"
     );
