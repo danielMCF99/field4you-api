@@ -4,6 +4,7 @@ import { deleteSportsVenue } from '../../application/use-cases/deleteSportsVenue
 import { getAllSportsVenue } from '../../application/use-cases/getAllSportsVenue';
 import { getSportsVenueById } from '../../application/use-cases/getSportsVenueById';
 import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue';
+import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -28,6 +29,20 @@ export const updateSportsVenueController = async (
 ) => {
   try {
     const { status, message, sportsVenue } = await updateSportsVenue(req);
+    res.status(status).json({ message, data: sportsVenue });
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode || 500).json({ message: error.message });
+    return;
+  }
+};
+
+export const updateSportsVenueStatusController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { status, message, sportsVenue } = await updateSportsVenueStatus(req);
     res.status(status).json({ message, data: sportsVenue });
     return;
   } catch (error: any) {
