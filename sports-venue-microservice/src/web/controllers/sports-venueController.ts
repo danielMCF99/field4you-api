@@ -53,10 +53,8 @@ export const deleteSportsVenueController = async (
   res: Response
 ) => {
   try {
-    const isDeleted = await deleteSportsVenue(req);
-    res
-      .status(200)
-      .json({ message: 'Sports Venue was deleted', isDeleted: isDeleted });
+    await deleteSportsVenue(req);
+    res.status(200).json({});
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

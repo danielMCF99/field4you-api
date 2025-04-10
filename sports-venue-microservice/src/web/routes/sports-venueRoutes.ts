@@ -16,7 +16,7 @@ router.get('/sports-venues/swagger', async (req: Request, res: Response) => {
 });
 
 router.post('/sports-venues/create', createSportsVenueController);
-router.put('/sports-venues/:id/status', updateSportsVenueStatusController);
+router.patch('/sports-venues/:id/status', updateSportsVenueStatusController);
 router.put('/sports-venues/:id', updateSportsVenueController);
 router.get('/sports-venues/all', getAllSportsVenueController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);

@@ -37,12 +37,18 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
     );
   }
 
-  const deletedSportsVenue = await sportsVenueRepository.delete(id);
-  if (deletedSportsVenue == null) {
-    throw new NotFoundException('Sports Venue with given ID not found');
+  try {
+    const deletedSportsVenue = await sportsVenueRepository.delete(id);
+    if (deletedSportsVenue == null) {
+      throw new NotFoundException('Sports Venue with given ID not found');
+    }
+
+    await publishSportsVenueDeletion({ sportsVenueId: id, ownerId });
+
+    return true;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error deleting sports venue'
+    );
   }
-
-  await publishSportsVenueDeletion({ sportsVenueId: id, ownerId });
-
-  return true;
 };

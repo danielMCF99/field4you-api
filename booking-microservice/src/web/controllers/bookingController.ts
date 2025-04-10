@@ -63,11 +63,8 @@ export const getAllBookingsController = async (req: Request, res: Response) => {
 
 export const deleteBookingController = async (req: Request, res: Response) => {
   try {
-    const isDeleted = await deleteBooking(req);
-    res.status(200).json({
-      isDeleted: isDeleted,
-      message: 'Booking was deleted',
-    });
+    await deleteBooking(req);
+    res.status(204).json({});
     return;
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });

@@ -46,14 +46,21 @@ export const updateUser = async (req: Request): Promise<User> => {
     }
   });
 
-  const updatedUser = await userRepository.update(user.getId(), {
-    ...filteredBody,
-  });
-  if (!updatedUser) {
+  try {
+    const updatedUser = await userRepository.update(user.getId(), {
+      ...filteredBody,
+    });
+
+    if (!updatedUser) {
+      throw new InternalServerErrorException(
+        'Internal server error when updating the user'
+      );
+    }
+
+    return updatedUser;
+  } catch (error) {
     throw new InternalServerErrorException(
       'Internal server error when updating the user'
     );
   }
-
-  return updatedUser;
 };

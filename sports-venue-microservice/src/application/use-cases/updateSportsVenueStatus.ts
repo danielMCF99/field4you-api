@@ -38,20 +38,25 @@ export const updateSportsVenueStatus = async (
     );
   }
 
-  const updatedSportsVenue = await sportsVenueRepository.update(id, {
-    ...sportsVenue,
-    ...{ status: status },
-  });
-
-  if (!updatedSportsVenue) {
-    throw new InternalServerErrorException('Failed to update Sports Venue');
+  try {
+    const updatedSportsVenue = await sportsVenueRepository.update(id, {
+      ...sportsVenue,
+      ...{ status: status },
+    });
+    if (!updatedSportsVenue) {
+      throw new InternalServerErrorException('Failed to update Sports Venue');
+    }
+    await publishSportsVenueUpdate({
+      sportsVenueId: id,
+      ownerId: sportsVenue.ownerId,
+      updatedData: {
+        status,
+      },
+    });
+    return updatedSportsVenue;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error updating sports venue status'
+    );
   }
-  await publishSportsVenueUpdate({
-    sportsVenueId: id,
-    ownerId: sportsVenue.ownerId,
-    updatedData: {
-      status,
-    },
-  });
-  return updatedSportsVenue;
 };

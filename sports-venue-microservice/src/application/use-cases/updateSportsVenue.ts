@@ -39,19 +39,25 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
     );
   }
 
-  const updatedSportsVenue = await sportsVenueRepository.update(id, {
-    ...sportsVenue,
-    ...updatedData,
-  });
+  try {
+    const updatedSportsVenue = await sportsVenueRepository.update(id, {
+      ...sportsVenue,
+      ...updatedData,
+    });
 
-  if (!updatedSportsVenue) {
-    throw new InternalServerErrorException('Failed to update Sports Venue');
+    if (!updatedSportsVenue) {
+      throw new InternalServerErrorException('Failed to update Sports Venue');
+    }
+    await publishSportsVenueUpdate({
+      sportsVenueId: id,
+      ownerId: sportsVenue.ownerId,
+      updatedData,
+    });
+
+    return updatedSportsVenue;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error updating sports venue'
+    );
   }
-  await publishSportsVenueUpdate({
-    sportsVenueId: id,
-    ownerId: sportsVenue.ownerId,
-    updatedData,
-  });
-
-  return updatedSportsVenue;
 };

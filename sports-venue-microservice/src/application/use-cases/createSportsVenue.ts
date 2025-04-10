@@ -63,23 +63,30 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     hasBar,
   });
 
-  const newSportsVenue = await sportsVenueRepository.create(sportsVenue);
-  if (!newSportsVenue) {
-    throw new InternalServerErrorException('Failed to create sports venue');
-  }
+  try {
+    const newSportsVenue = await sportsVenueRepository.create(sportsVenue);
+    if (!newSportsVenue) {
+      throw new InternalServerErrorException('Failed to create sports venue');
+    }
 
-  await publishSportsVenueCreation({
-    sportsVenueId: newSportsVenue.getId(),
-    ownerId: ownerId,
-    sportsVenueType: newSportsVenue.sportsVenueType,
-    status: newSportsVenue.status,
-    sportsVenueName: newSportsVenue.sportsVenueName,
-    bookingMinDuration: newSportsVenue.bookingMinDuration,
-    bookingMinPrice: newSportsVenue.bookingMinPrice,
-    sportsVenuePicture: newSportsVenue.sportsVenuePicture,
-    hasParking: newSportsVenue.hasParking,
-    hasShower: newSportsVenue.hasShower,
-    hasBar: newSportsVenue.hasBar,
-  });
-  return newSportsVenue;
+    await publishSportsVenueCreation({
+      sportsVenueId: newSportsVenue.getId(),
+      ownerId: ownerId,
+      sportsVenueType: newSportsVenue.sportsVenueType,
+      status: newSportsVenue.status,
+      sportsVenueName: newSportsVenue.sportsVenueName,
+      bookingMinDuration: newSportsVenue.bookingMinDuration,
+      bookingMinPrice: newSportsVenue.bookingMinPrice,
+      sportsVenuePicture: newSportsVenue.sportsVenuePicture,
+      hasParking: newSportsVenue.hasParking,
+      hasShower: newSportsVenue.hasShower,
+      hasBar: newSportsVenue.hasBar,
+    });
+
+    return newSportsVenue;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error creating sports venue'
+    );
+  }
 };

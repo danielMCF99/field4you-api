@@ -29,14 +29,14 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
     );
   }
 
-  const deletedUser = await userRepository.delete(user.getId());
-  if (!deletedUser) {
+  try {
+    const deletedUser = await userRepository.delete(user.getId());
+    await publishUserDeletion({ userId: id });
+
+    return deletedUser;
+  } catch (error) {
     throw new InternalServerErrorException(
-      'Internal server error when deleting the user'
+      'Internal server error deleting user'
     );
   }
-
-  await publishUserDeletion({ userId: id });
-
-  return deletedUser;
 };
