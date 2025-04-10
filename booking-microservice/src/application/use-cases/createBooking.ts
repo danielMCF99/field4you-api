@@ -35,16 +35,22 @@ export const createBooking = async (
     throw new BadRequestException('Request body is required');
   }
 
-  if (
-    !sportsVenueId ||
-    !bookingType ||
-    !status ||
-    !title ||
-    !bookingStartDate ||
-    !bookingEndDate ||
-    !isPublic
-  ) {
-    throw new BadRequestException('Missing required fields');
+  const requiredFields = {
+    sportsVenueId,
+    bookingType,
+    status,
+    title,
+    bookingStartDate,
+    bookingEndDate,
+    isPublic,
+  };
+
+  const missingFields = Object.entries(requiredFields)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingFields.length > 0) {
+    throw new BadRequestException('Missing required fields', { missingFields });
   }
 
   const hasConflicts = await checkBookingConflicts(
@@ -107,7 +113,6 @@ export const createBooking = async (
 
   // Check if Sports Venue Exists
   const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
-  console.log('Non existing sports venue: ', sportsVenue);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue for given Booking not found');
   }

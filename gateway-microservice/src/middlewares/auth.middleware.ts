@@ -37,11 +37,12 @@ export const authenticate = async (
 
   const decodedPayload = await jwtHelper.decodeBearerToken(token);
 
-  if (
-    !decodedPayload ||
-    !decodedPayload.exp ||
-    decodedPayload.exp * 1000 < Date.now()
-  ) {
+  if (!decodedPayload) {
+    res.status(401).json({ error: 'Invalid token' });
+    return;
+  }
+
+  if (!decodedPayload.exp || decodedPayload.exp * 1000 < Date.now()) {
     res.status(401).json({ error: 'Unauthorized: Token has expired' });
     return;
   }

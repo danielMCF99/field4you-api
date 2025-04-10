@@ -13,6 +13,13 @@ export const createBookingController = async (req: Request, res: Response) => {
     res.status(201).json(booking);
     return;
   } catch (error: any) {
+    if (error.details) {
+      res
+        .status(error.statusCode)
+        .json({ message: error.message, details: error.details });
+      return;
+    }
+
     res.status(error.statusCode).json({ message: error.message });
     return;
   }

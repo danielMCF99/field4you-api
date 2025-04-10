@@ -56,21 +56,27 @@ router.all(
       logger.error(
         `Error in route for service '${serviceName}': ${error.message}`
       );
-      var errorMessage = 'An unexpected error occurred';
-      var statusCode = 400;
+      let errorMessage = 'An unexpected error occurred';
+      let statusCode = 400;
+      let details;
       if (error.response) {
-        if (error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        }
-        statusCode = error.response.status || 400;
+        const resData = error.response.data;
+        errorMessage = resData?.message || errorMessage;
+        statusCode = error.response.status || statusCode;
+        details = resData?.details;
       } else if (error.request) {
         errorMessage = 'No response from the server';
         statusCode = 503;
       } else {
         errorMessage = error.message;
       }
-      console.error('Error:', errorMessage);
-      res.status(statusCode).json({ message: errorMessage });
+
+      const errorResponse: any = { message: errorMessage };
+      if (details) {
+        errorResponse.details = details;
+      }
+
+      res.status(statusCode).json(errorResponse);
     }
   }
 );

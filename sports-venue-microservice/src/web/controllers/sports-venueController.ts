@@ -15,6 +15,13 @@ export const createSportsVenueController = async (
     res.status(201).json({ sportsVenue });
     return;
   } catch (error: any) {
+    if (error.details) {
+      res
+        .status(error.statusCode)
+        .json({ message: error.message, details: error.details });
+      return;
+    }
+
     res.status(error.statusCode).json({ message: error.message });
     return;
   }
