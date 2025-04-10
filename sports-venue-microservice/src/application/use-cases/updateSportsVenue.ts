@@ -7,6 +7,7 @@ import { InternalServerErrorException } from '../../domain/exceptions/InternalSe
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { publishSportsVenueUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 
 export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const id = req.params.id.toString();
@@ -18,6 +19,12 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const userType = req.headers['x-user-type'] as string | undefined;
   if (!ownerId || !userType) {
     throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  if (userType != 'owner') {
+    throw new ForbiddenException(
+      'Regular User is not allowed to delete this venue'
+    );
   }
 
   const updatedData = req.body;
