@@ -1,6 +1,10 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingRepository } from '../../app';
+import {
+  bookingRepository,
+  sportsVenueRepository,
+  userRepository,
+} from '../../app';
 import { Booking } from '../../domain/entities/Booking';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../domain/exceptions/ConflictException';
@@ -46,6 +50,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     'isPublic',
     'invitedUsersIds',
   ];
+
   const updatedData: Record<string, any> = {};
   Object.keys(req.body).forEach((key) => {
     if (allowedFields.includes(key)) {
@@ -64,19 +69,56 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     new Date(updatedData.bookingEndDate).getTime() !==
       new Date(booking.bookingEndDate).getTime();
 
-  if (isSportsVenueIdChanged || isStartDateChanged || isEndDateChanged) {
-    const hasConflicts = await checkBookingConflicts(
-      bookingRepository,
-      updatedData.sportsVenueId || booking.sportsVenueId,
-      new Date(updatedData.bookingStartDate || booking.bookingStartDate),
-      new Date(updatedData.bookingEndDate || booking.bookingEndDate),
-      id
+  if (isSportsVenueIdChanged) {
+    // Check if Sports Venue Exists
+    const sportsVenue = await sportsVenueRepository.findById(
+      updatedData.sportsVenueId
     );
+    if (!sportsVenue) {
+      throw new NotFoundException('Sports Venue for given Booking not found');
+    }
 
-    if (hasConflicts) {
-      throw new ConflictException('Booking conflicts found');
+    if (isStartDateChanged || isEndDateChanged) {
+      const hasConflicts = await checkBookingConflicts(
+        bookingRepository,
+        updatedData.sportsVenueId || booking.sportsVenueId,
+        new Date(updatedData.bookingStartDate || booking.bookingStartDate),
+        new Date(updatedData.bookingEndDate || booking.bookingEndDate),
+        id
+      );
+
+      if (hasConflicts) {
+        throw new ConflictException('Booking conflicts found');
+      }
     }
   }
+
+  // Check invited user ids
+  const invitedUsersIds = updatedData.invitedUsersIds;
+  if (invitedUsersIds) {
+    const invalidIds = invitedUsersIds.some(
+      (id: string) => !mongoose.Types.ObjectId.isValid(id)
+    );
+    if (invalidIds.length) {
+      throw new BadRequestException('Invalid user IDs');
+    }
+
+    // Check if any of the invited users does not exist
+    const nonExistingUsers = await Promise.all(
+      invitedUsersIds.map(async (id: string) => {
+        const user = await userRepository.getById(id);
+        return user === undefined;
+      })
+    );
+
+    const hasNonExistingUsers = nonExistingUsers.some((val) => val === true);
+    if (hasNonExistingUsers) {
+      throw new NotFoundException(
+        'You have invited at least one user that does not exist'
+      );
+    }
+  }
+
   const updatedBooking = await bookingRepository.update(booking.getId(), {
     ...updatedData,
   });
