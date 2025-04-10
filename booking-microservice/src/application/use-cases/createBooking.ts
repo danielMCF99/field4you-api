@@ -1,119 +1,130 @@
-import { Request } from "express";
-import { Booking } from "../../domain/entities/Booking";
-import { authMiddleware, bookingRepository, jwtHelper } from "../../app";
-import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
-import { BadRequestException } from "../../domain/exceptions/BadRequestException";
-import { checkBookingConflicts } from "./checkBookingConflicts";
-import config from "../../config/env";
-import mongoose from "mongoose";
-import axios from "axios";
-import { ConflictException } from "../../domain/exceptions/ConflictException";
-import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
+import { Request } from 'express';
+import mongoose from 'mongoose';
+import {
+  bookingRepository,
+  sportsVenueRepository,
+  userRepository,
+} from '../../app';
+import { Booking } from '../../domain/entities/Booking';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { ConflictException } from '../../domain/exceptions/ConflictException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { checkBookingConflicts } from './checkBookingConflicts';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
 export const createBooking = async (
   req: Request
 ): Promise<Booking | undefined> => {
+  const ownerId = req.headers['x-user-id'] as string | undefined;
+  if (!ownerId) {
+    throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  const {
+    sportsVenueId,
+    bookingType,
+    status,
+    title,
+    bookingStartDate,
+    bookingEndDate,
+    isPublic,
+    invitedUsersIds,
+  } = req.body;
+
+  if (!req) {
+    throw new BadRequestException('Request body is required');
+  }
+
+  const requiredFields = {
+    sportsVenueId,
+    bookingType,
+    status,
+    title,
+    bookingStartDate,
+    bookingEndDate,
+    isPublic,
+  };
+
+  const missingFields = Object.entries(requiredFields)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingFields.length > 0) {
+    throw new BadRequestException('Missing required fields', { missingFields });
+  }
+
+  const hasConflicts = await checkBookingConflicts(
+    bookingRepository,
+    sportsVenueId,
+    new Date(bookingStartDate),
+    new Date(bookingEndDate),
+    undefined
+  );
+
+  if (hasConflicts) {
+    throw new ConflictException('Booking conflicts with existing bookings');
+  }
+
+  const booking = new Booking({
+    sportsVenueId,
+    bookingType,
+    status: 'active',
+    title,
+    bookingStartDate,
+    bookingEndDate,
+    isPublic,
+    invitedUsersIds,
+  });
+
+  const formatedStartDate = new Date(booking.bookingStartDate);
+  const formatedEndDate = new Date(booking.bookingEndDate);
+  const now = new Date();
+
+  if (formatedStartDate < now) {
+    throw new BadRequestException('Booking start date cannot be in the past');
+  }
+
+  if (formatedEndDate <= formatedStartDate) {
+    throw new BadRequestException('Booking end date must be after start date');
+  }
+
+  // Check invited user ids
+  const invalidIds = invitedUsersIds.some(
+    (id: string) => !mongoose.Types.ObjectId.isValid(id)
+  );
+  if (invalidIds.length > 0) {
+    throw new BadRequestException('Invalid user IDs');
+  }
+
+  // Check if any of the invited users does not exist
+  const nonExistingUsers = await Promise.all(
+    invitedUsersIds.map(async (id: string) => {
+      const user = await userRepository.getById(id);
+      return user === undefined;
+    })
+  );
+
+  const hasNonExistingUsers = nonExistingUsers.some((val) => val === true);
+  if (hasNonExistingUsers) {
+    throw new NotFoundException(
+      'You have invited at least one user that does not exist'
+    );
+  }
+
+  // Check if Sports Venue Exists
+  const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
+  if (!sportsVenue) {
+    throw new NotFoundException('Sports Venue for given Booking not found');
+  }
+
+  booking.ownerId = ownerId;
+
   try {
-    const {
-      sportsVenueId,
-      bookingType,
-      status,
-      title,
-      bookingStartDate,
-      bookingEndDate,
-      isPublic,
-      invitedUsersIds,
-    } = req.body;
-
-    if (!req) {
-      throw new BadRequestException("Request body is required");
-    }
-    if (
-      !sportsVenueId ||
-      !bookingType ||
-      !status ||
-      !title ||
-      !bookingStartDate ||
-      !bookingEndDate ||
-      !isPublic
-    ) {
-      throw new BadRequestException("Missing required fields");
-    }
-    const token = await jwtHelper.extractBearerToken(req);
-    if (!token) {
-      throw new UnauthorizedException("Authentication token is required");
-    }
-    const ownerId = await authMiddleware.verifyToken(token);
-    if (!ownerId) {
-      throw new UnauthorizedException("Authentication token is required");
-    }
-    const hasConflicts = await checkBookingConflicts(
-      bookingRepository,
-      sportsVenueId,
-      new Date(bookingStartDate),
-      new Date(bookingEndDate),
-      undefined
-    );
-    if (hasConflicts) {
-      throw new ConflictException("Booking conflicts with existing bookings");
-    }
-    const booking = new Booking({
-      sportsVenueId,
-      bookingType,
-      status,
-      title,
-      bookingStartDate,
-      bookingEndDate,
-      isPublic,
-      invitedUsersIds,
-    });
-    const formatedStartDate = new Date(booking.bookingStartDate);
-    const formatedEndDate = new Date(booking.bookingEndDate);
-    const now = new Date();
-
-    if (formatedStartDate < now) {
-      throw new BadRequestException("Booking start date cannot be in the past");
-    }
-
-    if (formatedEndDate <= formatedStartDate) {
-      throw new BadRequestException(
-        "Booking end date must be after start date"
-      );
-    }
-    const invalidIds = invitedUsersIds.filter(
-      (id: string) => !mongoose.Types.ObjectId.isValid(id)
-    );
-    if (invalidIds.length > 0) {
-      throw new BadRequestException("Invalid user IDs");
-    }
-
-    const response = await axios.get(
-      `${config.sportsVenueGatewayServiceUri}/${sportsVenueId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    if (response.status !== 200) {
-      throw new BadRequestException("Sports venue not found");
-    }
-    booking.ownerId = ownerId;
-
     const newBooking = await bookingRepository.create(booking);
-    if (!newBooking) {
-      throw new BadRequestException("Failed to create booking");
-    }
-
     return newBooking;
-  } catch (error: any) {
-    if (error instanceof UnauthorizedException) {
-      throw new UnauthorizedException(error.message);
-    } else if (error instanceof BadRequestException) {
-      throw new BadRequestException(error.message);
-    } else if (error instanceof ConflictException) {
-      throw new ConflictException(error.message);
-    } else {
-      throw new InternalServerErrorException("Internal Server Error");
-    }
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error creating booking'
+    );
   }
 };

@@ -9,7 +9,6 @@ export const createSportsVenue = async (
   const {
     sportsVenueId,
     ownerId,
-    location,
     sportsVenueType,
     status,
     sportsVenueName,

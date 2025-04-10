@@ -10,9 +10,9 @@ export class User {
   public phoneNumber?: string;
   public firstName: string;
   public lastName: string;
-  public district?: string;
-  public city?: string;
   public address?: string;
+  public city?: string;
+  public district?: string;
   public latitude?: number;
   public longitude?: number;
   public birthDate: string;

@@ -1,9 +1,8 @@
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Document, Types } from 'mongoose';
 
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;
   ownerId: string;
-  location: string;
   sportsVenueType: string;
   status: string;
   sportsVenueName: string;
@@ -13,13 +12,21 @@ interface ISportsVenue extends Document {
   hasParking: boolean;
   hasShower: boolean;
   hasBar: boolean;
+  district: string;
+  city: string;
+  address: string;
+  latitude: number;
+  longitude: number;
 }
 
 const SportsVenueSchema = new Schema<ISportsVenue>({
   ownerId: { type: String, required: true },
-  location: { type: String, required: true },
-  sportsVenueType: { type: String, required: true, enum: ["5x5", "7x7", "9x9", "11x11"] },
-  status: { type: String, required: true, enum: ["active", "inactive"] },
+  sportsVenueType: {
+    type: String,
+    required: true,
+    enum: ['5x5', '7x7', '9x9', '11x11'],
+  },
+  status: { type: String, required: true, enum: ['active', 'inactive'] },
   sportsVenueName: { type: String, required: true },
   bookingMinDuration: { type: Number, required: true },
   bookingMinPrice: { type: Number, required: true },
@@ -27,6 +34,14 @@ const SportsVenueSchema = new Schema<ISportsVenue>({
   hasParking: { type: Boolean, required: true },
   hasShower: { type: Boolean, required: true },
   hasBar: { type: Boolean, required: true },
+  district: { type: String },
+  city: { type: String },
+  address: { type: String },
+  latitude: { type: Number },
+  longitude: { type: Number },
 });
 
-export const SportsVenueModel = model<ISportsVenue>("SportsVenue", SportsVenueSchema);
+export const SportsVenueModel = model<ISportsVenue>(
+  'SportsVenue',
+  SportsVenueSchema
+);

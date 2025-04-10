@@ -1,16 +1,25 @@
-import { Request } from 'express';
 import bcrypt from 'bcryptjs';
-import axios from 'axios';
+import { Request } from 'express';
 import { jwtHelper, mailer, userRepository } from '../../app';
-import config from '../../config/env';
 import { User } from '../../domain/entities/User';
-import { publishUserCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { publishUserCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const registerUser = async (req: Request): Promise<String> => {
   // Validate request sent for any necessary fields missing
-  let { userType, email, password, firstName, lastName, birthDate } = req.body;
+  let {
+    userType,
+    email,
+    password,
+    firstName,
+    lastName,
+    birthDate,
+    district,
+    city,
+    address,
+    latitude,
+    longitude,
+  } = req.body;
 
   if (
     !userType ||
@@ -37,48 +46,54 @@ export const registerUser = async (req: Request): Promise<String> => {
   const registerDate = new Date();
   const lastAccessDate = new Date();
 
-  try {
-    // Create new User in database
-    const newUser = await userRepository.create(
-      new User({
-        userType,
-        email,
-        password,
-        firstName,
-        lastName,
-        birthDate,
-        registerDate,
-        lastAccessDate,
-      })
-    );
+  // Create new User in database
+  const newUser = await userRepository.create(
+    new User({
+      userType,
+      email,
+      password,
+      firstName,
+      lastName,
+      district,
+      city,
+      address,
+      latitude,
+      longitude,
+      birthDate,
+      registerDate,
+      lastAccessDate,
+    })
+  );
 
-    // Generate JWT Token
-    const token = await jwtHelper.generateToken(
-      newUser.getId(),
-      newUser.userType.toString(),
-      newUser.email
-    );
+  // Generate JWT Token
+  const token = await jwtHelper.generateToken(
+    newUser.getId(),
+    newUser.userType.toString(),
+    newUser.email
+  );
 
-    // Send greeting email
-    mailer.sendMail(
-      newUser.email,
-      'Welcome to Field4You',
-      'Welcome! Thank you for registering!'
-    );
+  // Send greeting email
+  mailer.sendMail(
+    newUser.email,
+    'Welcome to Field4You',
+    'Welcome! Thank you for registering!'
+  );
 
-    // Publish event to RabbitMQ
-    publishUserCreation({
-      userId: newUser.getId(),
-      email: newUser.email,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      userType: newUser.userType.toString(),
-      birthDate: birthDate,
-      registerDate: registerDate.toString(),
-    });
+  // Publish event to RabbitMQ
+  publishUserCreation({
+    userId: newUser.getId(),
+    email: newUser.email,
+    firstName: newUser.firstName,
+    lastName: newUser.lastName,
+    userType: newUser.userType.toString(),
+    birthDate: birthDate,
+    registerDate: registerDate.toString(),
+    district: newUser.district,
+    city: newUser.city,
+    address: newUser.address,
+    latitude: newUser.latitude,
+    longitude: newUser.longitude,
+  });
 
-    return token;
-  } catch (error: any) {
-    throw new InternalServerErrorException(error.message);
-  }
+  return token;
 };

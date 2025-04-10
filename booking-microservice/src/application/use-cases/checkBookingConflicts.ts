@@ -1,4 +1,4 @@
-import { IBookingRepository } from "../../domain/interfaces/BookingRepository";
+import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
 
 export const checkBookingConflicts = async (
   repository: IBookingRepository,

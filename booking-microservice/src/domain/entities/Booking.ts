@@ -1,19 +1,9 @@
-export enum BookingType {
-  'regular',
-  'event',
-}
-
-export enum BookingStatus {
-  'active',
-  'inactive',
-}
-
 export class Booking {
   public id?: string;
   public ownerId?: string;
   public sportsVenueId: string;
-  public bookingType: BookingType;
-  public status: BookingStatus;
+  public bookingType: string;
+  public status: string;
   public title: string;
   public bookingStartDate: Date;
   public bookingEndDate: Date;
@@ -24,8 +14,8 @@ export class Booking {
     id?: string;
     ownerId?: string;
     sportsVenueId: string;
-    bookingType: BookingType;
-    status: BookingStatus;
+    bookingType: string;
+    status: string;
     title: string;
     bookingStartDate: Date;
     bookingEndDate: Date;

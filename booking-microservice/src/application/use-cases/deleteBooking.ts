@@ -1,48 +1,38 @@
-import { Request } from "express";
-import { authMiddleware, bookingRepository, jwtHelper } from "../../app";
-import { BadRequestException } from "../../domain/exceptions/BadRequestException";
-import { UnauthorizedException } from "../../domain/exceptions/UnauthorizedException";
-import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
-import mongoose from "mongoose";
+import { Request } from 'express';
+import mongoose from 'mongoose';
+import { bookingRepository } from '../../app';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
 export const deleteBooking = async (req: Request): Promise<Boolean> => {
-  try {
-    const id = req.params.id.toString();
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException("Invalid ID format");
-    }
-    const token = await jwtHelper.extractBearerToken(req);
-    if (!token) {
-      throw new UnauthorizedException("Bearer token required");
-    }
-    const booking = await bookingRepository.findById(id);
+  const id = req.params.id.toString();
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new BadRequestException('Invalid ID format');
+  }
 
+  const ownerId = req.headers['x-user-id'] as string | undefined;
+  const userType = req.headers['x-user-type'] as string | undefined;
+  if (!ownerId || !userType) {
+    throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  if (userType != 'admin') {
+    // Check if booking belongs to the user
+    const booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
     if (!booking) {
-      throw new BadRequestException("Booking not found");
+      throw new NotFoundException(
+        'Booking with given ID not found for authenticated user'
+      );
     }
+  }
 
-    const authenticated = await authMiddleware.authenticate(
-      booking.getOwnerId(),
-      token
-    );
-
-    if (!authenticated) {
-      throw new UnauthorizedException("Authentication failed");
-    }
-
+  try {
     const isDeleted = await bookingRepository.delete(id);
-    if (!isDeleted) {
-      throw new BadRequestException("Error deleting booking");
-    }
-
-    return true;
+    return isDeleted;
   } catch (error) {
-    if (error instanceof BadRequestException) {
-      throw new Error("Error deleting booking");
-    } else if (error instanceof UnauthorizedException) {
-      throw new Error("Error deleting booking");
-    } else {
-      throw new InternalServerErrorException("Error deleting booking");
-    }
+    throw new InternalServerErrorException(
+      'Internal server error deleting booking'
+    );
   }
 };

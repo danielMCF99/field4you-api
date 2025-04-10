@@ -7,9 +7,10 @@ import { InternalServerErrorException } from '../../domain/exceptions/InternalSe
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { publishSportsVenueUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
-import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 
-export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
+export const updateSportsVenueStatus = async (
+  req: Request
+): Promise<SportsVenue> => {
   const id = req.params.id.toString();
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new BadRequestException('Invalid ID format');
@@ -21,18 +22,16 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
     throw new InternalServerErrorException('Internal Server Error');
   }
 
-  if (userType != 'owner') {
-    throw new ForbiddenException(
-      'Regular User is not allowed to delete this venue'
-    );
+  const { status } = req.body;
+  if (!status || (status != 'active' && status != 'inactive')) {
+    throw new BadRequestException('Invalid status update request');
   }
-
-  const updatedData = req.body;
 
   const sportsVenue = await sportsVenueRepository.findById(id);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue not found');
   }
+
   if (sportsVenue.ownerId != ownerId) {
     throw new UnauthorizedException(
       'User is not authorized to update this venue'
@@ -42,22 +41,22 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   try {
     const updatedSportsVenue = await sportsVenueRepository.update(id, {
       ...sportsVenue,
-      ...updatedData,
+      ...{ status: status },
     });
-
     if (!updatedSportsVenue) {
       throw new InternalServerErrorException('Failed to update Sports Venue');
     }
     await publishSportsVenueUpdate({
       sportsVenueId: id,
       ownerId: sportsVenue.ownerId,
-      updatedData,
+      updatedData: {
+        status,
+      },
     });
-
     return updatedSportsVenue;
   } catch (error) {
     throw new InternalServerErrorException(
-      'Internal server error updating sports venue'
+      'Internal server error updating sports venue status'
     );
   }
 };

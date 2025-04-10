@@ -5,7 +5,6 @@ import {
   passwordRecoveryController,
   passwordResetController,
   registerUserController,
-  verifyTokenController,
 } from '../controllers/authController';
 
 const userRoutes = express.Router();
@@ -17,6 +16,5 @@ userRoutes.post('/auth/register', registerUserController);
 userRoutes.post('/auth/login', loginUserController);
 userRoutes.post('/auth/password-recovery', passwordRecoveryController);
 userRoutes.put('/auth/reset-password/*', passwordResetController);
-userRoutes.post('/auth/verify-token', verifyTokenController);
 
 export default userRoutes;

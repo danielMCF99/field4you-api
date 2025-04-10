@@ -1,13 +1,9 @@
-import express, { Application } from "express";
-import sportsVenueRoutes from "./web/routes/sports-venueRoutes";
-import { MongoSportsVenueRepository } from "./infrastructure/repositories/MongoSportsVenueRepository";
-import { JwtHelperImplementation } from "./infrastructure/jwt/jwtHelper";
-import { AuthMiddlewareImplementation } from "./infrastructure/middlewares/auth.middleware";
+import express, { Application } from 'express';
+import { MongoSportsVenueRepository } from './infrastructure/repositories/MongoSportsVenueRepository';
+import sportsVenueRoutes from './web/routes/sports-venueRoutes';
 
 const app: Application = express();
 export const sportsVenueRepository = MongoSportsVenueRepository.getInstance();
-export const jwtHelper = JwtHelperImplementation.getInstance();
-export const authMiddleware = AuthMiddlewareImplementation.getInstance();
 
 app.use(express.json());
 

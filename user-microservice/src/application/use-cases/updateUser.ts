@@ -1,9 +1,8 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { authMiddleware, jwtHelper, userRepository } from '../../app';
+import { userRepository } from '../../app';
 import { User } from '../../domain/entities/User';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
@@ -14,14 +13,20 @@ export const updateUser = async (req: Request): Promise<User> => {
     throw new BadRequestException('Invalid ID format');
   }
 
-  const token = await jwtHelper.extractBearerToken(req);
-  if (!token) {
-    throw new UnauthorizedException('Authentication token is required');
+  const authUserId = req.headers['x-user-id'] as string | undefined;
+  if (!authUserId) {
+    throw new InternalServerErrorException('Internal Server Error');
   }
 
-  const isValidToken = await authMiddleware.validateToken(token);
-  if (!isValidToken) {
-    throw new UnauthorizedException('Authentication token has expired');
+  const user = await userRepository.getById(id);
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  if (user.getId() != authUserId) {
+    throw new UnauthorizedException(
+      "You don't have permission to edit this user"
+    );
   }
 
   // Validate that fields sent in the request body are allowed to be updated
@@ -42,41 +47,20 @@ export const updateUser = async (req: Request): Promise<User> => {
   });
 
   try {
-    const user = await userRepository.getById(id);
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const hasValidPermissions = await authMiddleware.validateUserPermission(
-      user.getId(),
-      user.email,
-      token
-    );
-    if (!hasValidPermissions) {
-      throw new ForbiddenException(
-        'User does not have permission to perform this action'
-      );
-    }
-
     const updatedUser = await userRepository.update(user.getId(), {
       ...filteredBody,
     });
+
     if (!updatedUser) {
       throw new InternalServerErrorException(
         'Internal server error when updating the user'
       );
     }
 
-    console.log('Updated user info');
     return updatedUser;
-  } catch (error: any) {
-    if (error instanceof NotFoundException) {
-      throw new NotFoundException(error.message);
-    } else if (error instanceof ForbiddenException) {
-      throw new ForbiddenException(error.message);
-    } else {
-      throw new InternalServerErrorException(error.message);
-    }
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error when updating the user'
+    );
   }
 };

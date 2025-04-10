@@ -7,6 +7,11 @@ interface IUserDocument extends Document {
   phoneNumber: string;
   firstName: string;
   lastName: string;
+  district: string;
+  city: string;
+  address: string;
+  latitude: number;
+  longitude: number;
 }
 
 const userSchema = new Schema<IUserDocument>({
@@ -20,6 +25,11 @@ const userSchema = new Schema<IUserDocument>({
   phoneNumber: { type: String, required: false, length: 9 },
   firstName: { type: String, required: true, minlength: 3 },
   lastName: { type: String, required: true, minlength: 3 },
+  district: { type: String },
+  city: { type: String },
+  address: { type: String },
+  latitude: { type: Number },
+  longitude: { type: Number },
 });
 
 export const UserModel = model<IUserDocument>('User', userSchema);

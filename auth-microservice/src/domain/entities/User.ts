@@ -10,6 +10,11 @@ export class User {
   public password: string;
   public firstName: string;
   public lastName: string;
+  public address?: string;
+  public city?: string;
+  public district?: string;
+  public latitude?: number;
+  public longitude?: number;
   public birthDate: string;
   public registerDate: Date;
   public lastAccessDate: Date;
@@ -23,6 +28,11 @@ export class User {
     password: string;
     firstName: string;
     lastName: string;
+    district?: string;
+    city?: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
     birthDate: string;
     registerDate: Date;
     lastAccessDate: Date;
@@ -35,6 +45,12 @@ export class User {
     this.password = user.password;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
+    this.district = user.district;
+    this.city = user.city;
+    this.address = user.address;
+    this.latitude = user.latitude;
+    this.longitude = user.longitude;
+
     this.birthDate = user.birthDate;
     this.registerDate = user.registerDate;
     this.lastAccessDate = user.lastAccessDate;
@@ -59,6 +75,11 @@ export class User {
       lastAccessDate: doc.lastAccessDate,
       resetPasswordToken: doc.resetPasswordToken,
       resetPasswordExpires: doc.resetPasswordExpires,
+      district: doc.district,
+      city: doc.city,
+      address: doc.address,
+      latitude: doc.latitude,
+      longitude: doc.longitude,
     });
   }
 }

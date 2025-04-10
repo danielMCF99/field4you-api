@@ -10,7 +10,6 @@ const BOOKING_SERVICE_QUEUE_UPDATE = 'booking_serv_sports_venue_update_queue';
 export async function publishSportsVenueCreation(sportsVenuePayload: {
   sportsVenueId: string;
   ownerId: string;
-  location: string;
   sportsVenueType: string;
   status: string;
   sportsVenueName: string;

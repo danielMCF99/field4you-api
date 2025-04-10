@@ -1,6 +1,6 @@
-import { Booking } from "../../domain/entities/Booking";
-import { IBookingRepository } from "../../domain/interfaces/BookingRepository";
-import { BookingModel } from "../database/models/booking.model";
+import { Booking } from '../../domain/entities/Booking';
+import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
+import { BookingModel } from '../database/models/booking.model';
 
 export class MongoBookingRepository implements IBookingRepository {
   private static instance: MongoBookingRepository;
@@ -21,6 +21,18 @@ export class MongoBookingRepository implements IBookingRepository {
 
   async findById(id: string): Promise<Booking | undefined> {
     const booking = await BookingModel.findById(id);
+    console.log(booking);
+    if (!booking) {
+      return undefined;
+    }
+    return Booking.fromMongooseDocument(booking);
+  }
+
+  async findByIdAndOwnerId(
+    id: string,
+    ownerId: string
+  ): Promise<Booking | undefined> {
+    const booking = await BookingModel.findOne({ _id: id, ownerId }).exec();
     if (!booking) {
       return undefined;
     }
@@ -58,6 +70,22 @@ export class MongoBookingRepository implements IBookingRepository {
     }
     return Booking.fromMongooseDocument(updatedBooking);
   }
+
+  async updateStatus(id: string, status: string): Promise<Booking | undefined> {
+    const updatedBooking = await BookingModel.findByIdAndUpdate(
+      id,
+      { status: status },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return updatedBooking
+      ? Booking.fromMongooseDocument(updatedBooking)
+      : undefined;
+  }
+
   async findConflictingBookings(
     sportsVenueId: string,
     bookingStartDate: Date,
