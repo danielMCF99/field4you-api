@@ -23,7 +23,7 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
     throw new NotFoundException('User not found');
   }
 
-  if (!(user.getId() != authUserId)) {
+  if (user.getId() != authUserId) {
     throw new UnauthorizedException(
       "You don't have permission to edit this user"
     );
