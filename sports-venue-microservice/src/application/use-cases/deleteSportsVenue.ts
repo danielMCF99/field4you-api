@@ -43,7 +43,7 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
       throw new NotFoundException('Sports Venue with given ID not found');
     }
 
-    await publishSportsVenueDeletion({ sportsVenueId: id, ownerId });
+    publishSportsVenueDeletion({ sportsVenueId: id, ownerId });
 
     return true;
   } catch (error) {

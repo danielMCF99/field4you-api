@@ -1,5 +1,6 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
+import { Location } from '../../domain/entities/User';
 
 const USER_SERVICE_QUEUE = 'user_serv_user_registration_queue';
 const BOOKING_SERVICE_QUEUE = 'booking_serv_user_registration_queue';
@@ -11,11 +12,7 @@ export async function publishUserCreation(userPayload: {
   email: string;
   firstName: string;
   lastName: string;
-  district?: string;
-  city?: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
+  location: Location;
   userType: string;
   birthDate: string;
   registerDate: string;

@@ -11,22 +11,29 @@ interface IBookingDocument extends Document {
   bookingEndDate: Date;
   isPublic: boolean;
   invitedUsersIds: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const bookingSchema = new Schema<IBookingDocument>({
-  ownerId: { type: String, required: true },
-  sportsVenueId: { type: String, required: true },
-  bookingType: { type: String, required: true, enum: ['regular', 'event'] },
-  status: {
-    type: String,
-    default: 'active',
-    enum: ['active', 'cancelled', 'done'],
+const bookingSchema = new Schema<IBookingDocument>(
+  {
+    ownerId: { type: String, required: true },
+    sportsVenueId: { type: String, required: true },
+    bookingType: { type: String, required: true, enum: ['regular', 'event'] },
+    status: {
+      type: String,
+      default: 'active',
+      enum: ['active', 'cancelled', 'done'],
+    },
+    title: { type: String, minlength: 3, maxlength: 100, required: true },
+    bookingStartDate: { type: Date, required: true },
+    bookingEndDate: { type: Date, required: true },
+    isPublic: { type: Boolean, default: false },
+    invitedUsersIds: { type: [String], default: [] },
   },
-  title: { type: String, minlength: 3, maxlength: 100, required: true },
-  bookingStartDate: { type: Date, required: true },
-  bookingEndDate: { type: Date, required: true },
-  isPublic: { type: Boolean, default: false },
-  invitedUsersIds: { type: [String], default: [] },
-});
+  {
+    timestamps: true,
+  }
+);
 
 export const BookingModel = model<IBookingDocument>('Booking', bookingSchema);

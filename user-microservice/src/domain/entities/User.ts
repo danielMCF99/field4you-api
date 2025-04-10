@@ -3,6 +3,14 @@ export enum UserType {
   'owner',
 }
 
+export class Location {
+  public address?: string;
+  public city?: string;
+  public district?: string;
+  public latitude?: number;
+  public longitude?: number;
+}
+
 export class User {
   private readonly id?: string;
   public userType: UserType;
@@ -10,13 +18,11 @@ export class User {
   public phoneNumber?: string;
   public firstName: string;
   public lastName: string;
-  public address?: string;
-  public city?: string;
-  public district?: string;
-  public latitude?: number;
-  public longitude?: number;
+  public location: Location;
   public birthDate: string;
   public registerDate: Date;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(user: {
     id?: string;
@@ -25,13 +31,11 @@ export class User {
     phoneNumber?: string;
     firstName: string;
     lastName: string;
-    district?: string;
-    city?: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
+    location: Location;
     birthDate: string;
     registerDate: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
   }) {
     this.id = user.id;
     this.userType = user.userType;
@@ -39,17 +43,19 @@ export class User {
     this.phoneNumber = user.phoneNumber;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
-    this.district = user.district;
-    this.city = user.city;
-    this.address = user.address;
-    this.latitude = user.latitude;
-    this.longitude = user.longitude;
+    this.location = user.location;
     this.birthDate = user.birthDate;
     this.registerDate = user.registerDate;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
   }
 
   getId(): string {
     return this.id ? this.id : 'N/A';
+  }
+
+  getLocation(): Location {
+    return this.location;
   }
 
   static fromMongooseDocument(doc: any): User {
@@ -60,13 +66,11 @@ export class User {
       phoneNumber: doc.phoneNumber,
       firstName: doc.firstName,
       lastName: doc.lastName,
-      district: doc.district,
-      city: doc.city,
-      address: doc.address,
-      latitude: doc.latitude,
-      longitude: doc.longitude,
+      location: doc.location,
       birthDate: doc.birthDate,
       registerDate: doc.registerDate,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     });
   }
 }

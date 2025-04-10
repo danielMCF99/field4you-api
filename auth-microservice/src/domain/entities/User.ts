@@ -3,6 +3,14 @@ export enum UserType {
   'owner',
 }
 
+export class Location {
+  public address?: string;
+  public city?: string;
+  public district?: string;
+  public latitude?: number;
+  public longitude?: number;
+}
+
 export class User {
   private id?: string;
   public userType: UserType;
@@ -10,16 +18,14 @@ export class User {
   public password: string;
   public firstName: string;
   public lastName: string;
-  public address?: string;
-  public city?: string;
-  public district?: string;
-  public latitude?: number;
-  public longitude?: number;
+  public location: Location;
   public birthDate: string;
   public registerDate: Date;
   public lastAccessDate: Date;
   public resetPasswordToken?: string;
   public resetPasswordExpires?: Date;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(user: {
     id?: string;
@@ -28,16 +34,14 @@ export class User {
     password: string;
     firstName: string;
     lastName: string;
-    district?: string;
-    city?: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
+    location: Location;
     birthDate: string;
     registerDate: Date;
     lastAccessDate: Date;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
   }) {
     this.id = user.id;
     this.userType = user.userType;
@@ -45,21 +49,22 @@ export class User {
     this.password = user.password;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
-    this.district = user.district;
-    this.city = user.city;
-    this.address = user.address;
-    this.latitude = user.latitude;
-    this.longitude = user.longitude;
-
+    this.location = user.location;
     this.birthDate = user.birthDate;
     this.registerDate = user.registerDate;
     this.lastAccessDate = user.lastAccessDate;
     this.resetPasswordToken = user.resetPasswordToken;
     this.resetPasswordExpires = user.resetPasswordExpires;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
   }
 
   getId(): string {
     return this.id ? this.id : 'N/A';
+  }
+
+  getLocation(): Location {
+    return this.location;
   }
 
   static fromMongooseDocument(doc: any): User {
@@ -75,11 +80,9 @@ export class User {
       lastAccessDate: doc.lastAccessDate,
       resetPasswordToken: doc.resetPasswordToken,
       resetPasswordExpires: doc.resetPasswordExpires,
-      district: doc.district,
-      city: doc.city,
-      address: doc.address,
-      latitude: doc.latitude,
-      longitude: doc.longitude,
+      location: doc.location,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     });
   }
 }

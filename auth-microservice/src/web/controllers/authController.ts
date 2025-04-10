@@ -13,6 +13,13 @@ export const registerUserController = async (req: Request, res: Response) => {
     });
     return;
   } catch (error: any) {
+    if (error.details) {
+      res
+        .status(error.statusCode)
+        .json({ message: error.message, details: error.details });
+      return;
+    }
+
     res.status(error.statusCode).json({ message: error.message });
     return;
   }

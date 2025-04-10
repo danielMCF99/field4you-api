@@ -46,7 +46,7 @@ export const updateSportsVenueStatus = async (
     if (!updatedSportsVenue) {
       throw new InternalServerErrorException('Failed to update Sports Venue');
     }
-    await publishSportsVenueUpdate({
+    publishSportsVenueUpdate({
       sportsVenueId: id,
       ownerId: sportsVenue.ownerId,
       updatedData: {

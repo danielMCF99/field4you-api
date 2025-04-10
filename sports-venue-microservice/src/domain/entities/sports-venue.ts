@@ -1,3 +1,11 @@
+export class Location {
+  public address?: string;
+  public city?: string;
+  public district?: string;
+  public latitude?: number;
+  public longitude?: number;
+}
+
 export class SportsVenue {
   public id?: string;
   public ownerId: string;
@@ -10,11 +18,9 @@ export class SportsVenue {
   public hasParking: boolean;
   public hasShower: boolean;
   public hasBar: boolean;
-  public address?: string;
-  public city?: string;
-  public district?: string;
-  public latitude?: number;
-  public longitude?: number;
+  public location: Location;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(sportsVenue: {
     id?: string;
@@ -28,11 +34,9 @@ export class SportsVenue {
     hasParking: boolean;
     hasShower: boolean;
     hasBar: boolean;
-    district?: string;
-    city?: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
+    location: Location;
+    createdAt?: Date;
+    updatedAt?: Date;
   }) {
     this.id = sportsVenue.id;
     this.ownerId = sportsVenue.ownerId;
@@ -45,14 +49,16 @@ export class SportsVenue {
     this.hasParking = sportsVenue.hasParking;
     this.hasShower = sportsVenue.hasShower;
     this.hasBar = sportsVenue.hasBar;
-    this.district = sportsVenue.district;
-    this.city = sportsVenue.city;
-    this.address = sportsVenue.address;
-    this.latitude = sportsVenue.latitude;
-    this.longitude = sportsVenue.longitude;
+    this.location = sportsVenue.location;
+    this.createdAt = sportsVenue.createdAt;
+    this.updatedAt = sportsVenue.updatedAt;
   }
   getId(): string {
     return this.id ? this.id : 'N/A';
+  }
+
+  getLocation(): Location {
+    return this.location;
   }
 
   static fromMongooseDocument(doc: any): SportsVenue {
@@ -68,11 +74,9 @@ export class SportsVenue {
       hasParking: doc.hasParking,
       hasShower: doc.hasShower,
       hasBar: doc.hasBar,
-      district: doc.district,
-      city: doc.city,
-      address: doc.address,
-      latitude: doc.latitude,
-      longitude: doc.longitude,
+      location: doc.location,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     });
   }
 }
