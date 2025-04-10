@@ -113,10 +113,13 @@ export const createBooking = async (
   }
 
   booking.ownerId = ownerId;
-  const newBooking = await bookingRepository.create(booking);
-  if (!newBooking) {
-    throw new BadRequestException('Failed to create booking');
-  }
 
-  return newBooking;
+  try {
+    const newBooking = await bookingRepository.create(booking);
+    return newBooking;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error creating booking'
+    );
+  }
 };

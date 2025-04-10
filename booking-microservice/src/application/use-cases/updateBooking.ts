@@ -119,13 +119,18 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     }
   }
 
-  const updatedBooking = await bookingRepository.update(booking.getId(), {
-    ...updatedData,
-  });
+  try {
+    const updatedBooking = await bookingRepository.update(booking.getId(), {
+      ...updatedData,
+    });
+    if (!updatedBooking) {
+      throw new InternalServerErrorException('Error updating booking');
+    }
 
-  if (!updatedBooking) {
-    throw new BadRequestException('Error updating booking');
+    return updatedBooking;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error deleting booking'
+    );
   }
-
-  return updatedBooking;
 };

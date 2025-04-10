@@ -27,10 +27,12 @@ export const deleteBooking = async (req: Request): Promise<Boolean> => {
     }
   }
 
-  const isDeleted = await bookingRepository.delete(id);
-  if (!isDeleted) {
-    throw new BadRequestException('Error deleting booking');
+  try {
+    const isDeleted = await bookingRepository.delete(id);
+    return isDeleted;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Internal server error deleting booking'
+    );
   }
-
-  return true;
 };
