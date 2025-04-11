@@ -3,6 +3,14 @@ export enum UserType {
   'owner',
 }
 
+export class Location {
+  public address?: string;
+  public city?: string;
+  public district?: string;
+  public latitude?: number;
+  public longitude?: number;
+}
+
 export class User {
   private id?: string;
   public userType: UserType;
@@ -10,11 +18,9 @@ export class User {
   public phoneNumber?: string;
   public firstName: string;
   public lastName: string;
-  public address?: string;
-  public city?: string;
-  public district?: string;
-  public latitude?: number;
-  public longitude?: number;
+  public location: Location;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(user: {
     id?: string;
@@ -23,11 +29,9 @@ export class User {
     phoneNumber?: string;
     firstName: string;
     lastName: string;
-    district?: string;
-    city?: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
+    location: Location;
+    createdAt?: Date;
+    updatedAt?: Date;
   }) {
     this.id = user.id;
     this.userType = user.userType;
@@ -35,15 +39,17 @@ export class User {
     this.phoneNumber = user.phoneNumber;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
-    this.district = user.district;
-    this.city = user.city;
-    this.address = user.address;
-    this.latitude = user.latitude;
-    this.longitude = user.longitude;
+    this.location = user.location;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
   }
 
   getId(): string {
     return this.id ? this.id : 'N/A';
+  }
+
+  getLocation(): Location {
+    return this.location;
   }
 
   static fromMongooseDocument(doc: any): User {
@@ -54,11 +60,9 @@ export class User {
       phoneNumber: doc.phoneNumber,
       firstName: doc.firstName,
       lastName: doc.lastName,
-      district: doc.district,
-      city: doc.city,
-      address: doc.address,
-      latitude: doc.latitude,
-      longitude: doc.longitude,
+      location: doc.location,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     });
   }
 }

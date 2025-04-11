@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 import { sportsVenueRepository } from '../../app';
 import { SportsVenue } from '../../domain/entities/sports-venue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { publishSportsVenueUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
-import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 
 export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const id = req.params.id.toString();
@@ -48,7 +48,7 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
     if (!updatedSportsVenue) {
       throw new InternalServerErrorException('Failed to update Sports Venue');
     }
-    await publishSportsVenueUpdate({
+    publishSportsVenueUpdate({
       sportsVenueId: id,
       ownerId: sportsVenue.ownerId,
       updatedData,

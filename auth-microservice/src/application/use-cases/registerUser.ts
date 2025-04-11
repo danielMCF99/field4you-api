@@ -17,21 +17,26 @@ export const registerUser = async (req: Request): Promise<String> => {
     district,
     city,
     address,
-    latitude,
-    longitude,
   } = req.body;
 
-  if (
-    !userType ||
-    !password ||
-    !email ||
-    !firstName ||
-    !lastName ||
-    !birthDate
-  ) {
-    throw new BadRequestException(
-      'Missing fields for user registration. Please try again.'
-    );
+  const requiredFields = {
+    userType,
+    password,
+    email,
+    firstName,
+    lastName,
+    birthDate,
+    district,
+    city,
+    address,
+  };
+
+  const missingFields = Object.entries(requiredFields)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingFields.length > 0) {
+    throw new BadRequestException('Missing required fields', { missingFields });
   }
 
   // Check if given email already exists
@@ -54,11 +59,11 @@ export const registerUser = async (req: Request): Promise<String> => {
       password,
       firstName,
       lastName,
-      district,
-      city,
-      address,
-      latitude,
-      longitude,
+      location: {
+        district,
+        city,
+        address,
+      },
       birthDate,
       registerDate,
       lastAccessDate,
@@ -85,14 +90,10 @@ export const registerUser = async (req: Request): Promise<String> => {
     email: newUser.email,
     firstName: newUser.firstName,
     lastName: newUser.lastName,
+    location: newUser.getLocation(),
     userType: newUser.userType.toString(),
     birthDate: birthDate,
     registerDate: registerDate.toString(),
-    district: newUser.district,
-    city: newUser.city,
-    address: newUser.address,
-    latitude: newUser.latitude,
-    longitude: newUser.longitude,
   });
 
   return token;

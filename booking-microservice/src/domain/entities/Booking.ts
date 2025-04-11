@@ -9,6 +9,8 @@ export class Booking {
   public bookingEndDate: Date;
   public isPublic: boolean;
   public invitedUsersIds: string[];
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(booking: {
     id?: string;
@@ -21,6 +23,8 @@ export class Booking {
     bookingEndDate: Date;
     isPublic: boolean;
     invitedUsersIds?: string[];
+    createdAt?: Date;
+    updatedAt?: Date;
   }) {
     this.id = booking.id;
     this.ownerId = booking.ownerId;
@@ -32,6 +36,8 @@ export class Booking {
     this.bookingEndDate = booking.bookingEndDate;
     this.isPublic = booking.isPublic;
     this.invitedUsersIds = booking.invitedUsersIds || [];
+    this.createdAt = booking.createdAt;
+    this.updatedAt = booking.updatedAt;
   }
   getId(): string {
     return this.id ? this.id : 'N/A';
@@ -52,6 +58,8 @@ export class Booking {
       bookingEndDate: doc.bookingEndDate,
       isPublic: doc.isPublic,
       invitedUsersIds: doc.invitedUsersIds,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     });
   }
 }

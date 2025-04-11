@@ -52,19 +52,6 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     throw new BadRequestException('Missing required fields', { missingFields });
   }
 
-  if (
-    !sportsVenueType ||
-    !sportsVenueName ||
-    !bookingMinDuration ||
-    !bookingMinPrice ||
-    !sportsVenuePicture ||
-    !district ||
-    !city ||
-    !address
-  ) {
-    throw new BadRequestException('Missing required fields');
-  }
-
   const sportsVenue = new SportsVenue({
     ownerId,
     sportsVenueType,
@@ -76,6 +63,11 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     hasParking,
     hasShower,
     hasBar,
+    location: {
+      district,
+      city,
+      address,
+    },
   });
 
   try {
@@ -84,7 +76,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       throw new InternalServerErrorException('Failed to create sports venue');
     }
 
-    await publishSportsVenueCreation({
+    publishSportsVenueCreation({
       sportsVenueId: newSportsVenue.getId(),
       ownerId: ownerId,
       sportsVenueType: newSportsVenue.sportsVenueType,
@@ -96,6 +88,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       hasParking: newSportsVenue.hasParking,
       hasShower: newSportsVenue.hasShower,
       hasBar: newSportsVenue.hasBar,
+      location: newSportsVenue.getLocation(),
     });
 
     return newSportsVenue;

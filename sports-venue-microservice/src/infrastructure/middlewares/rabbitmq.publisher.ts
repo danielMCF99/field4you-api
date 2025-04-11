@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import { Location, SportsVenue } from '../../domain/entities/sports-venue';
 
 const BOOKING_SERVICE_QUEUE = 'booking_serv_sports_venue_creation_queue';
 const BOOKING_SERVICE_QUEUE_DELETION =
@@ -19,6 +19,7 @@ export async function publishSportsVenueCreation(sportsVenuePayload: {
   hasParking: boolean;
   hasShower: boolean;
   hasBar: boolean;
+  location: Location;
 }) {
   try {
     const connection = await amqp.connect(config.rabbitmqURL);

@@ -31,7 +31,7 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
 
   try {
     const deletedUser = await userRepository.delete(user.getId());
-    await publishUserDeletion({ userId: id });
+    publishUserDeletion({ userId: id });
 
     return deletedUser;
   } catch (error) {

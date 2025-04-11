@@ -6,6 +6,7 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { publishUserUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const updateUser = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();
@@ -39,16 +40,16 @@ export const updateUser = async (req: Request): Promise<User> => {
     'longitude',
   ];
 
-  const filteredBody: Record<string, any> = {};
+  const updatedData: Record<string, any> = {};
   Object.keys(req.body).forEach((key) => {
     if (allowedFields.includes(key)) {
-      filteredBody[key] = req.body[key];
+      updatedData[key] = req.body[key];
     }
   });
 
   try {
     const updatedUser = await userRepository.update(user.getId(), {
-      ...filteredBody,
+      ...updatedData,
     });
 
     if (!updatedUser) {
@@ -56,6 +57,8 @@ export const updateUser = async (req: Request): Promise<User> => {
         'Internal server error when updating the user'
       );
     }
+
+    publishUserUpdate({ userId: id, updatedData });
 
     return updatedUser;
   } catch (error) {

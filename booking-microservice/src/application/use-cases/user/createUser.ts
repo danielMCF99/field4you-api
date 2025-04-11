@@ -4,9 +4,6 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 
 export const createUser = async (user: any): Promise<User | undefined> => {
   const userId = user.userId;
-  const { userType, email, firstName, lastName, birthDate, registerDate } =
-    user;
-
   try {
     user._id = userId.toString();
     const newUser = await userRepository.create(user);

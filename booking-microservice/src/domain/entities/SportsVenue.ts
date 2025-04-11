@@ -15,6 +15,8 @@ export class SportsVenue {
   public district?: string;
   public latitude?: number;
   public longitude?: number;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(sportsVenue: {
     id?: string;
@@ -33,6 +35,8 @@ export class SportsVenue {
     address?: string;
     latitude?: number;
     longitude?: number;
+    createdAt?: Date;
+    updatedAt?: Date;
   }) {
     this.id = sportsVenue.id;
     this.ownerId = sportsVenue.ownerId;
@@ -50,6 +54,8 @@ export class SportsVenue {
     this.address = sportsVenue.address;
     this.latitude = sportsVenue.latitude;
     this.longitude = sportsVenue.longitude;
+    this.createdAt = sportsVenue.createdAt;
+    this.updatedAt = sportsVenue.updatedAt;
   }
   getId(): string {
     return this.id ? this.id : 'N/A';
@@ -73,6 +79,8 @@ export class SportsVenue {
       address: doc.address,
       latitude: doc.latitude,
       longitude: doc.longitude,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     });
   }
 }
