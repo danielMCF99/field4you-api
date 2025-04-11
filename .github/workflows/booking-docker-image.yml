@@ -1,4 +1,4 @@
-name: Auth Service Docker Image
+name: Booking Service Docker Image
 
 on:
   release:
@@ -13,7 +13,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-auth-service
+  IMAGE_NAME: ${{ github.repository }}-booking-service
 
 jobs:
   build-and-publish:
@@ -43,8 +43,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: ./auth-microservice
-          file: ./auth-microservice/Dockerfile
+          context: ./booking-microservice
+          file: ./booking-microservice/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
