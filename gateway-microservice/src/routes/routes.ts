@@ -33,13 +33,12 @@ router.all(
     }
 
     try {
-      const authHeader = req.headers["authorization"];
       const filteredHeaders = {
-        "x-user-id": req.headers["x-user-id"] || "",
-        "x-user-email": req.headers["x-user-email"] || "",
-        "x-user-type": req.headers["x-user-type"] || "",
-        "content-type": req.headers["content-type"] || "application/json",
-        authorization: req.headers["authorization"] || "",
+        "x-user-id": req.headers["x-user-id"],
+        "x-user-email": req.headers["x-user-email"],
+        "x-user-type": req.headers["x-user-type"],
+        "content-type": req.headers["content-type"],
+        authorization: req.headers["authorization"],
       };
       const result = await ProxyService.forwardRequest(
         serviceName,
