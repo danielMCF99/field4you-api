@@ -1,6 +1,7 @@
 import { Booking } from '../../domain/entities/Booking';
 import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
 import { BookingModel } from '../database/models/booking.model';
+import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
 
 export class MongoBookingRepository implements IBookingRepository {
   private static instance: MongoBookingRepository;
@@ -39,9 +40,48 @@ export class MongoBookingRepository implements IBookingRepository {
     return Booking.fromMongooseDocument(booking);
   }
 
-  async findAll(): Promise<Booking[]> {
-    const allBookings = await BookingModel.find();
-    return allBookings.map((booking) => Booking.fromMongooseDocument(booking));
+  async findAll(params?: BookingFilterParams): Promise<Booking[]> {
+    const {
+      title = '',
+      status = '',
+      bookingType = '',
+      bookingStartDate,
+      bookingEndDate,
+      page = 1,
+      limit = 10
+    } = params || {};
+  
+    const query: any = {};
+  
+    if (title) {
+      query.title = { $regex: title, $options: 'i' };
+    }
+  
+    if (status) {
+      query.status = status;
+    }
+  
+    if (bookingType) {
+      query.bookingType = bookingType;
+    }
+  
+    if (bookingStartDate && bookingEndDate) {
+      query.bookingStartDate = { $gte: bookingStartDate };
+      query.bookingEndDate = { $lte: bookingEndDate };
+    } else if (bookingStartDate) {
+      query.bookingStartDate = { $gte: bookingStartDate };
+    } else if (bookingEndDate) {
+      query.bookingEndDate = { $lte: bookingEndDate };
+    }
+  
+    const skip = (page - 1) * limit;
+  
+    const results = await BookingModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+  
+    return results.map(Booking.fromMongooseDocument);
   }
 
   async delete(id: string): Promise<boolean> {

@@ -1,8 +1,10 @@
 import { Request } from 'express';
 import { bookingRepository } from '../../app';
 import { Booking } from '../../domain/entities/Booking';
+import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
 
-export const getAllBookings = async (req: Request): Promise<Booking[]> => {
-  const allBookings = await bookingRepository.findAll();
-  return allBookings;
+export const getAllBookings = async (
+  params: BookingFilterParams
+): Promise<Booking[]> => {
+  return await bookingRepository.findAll(params);
 };

@@ -87,10 +87,10 @@ export const getAllSportsVenueController = async (
   res: Response
 ) => {
   try {
-    const { search, page, limit, status, sportsVenueType } = req.query;
+    const { sportsVenueName, page, limit, status, sportsVenueType } = req.query;
 
     const filters: SportsVenueFilterParams = {
-      sportsVenueName: search?.toString(),
+      sportsVenueName: sportsVenueName?.toString(),
       status: status?.toString(),
       sportsVenueType: sportsVenueType?.toString(),
       page: page ? parseInt(page.toString(), 10) : undefined,

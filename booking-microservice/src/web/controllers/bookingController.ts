@@ -5,6 +5,7 @@ import { getAllBookings } from '../../application/use-cases/getAllBookings';
 import { getBookingById } from '../../application/use-cases/getBookingById';
 import { updateBooking } from '../../application/use-cases/updateBooking';
 import { updateBookingStatus } from '../../application/use-cases/updateBookingStatus';
+import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
 
 export const createBookingController = async (req: Request, res: Response) => {
   try {
@@ -58,11 +59,23 @@ export const getBookingByIdController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllBookingsController = async (req: Request, res: Response) => {
+export const getAllBookingsController = async (
+  req: Request, 
+  res: Response
+) => {
   try {
-    const allBookings = await getAllBookings(req);
+    const { title, status, bookingType, bookingStartDate, bookingEndDate } = req.query;
 
-    return res.status(200).json({ bookings: allBookings });
+    const filters: BookingFilterParams = {
+      title: title?.toString(),
+      status: status?.toString(),
+      bookingType: bookingType?.toString(),
+      bookingStartDate: bookingStartDate ? new Date(bookingStartDate.toString()) : undefined,
+      bookingEndDate: bookingEndDate ? new Date(bookingEndDate.toString()) : undefined,
+    };
+
+    const allBookings = await getAllBookings(filters);
+    res.status(200).json({ bookings: allBookings });
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });
   }
