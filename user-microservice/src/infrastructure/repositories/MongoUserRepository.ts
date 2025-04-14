@@ -1,3 +1,4 @@
+import { UserFilterParams } from '../../domain/dto/user-filter.dto';
 import { User } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { UserModel } from '../database/models/user.model';
@@ -21,9 +22,36 @@ export class MongoUserRepository implements IUserRepository {
     return User.fromMongooseDocument(newUser);
   }
 
-  async getAll(): Promise<User[]> {
-    const allUsers = await UserModel.find();
-    return allUsers.map((user) => User.fromMongooseDocument(user));
+  async getAll(params?: UserFilterParams): Promise<User[]> {
+    const {
+      firstName,
+      userType,
+      page = 1,
+      limit = 10,
+    } = params || {};
+
+    const query: any = {};
+
+    if (firstName) {
+      query.firstName = { $regex: firstName, $options: 'i' };
+    }
+
+    if (userType) {
+      query.userType = userType;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const results = await UserModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+      console.log('Limit:', limit);
+console.log('Skip:', skip);
+
+
+    return results.map(User.fromMongooseDocument);
   }
 
   async getById(id: string): Promise<User | undefined> {
