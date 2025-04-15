@@ -74,6 +74,7 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     const skip = (page - 1) * limit;
   
     const results = await SportsVenueModel.find(query)
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();

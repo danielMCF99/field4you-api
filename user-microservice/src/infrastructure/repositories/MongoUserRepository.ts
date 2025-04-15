@@ -43,6 +43,7 @@ export class MongoUserRepository implements IUserRepository {
     const skip = (page - 1) * limit;
 
     const results = await UserModel.find(query)
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
