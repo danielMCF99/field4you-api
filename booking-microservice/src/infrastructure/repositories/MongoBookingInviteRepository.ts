@@ -6,6 +6,15 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
 
   // Private constructor to prevent direct instantiation
   private constructor() {}
+
+  public static getInstance(): MongoBookingInviteRepository {
+    if (!MongoBookingInviteRepository.instance) {
+      MongoBookingInviteRepository.instance =
+        new MongoBookingInviteRepository();
+    }
+    return MongoBookingInviteRepository.instance;
+  }
+
   create(bookingInvite: BookingInvite): Promise<BookingInvite> {
     throw new Error('Method not implemented.');
   }
