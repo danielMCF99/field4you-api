@@ -51,8 +51,8 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
   async findAll(params?: SportsVenueFilterParams): Promise<SportsVenue[]> {
     const {
       sportsVenueName = '',
-      page = 1,
-      limit = 10,
+      page,
+      limit,
       status,
       sportsVenueType,
     } = params || {};
@@ -71,14 +71,18 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       query.sportsVenueType = sportsVenueType;
     }
   
-    const skip = (page - 1) * limit;
-  
-    const results = await SportsVenueModel.find(query)
+    const skip = page && limit ? (page - 1) * limit : 0;
+
+    const queryBuilder = SportsVenueModel.find(query)
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-  
+      .skip(skip);
+
+    if (typeof limit === 'number') {
+      queryBuilder.limit(limit);
+    }
+
+    const results = await queryBuilder.lean();
+
     return results.map(SportsVenue.fromMongooseDocument);
   }
-}  
+}

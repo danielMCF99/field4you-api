@@ -47,8 +47,8 @@ export class MongoBookingRepository implements IBookingRepository {
       bookingType = '',
       bookingStartDate,
       bookingEndDate,
-      page = 1,
-      limit = 10
+      page,
+      limit
     } = params || {};
   
     const query: any = {};
@@ -74,13 +74,17 @@ export class MongoBookingRepository implements IBookingRepository {
       query.bookingEndDate = { $lte: bookingEndDate };
     }
   
-    const skip = (page - 1) * limit;
+    const skip = page && limit ? (page - 1) * limit : 0;
   
-    const results = await BookingModel.find(query)
+    const queryBuilder = BookingModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
-      .lean();
+
+    if (typeof limit === 'number') {
+      queryBuilder.limit(limit);
+    }
+  
+    const results = await queryBuilder.lean();
   
     return results.map(Booking.fromMongooseDocument);
   }

@@ -3,23 +3,13 @@ import { deleteUser } from '../../application/use-cases/deleteUser';
 import { getAll } from '../../application/use-cases/getAll';
 import { getById } from '../../application/use-cases/getById';
 import { updateUser } from '../../application/use-cases/updateUser';
-import { UserFilterParams } from '../../domain/dto/user-filter.dto';
 
 export const getAllController = async (
   req: Request, 
   res: Response
 ) => {
   try {
-    const { firstName, userType, limit, page } = req.query;
-
-    const filters: UserFilterParams = {
-      firstName: firstName?.toString(),
-      userType: userType?.toString(),
-      limit: limit ? parseInt(limit.toString()) : undefined,
-      page: page ? parseInt(page.toString()) : undefined
-    };
-
-    const allUsers = await getAll(filters);
+    const allUsers = await getAll(req.query);
     res.status(200).json({ users: allUsers });
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

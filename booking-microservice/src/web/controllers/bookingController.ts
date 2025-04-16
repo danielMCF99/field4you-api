@@ -64,19 +64,7 @@ export const getAllBookingsController = async (
   res: Response
 ) => {
   try {
-    const { title, status, bookingType, bookingStartDate, bookingEndDate, limit, page } = req.query;
-
-    const filters: BookingFilterParams = {
-      title: title?.toString(),
-      status: status?.toString(),
-      bookingType: bookingType?.toString(),
-      bookingStartDate: bookingStartDate ? new Date(bookingStartDate.toString()) : undefined,
-      bookingEndDate: bookingEndDate ? new Date(bookingEndDate.toString()) : undefined,
-      limit: limit ? parseInt(limit.toString()) : undefined,
-      page: page ? parseInt(page.toString()) : undefined
-    };
-
-    const allBookings = await getAllBookings(filters);
+    const allBookings = await getAllBookings(req.query);
     res.status(200).json({ bookings: allBookings });
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });

@@ -5,7 +5,6 @@ import { getAllSportsVenue } from '../../application/use-cases/getAllSportsVenue
 import { getSportsVenueById } from '../../application/use-cases/getSportsVenueById';
 import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue';
 import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
-import { SportsVenueFilterParams } from '../../domain/dto/sports-venue-filter.dto';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -87,17 +86,7 @@ export const getAllSportsVenueController = async (
   res: Response
 ) => {
   try {
-    const { sportsVenueName, page, limit, status, sportsVenueType } = req.query;
-
-    const filters: SportsVenueFilterParams = {
-      sportsVenueName: sportsVenueName?.toString(),
-      status: status?.toString(),
-      sportsVenueType: sportsVenueType?.toString(),
-      page: page ? parseInt(page.toString(), 10) : undefined,
-      limit: limit ? parseInt(limit.toString(), 10) : undefined,
-    };
-
-    const allSportsVenue = await getAllSportsVenue(filters);
+    const allSportsVenue = await getAllSportsVenue(req.query);
     res.status(200).json({ sportVenues: allSportsVenue });
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

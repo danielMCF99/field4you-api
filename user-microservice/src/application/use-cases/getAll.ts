@@ -3,7 +3,14 @@ import { User } from '../../domain/entities/User';
 import { UserFilterParams } from '../../domain/dto/user-filter.dto';
 
 export const getAll = async (
-  params: UserFilterParams
+  query: UserFilterParams
 ): Promise<User[]> => {
-  return await userRepository.getAll(params);
+  const filters: UserFilterParams = {
+    firstName: query.firstName?.toString(),
+    userType: query.userType?.toString(),
+    limit: query.limit? parseInt(query.toString()) : 10,
+    page: query.page? parseInt(query.toString()) : 1
+  };
+  
+  return await userRepository.getAll(filters);
 };

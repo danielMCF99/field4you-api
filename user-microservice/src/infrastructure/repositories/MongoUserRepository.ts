@@ -26,8 +26,8 @@ export class MongoUserRepository implements IUserRepository {
     const {
       firstName,
       userType,
-      page = 1,
-      limit = 10,
+      page,
+      limit,
     } = params || {};
 
     const query: any = {};
@@ -40,17 +40,17 @@ export class MongoUserRepository implements IUserRepository {
       query.userType = userType;
     }
 
-    const skip = (page - 1) * limit;
+    const skip = page && limit ? (page - 1) * limit : 0;
 
-    const results = await UserModel.find(query)
+    const queryBuilder = UserModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
-      .lean();
+    
+    if (typeof limit === 'number') {
+      queryBuilder.limit(limit);
+    }
 
-      console.log('Limit:', limit);
-console.log('Skip:', skip);
-
+    const results = await queryBuilder.lean();
 
     return results.map(User.fromMongooseDocument);
   }
