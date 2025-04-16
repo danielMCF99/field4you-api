@@ -76,8 +76,10 @@ export const getSportsVenueByIdController = async (
   try {
     const sportsVenue = await getSportsVenueById(req);
     res.status(200).json(sportsVenue);
+    return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
+    return;
   }
 };
 
@@ -88,7 +90,9 @@ export const getAllSportsVenueController = async (
   try {
     const allSportsVenue = await getAllSportsVenue(req.query);
     res.status(200).json({ sportVenues: allSportsVenue });
+    return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
+    return;
   }
 };

@@ -11,6 +11,7 @@ export const getAllController = async (
   try {
     const allUsers = await getAll(req.query);
     res.status(200).json({ users: allUsers });
+    return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
     return;

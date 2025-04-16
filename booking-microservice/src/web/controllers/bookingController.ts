@@ -66,6 +66,7 @@ export const getAllBookingsController = async (
   try {
     const allBookings = await getAllBookings(req.query);
     res.status(200).json({ bookings: allBookings });
+    return;
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });
   }
