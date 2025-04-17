@@ -1,9 +1,9 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingRepository } from '../../app';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { bookingRepository } from '../../../app';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 
 export const deleteBooking = async (req: Request): Promise<Boolean> => {
   const id = req.params.id.toString();

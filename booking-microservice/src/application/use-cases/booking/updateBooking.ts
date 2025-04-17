@@ -4,12 +4,12 @@ import {
   bookingRepository,
   sportsVenueRepository,
   userRepository,
-} from '../../app';
-import { Booking } from '../../domain/entities/Booking';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { ConflictException } from '../../domain/exceptions/ConflictException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+} from '../../../app';
+import { Booking } from '../../../domain/entities/Booking';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ConflictException } from '../../../domain/exceptions/ConflictException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { checkBookingConflicts } from './checkBookingConflicts';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {

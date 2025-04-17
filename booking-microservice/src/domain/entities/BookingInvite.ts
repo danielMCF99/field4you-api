@@ -2,7 +2,10 @@ export class BookingInvite {
   public id?: string;
   public bookingId: string;
   public userId: string;
+  public bookingStartDate: Date;
+  public bookingEndDate: Date;
   public status: string;
+  public comments?: string;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -10,14 +13,20 @@ export class BookingInvite {
     id?: string;
     bookingId: string;
     userId: string;
+    bookingStartDate: Date;
+    bookingEndDate: Date;
     status: string;
+    comments?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
     this.id = bookingInvite.id;
     this.bookingId = bookingInvite.bookingId;
     this.userId = bookingInvite.userId;
+    this.bookingStartDate = bookingInvite.bookingStartDate;
+    this.bookingEndDate = bookingInvite.bookingEndDate;
     this.status = bookingInvite.status;
+    this.comments = bookingInvite.comments;
     this.createdAt = bookingInvite.createdAt;
     this.updatedAt = bookingInvite.updatedAt;
   }
@@ -37,7 +46,10 @@ export class BookingInvite {
       id: doc._id.toString(),
       bookingId: doc.bookingId,
       userId: doc.userId,
+      bookingStartDate: doc.bookingStartDate,
+      bookingEndDate: doc.bookingEndDate,
       status: doc.status,
+      comments: doc.comments,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

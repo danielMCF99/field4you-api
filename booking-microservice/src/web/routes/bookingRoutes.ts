@@ -8,6 +8,7 @@ import {
   updateBookingController,
   updateBookingStatusController,
 } from '../controllers/bookingController';
+import { getAllBookingInvitesController } from '../controllers/bookingInviteController';
 
 const router = Router();
 
@@ -16,7 +17,8 @@ router.get('/bookings/swagger', async (req: Request, res: Response) => {
 });
 
 router.post('/bookings/create', createBookingController);
-router.get('/bookings/', getAllBookingsController);
+router.get('/bookings', getAllBookingsController);
+router.get('/bookings/invites', getAllBookingInvitesController);
 router.patch('/bookings/:id/status', updateBookingStatusController);
 router.put('/bookings/:id', updateBookingController);
 router.get('/bookings/:id', getBookingByIdController);
