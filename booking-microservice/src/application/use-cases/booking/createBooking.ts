@@ -1,12 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import {
-  bookingRepository,
-  sportsVenueRepository,
-  userRepository,
-} from '../../../app';
+import { bookingRepository, sportsVenueRepository } from '../../../app';
 import { Booking } from '../../../domain/entities/Booking';
-import { BookingInvite } from '../../../domain/entities/BookingInvite';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -105,7 +100,7 @@ export const createBooking = async (
 
     if (invitedUsersIds.length > 0) {
       await createBookingInvite(
-        req,
+        invitedUsersIds,
         {
           bookingId: newBooking.getId(),
           bookingStartDate: newBooking.bookingStartDate,

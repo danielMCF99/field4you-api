@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import mongoose from 'mongoose';
 import { bookingInviteRepository, userRepository } from '../../../app';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
@@ -6,21 +5,19 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 
 export const createBookingInvite = async (
-  req: Request,
+  invitedUsersIds: string[],
   bookingInfo: {
     bookingId: string;
-    bookingStartDate: Date;
-    bookingEndDate: Date;
+    bookingStartDate?: Date;
+    bookingEndDate?: Date;
   },
   session?: mongoose.ClientSession
 ): Promise<Boolean> => {
-  const { invitedUsersIds } = req.body;
-
   // Check invited user ids
   const invalidIds = invitedUsersIds.some(
     (id: string) => !mongoose.Types.ObjectId.isValid(id)
   );
-  if (invalidIds.length > 0) {
+  if (invalidIds) {
     throw new BadRequestException('Invalid user IDs');
   }
 
@@ -41,14 +38,30 @@ export const createBookingInvite = async (
 
   try {
     // Create BookingInvites
-    const bookingInvites = invitedUsersIds.map((id: string) => ({
-      bookingId: bookingInfo.bookingId,
-      bookingStartDate: bookingInfo.bookingStartDate,
-      bookingEndDate: bookingInfo.bookingEndDate,
-      userId: id,
-      status: 'pending',
-    }));
+    const bookingInvites: any = [];
 
+    for (const id of invitedUsersIds) {
+      const exists = await bookingInviteRepository.existsByBookingIdAndUserId(
+        bookingInfo.bookingId,
+        id
+      );
+      if (exists) {
+        if (bookingInfo.bookingStartDate || bookingInfo.bookingEndDate) {
+          await bookingInviteRepository.update(bookingInfo.bookingId, id, {
+            bookingStartDate: bookingInfo.bookingStartDate,
+            bookingEndDate: bookingInfo.bookingEndDate,
+          });
+        }
+      } else {
+        bookingInvites.push({
+          bookingId: bookingInfo.bookingId,
+          bookingStartDate: bookingInfo.bookingStartDate,
+          bookingEndDate: bookingInfo.bookingEndDate,
+          userId: id,
+          status: 'pending',
+        });
+      }
+    }
     await bookingInviteRepository.insertMany(bookingInvites, session);
 
     return true;

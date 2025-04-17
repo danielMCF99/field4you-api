@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
+import { BookingInviteFilterParams } from '../../domain/dto/booking-invite-filter.dto';
 import { BookingInvite } from '../../domain/entities/BookingInvite';
 import { IBookingInviteRepository } from '../../domain/interfaces/BookingInviteRepository';
 import { BookingInviteModel } from '../database/models/booking-invite.model';
-import { BookingInviteFilterParams } from '../../domain/dto/booking-invite-filter.dto';
 
 export class MongoBookingInviteRepository implements IBookingInviteRepository {
   private static instance: MongoBookingInviteRepository;
@@ -36,7 +36,22 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
     userId: string,
     updatedData: Partial<BookingInvite>
   ): Promise<BookingInvite | undefined> {
-    throw new Error('Method not implemented.');
+    const bookingInvite = await BookingInviteModel.findOneAndUpdate(
+      {
+        userId: userId,
+        bookingId: bookingId,
+      },
+      updatedData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!bookingInvite) {
+      return undefined;
+    }
+    return BookingInvite.fromMongooseDocument(bookingInvite);
   }
 
   async insertMany(
@@ -47,7 +62,6 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
       bookingInvites,
       session ? { session } : {}
     );
-    console.log(createdDocs);
     return createdDocs.map((doc) => BookingInvite.fromMongooseDocument(doc));
   }
 
@@ -87,5 +101,21 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
     const results = await queryBuilder.lean();
 
     return results.map(BookingInvite.fromMongooseDocument);
+  }
+
+  async existsByBookingIdAndUserId(
+    bookingId: string,
+    userId: string
+  ): Promise<Boolean> {
+    const bookingInvite = await BookingInviteModel.findOne({
+      bookingId,
+      userId,
+    }).exec();
+
+    if (!bookingInvite) {
+      return false;
+    }
+
+    return true;
   }
 }

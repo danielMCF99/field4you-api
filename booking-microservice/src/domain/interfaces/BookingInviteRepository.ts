@@ -11,4 +11,8 @@ export interface IBookingInviteRepository {
     userId: string,
     updatedData: Partial<BookingInvite>
   ): Promise<BookingInvite | undefined>;
+  existsByBookingIdAndUserId(
+    bookingId: string,
+    userId: string
+  ): Promise<Boolean>;
 }
