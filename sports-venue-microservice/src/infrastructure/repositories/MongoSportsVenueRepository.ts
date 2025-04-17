@@ -1,6 +1,7 @@
 import { SportsVenue } from '../../domain/entities/sports-venue';
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venueModel';
+import { SportsVenueFilterParams } from '../../domain/dto/sports-venue-filter.dto';
 
 export class MongoSportsVenueRepository implements ISportsVenueRepository {
   private static instance: MongoSportsVenueRepository;
@@ -47,10 +48,41 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
   }
 
-  async findAll(): Promise<SportsVenue[]> {
-    const allSportsVenue = await SportsVenueModel.find();
-    return allSportsVenue.map((sportsVenue) =>
-      SportsVenue.fromMongooseDocument(sportsVenue)
-    );
+  async findAll(params?: SportsVenueFilterParams): Promise<SportsVenue[]> {
+    const {
+      sportsVenueName = '',
+      page,
+      limit,
+      status,
+      sportsVenueType,
+    } = params || {};
+  
+    const query: any = {};
+  
+    if (sportsVenueName) {
+      query.sportsVenueName = { $regex: sportsVenueName, $options: 'i' };
+    }
+  
+    if (status) {
+      query.status = status;
+    }
+  
+    if (sportsVenueType) {
+      query.sportsVenueType = sportsVenueType;
+    }
+  
+    const skip = page && limit ? (page - 1) * limit : 0;
+
+    const queryBuilder = SportsVenueModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip);
+
+    if (typeof limit === 'number') {
+      queryBuilder.limit(limit);
+    }
+
+    const results = await queryBuilder.lean();
+
+    return results.map(SportsVenue.fromMongooseDocument);
   }
 }
