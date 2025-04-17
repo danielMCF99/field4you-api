@@ -4,12 +4,13 @@ import { getAll } from '../../application/use-cases/getAll';
 import { getById } from '../../application/use-cases/getById';
 import { updateUser } from '../../application/use-cases/updateUser';
 
-export const getAllController = async (req: Request, res: Response) => {
+export const getAllController = async (
+  req: Request, 
+  res: Response
+) => {
   try {
-    const users = await getAll(req);
-    res.status(200).json({
-      users: users,
-    });
+    const allUsers = await getAll(req.query);
+    res.status(200).json({ users: allUsers });
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

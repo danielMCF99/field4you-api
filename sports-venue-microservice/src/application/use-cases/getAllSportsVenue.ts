@@ -1,6 +1,17 @@
 import { sportsVenueRepository } from '../../app';
 import { SportsVenue } from '../../domain/entities/sports-venue';
+import { SportsVenueFilterParams } from '../../domain/dto/sports-venue-filter.dto';
 
-export const getAllSportsVenue = async (): Promise<SportsVenue[]> => {
-  return await sportsVenueRepository.findAll();
+export const getAllSportsVenue = async (
+  query: any
+): Promise<SportsVenue[]> => {
+  const filters: SportsVenueFilterParams = {
+    sportsVenueName: query.sportsVenueName?.toString(),
+    status: query.status?.toString(),
+    sportsVenueType: query.sportsVenueType?.toString(),
+    page: query.page ? parseInt(query.page.toString(), 10) : 1,
+    limit: query.limit ? parseInt(query.limit.toString(), 10) : 10,
+  };
+
+  return await sportsVenueRepository.findAll(filters);
 };

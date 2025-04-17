@@ -1,9 +1,10 @@
+import { BookingFilterParams } from "../dto/booking-filter.dto";
 import { Booking } from "../entities/Booking";
 
 export interface IBookingRepository {
   create(booking: Booking): Promise<Booking>;
   findById(id: string): Promise<Booking | undefined>;
-  findAll(): Promise<Booking[]>;
+  findAll(params?: BookingFilterParams): Promise<Booking[]>;
   delete(id: string): Promise<boolean>;
   update(
     id: string,
