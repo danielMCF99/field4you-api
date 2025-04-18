@@ -1,16 +1,13 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import {
-  bookingRepository,
-  sportsVenueRepository,
-  userRepository,
-} from '../../app';
-import { Booking } from '../../domain/entities/Booking';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { ConflictException } from '../../domain/exceptions/ConflictException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { bookingRepository, sportsVenueRepository } from '../../../app';
+import { Booking } from '../../../domain/entities/Booking';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ConflictException } from '../../../domain/exceptions/ConflictException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
 export const createBooking = async (
   req: Request
@@ -88,29 +85,6 @@ export const createBooking = async (
     throw new BadRequestException('Booking end date must be after start date');
   }
 
-  // Check invited user ids
-  const invalidIds = invitedUsersIds.some(
-    (id: string) => !mongoose.Types.ObjectId.isValid(id)
-  );
-  if (invalidIds.length > 0) {
-    throw new BadRequestException('Invalid user IDs');
-  }
-
-  // Check if any of the invited users does not exist
-  const nonExistingUsers = await Promise.all(
-    invitedUsersIds.map(async (id: string) => {
-      const user = await userRepository.getById(id);
-      return user === undefined;
-    })
-  );
-
-  const hasNonExistingUsers = nonExistingUsers.some((val) => val === true);
-  if (hasNonExistingUsers) {
-    throw new NotFoundException(
-      'You have invited at least one user that does not exist'
-    );
-  }
-
   // Check if Sports Venue Exists
   const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
   if (!sportsVenue) {
@@ -118,11 +92,32 @@ export const createBooking = async (
   }
 
   booking.ownerId = ownerId;
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
-    const newBooking = await bookingRepository.create(booking);
+    const newBooking = await bookingRepository.create(booking, session);
+
+    if (invitedUsersIds.length > 0) {
+      await createBookingInvite(
+        invitedUsersIds,
+        {
+          bookingId: newBooking.getId(),
+          bookingStartDate: newBooking.bookingStartDate,
+          bookingEndDate: newBooking.bookingEndDate,
+        },
+        session
+      );
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
     return newBooking;
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
     throw new InternalServerErrorException(
       'Internal server error creating booking'
     );

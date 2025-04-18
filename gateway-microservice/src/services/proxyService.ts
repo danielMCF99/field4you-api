@@ -1,8 +1,8 @@
-import axios, { AxiosRequestConfig } from "axios";
-import FormData from "form-data";
-import CircuitBreaker from "opossum";
-import { serviceConfig } from "../config/env";
-import { logger } from "../logging/logger";
+import axios, { AxiosRequestConfig } from 'axios';
+import FormData from 'form-data';
+import CircuitBreaker from 'opossum';
+import { serviceConfig } from '../config/env';
+import { logger } from '../logging/logger';
 
 interface ProxyResponse {
   status: number;
@@ -31,16 +31,16 @@ class ProxyService {
         this.circuitOptions
       );
 
-      this.breakers[serviceName].on("open", () =>
+      this.breakers[serviceName].on('open', () =>
         logger.warn(`Circuit for ${serviceName} is open`)
       );
-      this.breakers[serviceName].on("close", () =>
+      this.breakers[serviceName].on('close', () =>
         logger.info(`Circuit for ${serviceName} is closed`)
       );
-      this.breakers[serviceName].on("halfOpen", () =>
+      this.breakers[serviceName].on('halfOpen', () =>
         logger.info(`Circuit for ${serviceName} is half-open`)
       );
-      this.breakers[serviceName].on("fallback", () =>
+      this.breakers[serviceName].on('fallback', () =>
         logger.info(`Fallback triggered for ${serviceName}`)
       );
 
@@ -71,7 +71,7 @@ class ProxyService {
 
     if (file) {
       const formData = new FormData();
-      formData.append("image", file.buffer, file.originalname);
+      formData.append('image', file.buffer, file.originalname);
       data = formData;
       headers = {
         ...headers,
@@ -79,13 +79,20 @@ class ProxyService {
       };
     }
 
-    if (typeof baseUrl !== "string") {
+    if (typeof baseUrl !== 'string') {
       throw new Error(`Invalid baseUrl type: ${typeof baseUrl}`);
     }
 
-    const url = `${baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+    let url;
+    if (!path) {
+      url = `${baseUrl}`;
+    } else {
+      url = `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+    }
+    console.log(url);
+    //const url = `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
     const config: AxiosRequestConfig = {
-      method: method as AxiosRequestConfig["method"],
+      method: method as AxiosRequestConfig['method'],
       url,
       params: query,
       headers,
@@ -98,7 +105,7 @@ class ProxyService {
       const breaker = ProxyService.getBreaker(serviceName);
       if (breaker.opened) {
         logger.warn(`Circuit for ${serviceName} is open, rejecting request`);
-        throw new Error("Breaker is open");
+        throw new Error('Breaker is open');
       }
 
       const response = await breaker.fire(config);
@@ -112,16 +119,16 @@ class ProxyService {
         `Error while forwarding request to service '${serviceName}': ${error.message}`
       );
 
-      if (error.code === "ETIMEDOUT" || error.message?.includes("Timed out")) {
-        throw new Error("Request to service timed out.");
+      if (error.code === 'ETIMEDOUT' || error.message?.includes('Timed out')) {
+        throw new Error('Request to service timed out.');
       }
 
-      if (error.message?.includes("Breaker is open")) {
+      if (error.message?.includes('Breaker is open')) {
         // Return a standard response for service unavailable
         return {
           status: 503,
           headers: {},
-          data: { message: "Service temporarily unavailable" },
+          data: { message: 'Service temporarily unavailable' },
         };
       }
 
@@ -133,7 +140,7 @@ class ProxyService {
         };
       }
 
-      throw new Error("Failed to communicate with the service.");
+      throw new Error('Failed to communicate with the service.');
     }
   }
 }

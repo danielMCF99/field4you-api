@@ -15,7 +15,6 @@ const startServer = async () => {
   try {
     // Middleware
     app.use(express.json());
-    app.use(authenticate);
 
     app.use(
       '/swagger',
@@ -30,6 +29,8 @@ const startServer = async () => {
         }
       }
     );
+
+    app.use(authenticate);
 
     // Routes
     app.use('/api', routes);

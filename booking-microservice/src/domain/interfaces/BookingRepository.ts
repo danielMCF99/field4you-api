@@ -1,15 +1,22 @@
-import { BookingFilterParams } from "../dto/booking-filter.dto";
-import { Booking } from "../entities/Booking";
+import mongoose from 'mongoose';
+import { BookingFilterParams } from '../dto/booking-filter.dto';
+import { Booking } from '../entities/Booking';
 
 export interface IBookingRepository {
-  create(booking: Booking): Promise<Booking>;
+  create(booking: Booking, session: mongoose.ClientSession): Promise<Booking>;
+
   findById(id: string): Promise<Booking | undefined>;
+
   findAll(params?: BookingFilterParams): Promise<Booking[]>;
+
   delete(id: string): Promise<boolean>;
+
   update(
     id: string,
-    updatedData: Partial<Booking>
+    updatedData: Partial<Booking>,
+    session?: mongoose.ClientSession
   ): Promise<Booking | undefined>;
+
   findConflictingBookings(
     sportsVenueId: string,
     bookingStartDate: Date,

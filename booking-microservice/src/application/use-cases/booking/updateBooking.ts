@@ -1,15 +1,12 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import {
-  bookingRepository,
-  sportsVenueRepository,
-  userRepository,
-} from '../../app';
-import { Booking } from '../../domain/entities/Booking';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { ConflictException } from '../../domain/exceptions/ConflictException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { bookingRepository, sportsVenueRepository } from '../../../app';
+import { Booking } from '../../../domain/entities/Booking';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ConflictException } from '../../../domain/exceptions/ConflictException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {
@@ -22,7 +19,9 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
   if (!ownerId || !userType) {
-    throw new InternalServerErrorException('Internal Server Error');
+    throw new InternalServerErrorException(
+      'Internal Server Error. Missing required authentication headers'
+    );
   }
 
   let booking;
@@ -48,7 +47,6 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     'bookingStartDate',
     'bookingEndDate',
     'isPublic',
-    'invitedUsersIds',
   ];
 
   const updatedData: Record<string, any> = {};
@@ -57,6 +55,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
       updatedData[key] = req.body[key];
     }
   });
+
   const isSportsVenueIdChanged =
     updatedData.sportsVenueId &&
     updatedData.sportsVenueId !== booking.sportsVenueId;
@@ -93,44 +92,60 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     }
   }
 
-  // Check invited user ids
-  const invitedUsersIds = updatedData.invitedUsersIds;
-  if (invitedUsersIds) {
-    const invalidIds = invitedUsersIds.some(
-      (id: string) => !mongoose.Types.ObjectId.isValid(id)
+  if (req.body.invitedUsersIds && req.body.invitedUsersIds.length > 0) {
+    const invitedUsersIds = req.body.invitedUsersIds;
+    const finalResult = Array.from(
+      new Set([...booking.invitedUsersIds, ...invitedUsersIds])
     );
-    if (invalidIds.length) {
-      throw new BadRequestException('Invalid user IDs');
-    }
-
-    // Check if any of the invited users does not exist
-    const nonExistingUsers = await Promise.all(
-      invitedUsersIds.map(async (id: string) => {
-        const user = await userRepository.getById(id);
-        return user === undefined;
-      })
-    );
-
-    const hasNonExistingUsers = nonExistingUsers.some((val) => val === true);
-    if (hasNonExistingUsers) {
-      throw new NotFoundException(
-        'You have invited at least one user that does not exist'
-      );
-    }
+    updatedData['invitedUsersIds'] = finalResult;
   }
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const updatedBooking = await bookingRepository.update(booking.getId(), {
-      ...updatedData,
-    });
+    const updatedBooking = await bookingRepository.update(
+      booking.getId(),
+      {
+        ...updatedData,
+      },
+      session
+    );
     if (!updatedBooking) {
       throw new InternalServerErrorException('Error updating booking');
     }
 
-    return updatedBooking;
+    if (updatedData.invitedUsersIds && updatedData.invitedUsersIds.length > 0) {
+      await createBookingInvite(
+        updatedData.invitedUsersIds,
+        {
+          bookingId: updatedBooking.getId(),
+          bookingStartDate: updatedBooking.bookingStartDate,
+          bookingEndDate: updatedBooking.bookingEndDate,
+        },
+        session
+      );
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // Get final state of booking with all invited users
+    const response = await bookingRepository.findById(id);
+
+    if (!response) {
+      throw new InternalServerErrorException(
+        'Error fetching final version of booking after update'
+      );
+    }
+
+    return response;
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log(error);
     throw new InternalServerErrorException(
-      'Internal server error deleting booking'
+      'Internal server error updating booking'
     );
   }
 };

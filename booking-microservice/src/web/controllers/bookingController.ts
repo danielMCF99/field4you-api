@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { createBooking } from '../../application/use-cases/createBooking';
-import { deleteBooking } from '../../application/use-cases/deleteBooking';
-import { getAllBookings } from '../../application/use-cases/getAllBookings';
-import { getBookingById } from '../../application/use-cases/getBookingById';
-import { updateBooking } from '../../application/use-cases/updateBooking';
-import { updateBookingStatus } from '../../application/use-cases/updateBookingStatus';
-import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
+import { createBooking } from '../../application/use-cases/booking/createBooking';
+import { deleteBooking } from '../../application/use-cases/booking/deleteBooking';
+import { getAllBookings } from '../../application/use-cases/booking/getAllBookings';
+import { getBookingById } from '../../application/use-cases/booking/getBookingById';
+import { updateBooking } from '../../application/use-cases/booking/updateBooking';
+import { updateBookingStatus } from '../../application/use-cases/booking/updateBookingStatus';
 
 export const createBookingController = async (req: Request, res: Response) => {
   try {
@@ -59,10 +58,7 @@ export const getBookingByIdController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllBookingsController = async (
-  req: Request, 
-  res: Response
-) => {
+export const getAllBookingsController = async (req: Request, res: Response) => {
   try {
     const allBookings = await getAllBookings(req.query);
     res.status(200).json({ bookings: allBookings });

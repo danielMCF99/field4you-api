@@ -18,7 +18,9 @@ export const authenticate = async (
   const isWhitelisted = whitelist.some(
     (route) =>
       route.method === req.method &&
-      (route.path === req.path || req.path.includes('/api/auth/reset-password'))
+      (route.path === req.path ||
+        req.path.includes('/api/auth/reset-password') ||
+        req.path.includes('/swagger'))
   );
 
   if (isWhitelisted) {
