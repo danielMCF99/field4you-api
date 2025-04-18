@@ -19,7 +19,9 @@ export const updateSportsVenueStatus = async (
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
   if (!ownerId || !userType) {
-    throw new InternalServerErrorException('Internal Server Error');
+    throw new InternalServerErrorException(
+      'Internal Server Error. Missing required authentication headers'
+    );
   }
 
   const { status } = req.body;

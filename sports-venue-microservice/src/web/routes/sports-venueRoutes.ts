@@ -18,7 +18,7 @@ router.get('/sports-venues/swagger', async (req: Request, res: Response) => {
 router.post('/sports-venues/create', createSportsVenueController);
 router.patch('/sports-venues/:id/status', updateSportsVenueStatusController);
 router.put('/sports-venues/:id', updateSportsVenueController);
-router.get('/sports-venues/', getAllSportsVenueController);
+router.get('/sports-venues', getAllSportsVenueController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
 //router.post("/sports-venue/query", query-sports-venue);

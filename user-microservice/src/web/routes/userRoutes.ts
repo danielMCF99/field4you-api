@@ -13,7 +13,7 @@ userRoutes.get('/users/swagger', async (req: Request, res: Response) => {
   res.status(200).send(swaggerDocument);
 });
 
-userRoutes.get('/users/', getAllController);
+userRoutes.get('/users', getAllController);
 userRoutes.get('/users/:id', getByIdController);
 userRoutes.put('/users/:id', updateUserController);
 userRoutes.delete('/users/:id', deleteUserController);

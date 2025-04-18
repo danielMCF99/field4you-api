@@ -1,8 +1,8 @@
-import express, { Request, Response } from "express";
-import multer from "multer";
-import { serviceConfig } from "../config/env";
-import { logger } from "../logging/logger";
-import ProxyService from "../services/proxyService";
+import express, { Request, Response } from 'express';
+import multer from 'multer';
+import { serviceConfig } from '../config/env';
+import { logger } from '../logging/logger';
+import ProxyService from '../services/proxyService';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -11,13 +11,14 @@ const router = express.Router();
 
 // Proxy route for microservices
 router.all(
-  "/:serviceName/*",
-  upload.single("image"),
+  '/:serviceName/:path(*)?',
+  upload.single('image'),
   async (req: Request, res: Response) => {
     const { serviceName } = req.params as {
       serviceName: keyof typeof serviceConfig;
     };
-    const path = req.params[0]; // Capture the remaining path
+    console.log(req.params);
+    const path = req.params['path']; // Capture the remaining path
     const method = req.method;
     const data = req.body;
     const query = req.query;
@@ -34,12 +35,13 @@ router.all(
 
     try {
       const filteredHeaders = {
-        "x-user-id": req.headers["x-user-id"],
-        "x-user-email": req.headers["x-user-email"],
-        "x-user-type": req.headers["x-user-type"],
-        "content-type": req.headers["content-type"],
-        authorization: req.headers["authorization"],
+        'x-user-id': req.headers['x-user-id'],
+        'x-user-email': req.headers['x-user-email'],
+        'x-user-type': req.headers['x-user-type'],
+        'content-type': req.headers['content-type'],
+        authorization: req.headers['authorization'],
       };
+
       const result = await ProxyService.forwardRequest(
         serviceName,
         path,
@@ -55,7 +57,7 @@ router.all(
       logger.error(
         `Error in route for service '${serviceName}': ${error.message}`
       );
-      let errorMessage = "An unexpected error occurred";
+      let errorMessage = 'An unexpected error occurred';
       let statusCode = 400;
       let details;
       if (error.response) {
@@ -64,7 +66,7 @@ router.all(
         statusCode = error.response.status || statusCode;
         details = resData?.details;
       } else if (error.request) {
-        errorMessage = "No response from the server";
+        errorMessage = 'No response from the server';
         statusCode = 503;
       } else {
         errorMessage = error.message;

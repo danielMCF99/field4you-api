@@ -1,12 +1,15 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingRepository } from '../../../app';
-import { Booking } from '../../../domain/entities/Booking';
+import { bookingInviteRepository } from '../../../app';
+import { BookingInvite } from '../../../domain/entities/BookingInvite';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
-export const updateBookingStatus = async (req: Request): Promise<Booking> => {
+export const updateBookingInviteStatus = async (
+  req: Request
+): Promise<BookingInvite> => {
   const id = req.params.id.toString();
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -38,33 +41,36 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     );
   }
 
-  let booking;
-  if (userType != 'admin') {
-    // Check if booking belongs to the user
-    booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
-    if (!booking) {
-      throw new NotFoundException(
-        'Booking with given ID not found for authenticated user'
-      );
-    }
-  } else {
-    booking = await bookingRepository.findById(id);
+  const bookingInvite = await bookingInviteRepository.findById(id);
+
+  if (!bookingInvite) {
+    throw new NotFoundException(
+      'Booking with given ID not found for authenticated user'
+    );
   }
 
-  if (!booking) {
-    throw new NotFoundException('Booking not found');
+  if (userType != 'admin') {
+    // Check if booking invite belongs to the user
+    if (bookingInvite.getUserId() != ownerId) {
+      throw new UnauthorizedException(
+        'Authenticated user is not the owner of the invite'
+      );
+    }
   }
 
   try {
-    const updatedBooking = await bookingRepository.updateStatus(id, newStatus);
-    if (!updatedBooking) {
-      throw new InternalServerErrorException('Error updating booking');
+    const updatedBookingInvite = await bookingInviteRepository.updateStatus(
+      id,
+      newStatus
+    );
+    if (!updatedBookingInvite) {
+      throw new InternalServerErrorException('Error updating booking invite');
     }
 
-    return updatedBooking;
+    return updatedBookingInvite;
   } catch (error) {
     throw new InternalServerErrorException(
-      'Internal server error updating booking'
+      'Internal server error updating booking invite'
     );
   }
 };

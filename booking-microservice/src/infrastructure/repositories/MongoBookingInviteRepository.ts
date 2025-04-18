@@ -118,4 +118,30 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
 
     return true;
   }
+
+  async findById(id: string): Promise<BookingInvite | undefined> {
+    const bookingInvite = await BookingInviteModel.findById(id);
+    if (!bookingInvite) {
+      return undefined;
+    }
+    return BookingInvite.fromMongooseDocument(bookingInvite);
+  }
+
+  async updateStatus(
+    id: string,
+    status: string
+  ): Promise<BookingInvite | undefined> {
+    const updatedBookingInvite = await BookingInviteModel.findByIdAndUpdate(
+      id,
+      { status: status },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return updatedBookingInvite
+      ? BookingInvite.fromMongooseDocument(updatedBookingInvite)
+      : undefined;
+  }
 }
