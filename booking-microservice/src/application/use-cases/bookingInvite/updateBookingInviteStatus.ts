@@ -16,7 +16,7 @@ export const updateBookingInviteStatus = async (
     throw new BadRequestException('Invalid ID format');
   }
 
-  const allowedFields = ['status'];
+  const allowedFields = ['status', 'comments'];
 
   const updatedData: Record<string, any> = {};
   Object.keys(req.body).forEach((key) => {
@@ -26,6 +26,7 @@ export const updateBookingInviteStatus = async (
   });
 
   const newStatus = updatedData.status;
+  const comments = updatedData.comments;
   if (
     !newStatus ||
     (newStatus != 'active' && newStatus != 'cancelled' && newStatus != 'done')
@@ -61,7 +62,8 @@ export const updateBookingInviteStatus = async (
   try {
     const updatedBookingInvite = await bookingInviteRepository.updateStatus(
       id,
-      newStatus
+      newStatus,
+      comments ? comments : null
     );
     if (!updatedBookingInvite) {
       throw new InternalServerErrorException('Error updating booking invite');

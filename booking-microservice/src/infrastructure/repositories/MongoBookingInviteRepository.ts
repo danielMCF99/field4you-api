@@ -129,11 +129,12 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
 
   async updateStatus(
     id: string,
-    status: string
+    status: string,
+    comments?: string
   ): Promise<BookingInvite | undefined> {
     const updatedBookingInvite = await BookingInviteModel.findByIdAndUpdate(
       id,
-      { status: status },
+      { status: status, comments: comments ? comments : null },
       {
         new: true,
         runValidators: true,

@@ -29,5 +29,9 @@ export interface IBookingInviteRepository {
 
   findById(id: string): Promise<BookingInvite | undefined>;
 
-  updateStatus(id: string, status: string): Promise<BookingInvite | undefined>;
+  updateStatus(
+    id: string,
+    status: string,
+    comments?: string
+  ): Promise<BookingInvite | undefined>;
 }
