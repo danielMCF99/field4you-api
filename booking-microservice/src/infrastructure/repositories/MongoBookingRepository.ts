@@ -1,8 +1,8 @@
+import mongoose from 'mongoose';
+import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
 import { Booking } from '../../domain/entities/Booking';
 import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
 import { BookingModel } from '../database/models/booking.model';
-import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
-import mongoose from 'mongoose';
 
 export class MongoBookingRepository implements IBookingRepository {
   private static instance: MongoBookingRepository;
@@ -103,12 +103,14 @@ export class MongoBookingRepository implements IBookingRepository {
 
   async update(
     id: string,
-    updatedData: Partial<Booking>
+    updatedData: Partial<Booking>,
+    session?: mongoose.ClientSession
   ): Promise<Booking | undefined> {
     const updatedBooking = await BookingModel.findByIdAndUpdate(
       id,
       updatedData,
       {
+        session: session ? session : null,
         new: true,
         runValidators: true,
       }

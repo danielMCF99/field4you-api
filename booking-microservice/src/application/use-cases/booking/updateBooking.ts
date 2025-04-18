@@ -6,8 +6,8 @@ import { BadRequestException } from '../../../domain/exceptions/BadRequestExcept
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { checkBookingConflicts } from './checkBookingConflicts';
 import { createBookingInvite } from '../bookingInvite/createBookingInvite';
+import { checkBookingConflicts } from './checkBookingConflicts';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -102,14 +102,18 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
   session.startTransaction();
 
   try {
-    const updatedBooking = await bookingRepository.update(booking.getId(), {
-      ...updatedData,
-    });
+    const updatedBooking = await bookingRepository.update(
+      booking.getId(),
+      {
+        ...updatedData,
+      },
+      session
+    );
     if (!updatedBooking) {
       throw new InternalServerErrorException('Error updating booking');
     }
 
-    if (updatedData.invitedUsersIds.length > 0) {
+    if (updatedData.invitedUsersIds && updatedData.invitedUsersIds.length > 0) {
       await createBookingInvite(
         updatedData.invitedUsersIds,
         {
