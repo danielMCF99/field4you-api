@@ -1,5 +1,5 @@
-import { userRepository } from '../../app';
-import { User } from '../../domain/entities/User';
+import { userRepository } from '../../../app';
+import { User } from '../../../domain/entities/User';
 
 export const createUser = async (user: any): Promise<User | undefined> => {
   const userId = user.userId;

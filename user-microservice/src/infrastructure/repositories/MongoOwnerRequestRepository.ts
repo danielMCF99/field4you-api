@@ -1,6 +1,7 @@
-import { OwnerRequest } from "../../domain/entities/OwnerRequest";
-import { IOwnerRequestRepository } from "../../domain/interfaces/OwnerRequestRepository";
-import { OwnerRequestModel } from "../database/models/owner-request.model";
+import { Types, ClientSession } from 'mongoose';
+import { OwnerRequestModel } from '../database/models/owner-request.model';
+import { IOwnerRequestRepository } from '../../domain/interfaces/OwnerRequestRepository';
+import { OwnerRequest } from '../../domain/entities/OwnerRequest';
 
 export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
   private static instance: MongoOwnerRequestRepository;
@@ -15,7 +16,15 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
   }
 
   async create(ownerRequest: OwnerRequest): Promise<OwnerRequest> {
-    const newOwnerRequest = await OwnerRequestModel.create(ownerRequest);
+    const newOwnerRequest = await OwnerRequestModel.create({
+      userId: new Types.ObjectId(ownerRequest.userId),
+      message: ownerRequest.message,
+      status: ownerRequest.status,
+      submittedAt: ownerRequest.submittedAt,
+      reviewedAt: ownerRequest.reviewedAt,
+      reviewedBy: ownerRequest.reviewedBy,
+    });
+
     return OwnerRequest.fromMongooseDocument(newOwnerRequest);
   }
 
@@ -43,6 +52,27 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
     return OwnerRequest.fromMongooseDocument(updatedOwnerRequest);
   }
 
+  async updateStatus(
+    id: string,
+    status: string,
+    reviewedBy: string,
+    response?: string,
+    session?: ClientSession
+  ): Promise<OwnerRequest> {
+    const updatedOwnerRequest = await OwnerRequestModel.findByIdAndUpdate(
+      id,
+      {
+        status,
+        response,
+        reviewedBy,
+        reviewedAt: new Date(),
+      },
+      { new: true, session }
+    ).exec();
+
+    return OwnerRequest.fromMongooseDocument(updatedOwnerRequest);
+  }
+
   async delete(id: string): Promise<void> {
     await OwnerRequestModel.findByIdAndDelete(id).exec();
   }
@@ -52,7 +82,7 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
     if (!ownerRequest) {
       throw new Error(`OwnerRequest with id ${id} not found`);
     }
-    ownerRequest.status = "approved";
+    ownerRequest.status = 'approved';
     await ownerRequest.save();
     return OwnerRequest.fromMongooseDocument(ownerRequest);
   }
@@ -62,7 +92,7 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
     if (!ownerRequest) {
       throw new Error(`OwnerRequest with id ${id} not found`);
     }
-    ownerRequest.status = "rejected";
+    ownerRequest.status = 'rejected';
     await ownerRequest.save();
     return OwnerRequest.fromMongooseDocument(ownerRequest);
   }

@@ -1,12 +1,12 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { userRepository } from '../../app';
-import { User } from '../../domain/entities/User';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { publishUserUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { userRepository } from '../../../app';
+import { User } from '../../../domain/entities/User';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { publishUserUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const updateUser = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();

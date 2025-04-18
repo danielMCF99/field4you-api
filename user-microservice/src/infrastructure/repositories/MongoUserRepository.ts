@@ -1,3 +1,4 @@
+import { ClientSession } from 'mongoose';
 import { User } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { UserModel } from '../database/models/user.model';
@@ -43,6 +44,24 @@ export class MongoUserRepository implements IUserRepository {
       new: true,
       runValidators: true,
     });
+
+    return updatedUser ? User.fromMongooseDocument(updatedUser) : undefined;
+  }
+
+  async updateType(
+    id: string,
+    type: string,
+    session?: ClientSession
+  ): Promise<User | undefined> {
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      id,
+      { type },
+      {
+        new: true,
+        runValidators: true,
+        session,
+      }
+    );
 
     return updatedUser ? User.fromMongooseDocument(updatedUser) : undefined;
   }

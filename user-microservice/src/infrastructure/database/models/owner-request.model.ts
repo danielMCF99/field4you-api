@@ -1,31 +1,33 @@
-import { Document, Schema, Types, model } from "mongoose";
+import { Document, Schema, Types, model } from 'mongoose';
 
 interface IOwnerRequest extends Document {
-  user: Types.ObjectId;
+  userId: Types.ObjectId;
   message?: string;
   status: string;
+  response?: string;
   submittedAt: Date;
   reviewedAt?: Date;
   reviewedBy?: Types.ObjectId;
 }
 
-const accountUpgradeRequestSchema = new Schema<IOwnerRequest>(
+const ownerRequestSchema = new Schema<IOwnerRequest>(
   {
-    user: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       unique: true,
     },
     message: { type: String },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
+    response: { type: String },
     submittedAt: { type: Date, default: Date.now },
     reviewedAt: { type: Date },
-    reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
+    reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   {
     timestamps: true,
@@ -33,6 +35,6 @@ const accountUpgradeRequestSchema = new Schema<IOwnerRequest>(
 );
 
 export const OwnerRequestModel = model<IOwnerRequest>(
-  "AccountUpgradeRequest",
-  accountUpgradeRequestSchema
+  'ownerrequest',
+  ownerRequestSchema
 );

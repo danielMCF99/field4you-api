@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { deleteUser } from '../../application/use-cases/deleteUser';
-import { getAll } from '../../application/use-cases/getAll';
-import { getById } from '../../application/use-cases/getById';
-import { updateUser } from '../../application/use-cases/updateUser';
+import { deleteUser } from '../../application/use-cases/users/deleteUser';
+import { getAll } from '../../application/use-cases/users/getAll';
+import { getById } from '../../application/use-cases/users/getById';
+import { updateUser } from '../../application/use-cases/users/updateUser';
 
 export const getAllController = async (req: Request, res: Response) => {
   try {

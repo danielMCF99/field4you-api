@@ -1,4 +1,4 @@
-import { OwnerRequest } from "../entities/OwnerRequest";
+import { OwnerRequest } from '../entities/OwnerRequest';
 
 export interface IOwnerRequestRepository {
   create(ownerRequest: OwnerRequest): Promise<OwnerRequest>;

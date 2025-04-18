@@ -1,5 +1,5 @@
 import amqp, { Connection } from 'amqplib';
-import { createUser } from '../../application/use-cases/createUser';
+import { createUser } from '../../application/use-cases/users/createUser';
 import config from '../../config/env';
 
 const USER_CREATION_QUEUE = 'user_serv_user_registration_queue';
