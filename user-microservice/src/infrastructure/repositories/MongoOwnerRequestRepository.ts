@@ -2,6 +2,7 @@ import { Types, ClientSession } from 'mongoose';
 import { OwnerRequestModel } from '../database/models/owner-request.model';
 import { IOwnerRequestRepository } from '../../domain/interfaces/OwnerRequestRepository';
 import { OwnerRequest } from '../../domain/entities/OwnerRequest';
+import { OwnerRequestFilterParams } from '../../domain/dto/ownerRequest-filter.dto';
 
 export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
   private static instance: MongoOwnerRequestRepository;
@@ -28,8 +29,43 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
     return OwnerRequest.fromMongooseDocument(newOwnerRequest);
   }
 
-  async getAll(): Promise<OwnerRequest[]> {
-    const ownerRequests = await OwnerRequestModel.find().exec();
+  async getAll(params: OwnerRequestFilterParams): Promise<OwnerRequest[]> {
+    const {
+      status,
+      startDate,
+      endDate,
+      sortBy = 'createdAt',
+      order = 'desc',
+      page = 1,
+      limit = 10,
+    } = params;
+
+    const query: any = {};
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (startDate && endDate) {
+      query.createdAt = {
+        $gte: startDate,
+        $lte: endDate,
+      };
+    } else if (startDate) {
+      query.createdAt = { $gte: startDate };
+    } else if (endDate) {
+      query.createdAt = { $lte: endDate };
+    }
+
+    const skip = (page - 1) * limit;
+    const sortOrder = order === 'asc' ? 1 : -1;
+
+    const ownerRequests = await OwnerRequestModel.find(query)
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
     return ownerRequests.map(OwnerRequest.fromMongooseDocument);
   }
 
@@ -75,25 +111,5 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
 
   async delete(id: string): Promise<void> {
     await OwnerRequestModel.findByIdAndDelete(id).exec();
-  }
-
-  async approve(id: string): Promise<OwnerRequest> {
-    const ownerRequest = await OwnerRequestModel.findById(id).exec();
-    if (!ownerRequest) {
-      throw new Error(`OwnerRequest with id ${id} not found`);
-    }
-    ownerRequest.status = 'approved';
-    await ownerRequest.save();
-    return OwnerRequest.fromMongooseDocument(ownerRequest);
-  }
-
-  async reject(id: string): Promise<OwnerRequest> {
-    const ownerRequest = await OwnerRequestModel.findById(id).exec();
-    if (!ownerRequest) {
-      throw new Error(`OwnerRequest with id ${id} not found`);
-    }
-    ownerRequest.status = 'rejected';
-    await ownerRequest.save();
-    return OwnerRequest.fromMongooseDocument(ownerRequest);
   }
 }
