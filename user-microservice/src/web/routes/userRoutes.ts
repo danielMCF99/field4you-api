@@ -32,7 +32,7 @@ userRoutes.get('/users/owner-requests/all', getAllOwnerRequestsController);
 userRoutes.get('/users/owner-requests/:id', getOwnerRequestController);
 
 userRoutes.get(
-  '/users/:userId/owner-requests/',
+  '/users/:userId/owner-requests',
   getOwnerRequestsByUserIdController
 );
 
