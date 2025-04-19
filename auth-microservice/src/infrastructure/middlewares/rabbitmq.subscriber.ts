@@ -1,8 +1,6 @@
 import amqp, { Connection } from 'amqplib';
-import config from '../../config/env';
 import { deleteUser } from '../../application/use-cases/deleteUser';
-
-const AUTH_SERVICE_DELETE_QUEUE = 'auth_serv_user_deletion_queue';
+import config from '../../config/env';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -34,27 +32,23 @@ export async function subscribeUserDeletion() {
     const connection = await connectWithRetry();
     const channel = await connection.createChannel();
 
-    // Ensure queue is durable
-    await channel.assertQueue(AUTH_SERVICE_DELETE_QUEUE, { durable: true });
+    await channel.assertExchange('user.events', 'topic', { durable: true });
+
+    const queue = 'auth_user_events';
+    await channel.assertQueue(queue, { durable: true });
+    await channel.bindQueue(queue, 'user.events', 'user.deleted');
 
     console.log(`[*] Waiting for User delete events...`);
+    channel.consume(queue, async (msg) => {
+      if (msg !== null) {
+        const payload = JSON.parse(msg.content.toString());
+        console.log('[x] Received User delete event:', payload);
 
-    channel.consume(
-      AUTH_SERVICE_DELETE_QUEUE,
-      async (msg) => {
-        if (msg?.content) {
-          const user = JSON.parse(msg.content.toString());
-          console.log(`[x] Received User delete event:`, user);
-
-          await deleteUser(user.userId);
-
-          // Acknowledge message after processing
-          channel.ack(msg);
-        }
-      },
-      { noAck: false } // Ensure message is acknowledged only after processing
-    );
+        await deleteUser(payload.userId);
+        channel.ack(msg);
+      }
+    });
   } catch (error) {
-    console.error('Error subscribing to queue:', error);
+    console.log(error);
   }
 }
