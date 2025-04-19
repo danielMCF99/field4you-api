@@ -11,13 +11,14 @@ const router = express.Router();
 
 // Proxy route for microservices
 router.all(
-  '/:serviceName/*',
+  '/:serviceName/:path(*)?',
   upload.single('image'),
   async (req: Request, res: Response) => {
     const { serviceName } = req.params as {
       serviceName: keyof typeof serviceConfig;
     };
-    const path = req.params[0]; // Capture the remaining path
+    console.log(req.params);
+    const path = req.params['path']; // Capture the remaining path
     const method = req.method;
     const data = req.body;
     const query = req.query;
@@ -33,23 +34,23 @@ router.all(
     }
 
     try {
-      const authHeader = req.headers['authorization'];
+      const filteredHeaders = {
+        'x-user-id': req.headers['x-user-id'],
+        'x-user-email': req.headers['x-user-email'],
+        'x-user-type': req.headers['x-user-type'],
+        'content-type': req.headers['content-type'],
+        authorization: req.headers['authorization'],
+      };
 
-      // Use the Circuit Breaker from ProxyService
-      const breaker = ProxyService.getBreaker(serviceName); // Get or create a breaker for the service
-      const result = await breaker.fire({
+      const result = await ProxyService.forwardRequest(
+        serviceName,
+        path,
         method,
-        url: `${serviceConfig[serviceName]}/${path}`,
-        params: query,
-        headers: {
-          'x-user-id': req.headers['x-user-id'] || '',
-          'x-user-email': req.headers['x-user-email'] || '',
-          'x-user-type': req.headers['x-user-type'] || '',
-          // If handling file uploads or JSON bodies, you may also include:
-          'content-type': req.headers['content-type'] || 'application/json',
-        },
         data,
-      });
+        query,
+        filteredHeaders,
+        file
+      );
 
       res.status(result.status).set(result.headers).json(result.data);
     } catch (error: any) {

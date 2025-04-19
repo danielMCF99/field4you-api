@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
 import { Booking } from '../../domain/entities/Booking';
 import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
 import { BookingModel } from '../database/models/booking.model';
@@ -14,14 +16,16 @@ export class MongoBookingRepository implements IBookingRepository {
     }
     return MongoBookingRepository.instance;
   }
-  async create(booking: Booking): Promise<Booking> {
-    const newBooking = await BookingModel.create(booking);
-    return Booking.fromMongooseDocument(newBooking);
+  async create(
+    booking: Booking,
+    session: mongoose.ClientSession
+  ): Promise<Booking> {
+    const newBooking = await BookingModel.create([{ ...booking }], { session });
+    return Booking.fromMongooseDocument(newBooking[0]);
   }
 
   async findById(id: string): Promise<Booking | undefined> {
     const booking = await BookingModel.findById(id);
-    console.log(booking);
     if (!booking) {
       return undefined;
     }
@@ -39,9 +43,53 @@ export class MongoBookingRepository implements IBookingRepository {
     return Booking.fromMongooseDocument(booking);
   }
 
-  async findAll(): Promise<Booking[]> {
-    const allBookings = await BookingModel.find();
-    return allBookings.map((booking) => Booking.fromMongooseDocument(booking));
+  async findAll(params?: BookingFilterParams): Promise<Booking[]> {
+    const {
+      title = '',
+      status = '',
+      bookingType = '',
+      bookingStartDate,
+      bookingEndDate,
+      page,
+      limit,
+    } = params || {};
+
+    const query: any = {};
+
+    if (title) {
+      query.title = { $regex: title, $options: 'i' };
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (bookingType) {
+      query.bookingType = bookingType;
+    }
+
+    if (bookingStartDate && bookingEndDate) {
+      query.bookingStartDate = { $gte: bookingStartDate };
+      query.bookingEndDate = { $lte: bookingEndDate };
+    } else if (bookingStartDate) {
+      query.bookingStartDate = { $gte: bookingStartDate };
+    } else if (bookingEndDate) {
+      query.bookingEndDate = { $lte: bookingEndDate };
+    }
+
+    const skip = page && limit ? (page - 1) * limit : 0;
+
+    const queryBuilder = BookingModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip);
+
+    if (typeof limit === 'number') {
+      queryBuilder.limit(limit);
+    }
+
+    const results = await queryBuilder.lean();
+
+    return results.map(Booking.fromMongooseDocument);
   }
 
   async delete(id: string): Promise<boolean> {
@@ -55,12 +103,14 @@ export class MongoBookingRepository implements IBookingRepository {
 
   async update(
     id: string,
-    updatedData: Partial<Booking>
+    updatedData: Partial<Booking>,
+    session?: mongoose.ClientSession
   ): Promise<Booking | undefined> {
     const updatedBooking = await BookingModel.findByIdAndUpdate(
       id,
       updatedData,
       {
+        session: session ? session : null,
         new: true,
         runValidators: true,
       }

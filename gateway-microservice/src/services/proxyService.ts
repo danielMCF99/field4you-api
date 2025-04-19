@@ -12,9 +12,9 @@ interface ProxyResponse {
 
 class ProxyService {
   static circuitOptions = {
-    timeout: 5000,
+    timeout: 3000,
     errorThresholdPercentage: 90,
-    resetTimeout: 200,
+    resetTimeout: 1000,
   };
 
   static breakers: Record<string, CircuitBreaker<any, ProxyResponse>> = {};
@@ -79,19 +79,36 @@ class ProxyService {
       };
     }
 
+    if (typeof baseUrl !== 'string') {
+      throw new Error(`Invalid baseUrl type: ${typeof baseUrl}`);
+    }
+
+    let url;
+    if (!path) {
+      url = `${baseUrl}`;
+    } else {
+      url = `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+    }
+    console.log(url);
+    //const url = `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+    const config: AxiosRequestConfig = {
+      method: method as AxiosRequestConfig['method'],
+      url,
+      params: query,
+      headers,
+      data,
+    };
+
     try {
-      const url = `${baseUrl}${path}`;
-      const config: AxiosRequestConfig = {
-        method: method as AxiosRequestConfig['method'],
-        url,
-        params: query,
-        headers,
-        data,
-      };
-
       logger.info(`Forwarding ${method} request to ${url}`);
-      const response = await axios(config);
 
+      const breaker = ProxyService.getBreaker(serviceName);
+      if (breaker.opened) {
+        logger.warn(`Circuit for ${serviceName} is open, rejecting request`);
+        throw new Error('Breaker is open');
+      }
+
+      const response = await breaker.fire(config);
       return {
         status: response.status,
         headers: response.headers,
@@ -101,6 +118,20 @@ class ProxyService {
       logger.error(
         `Error while forwarding request to service '${serviceName}': ${error.message}`
       );
+
+      if (error.code === 'ETIMEDOUT' || error.message?.includes('Timed out')) {
+        throw new Error('Request to service timed out.');
+      }
+
+      if (error.message?.includes('Breaker is open')) {
+        // Return a standard response for service unavailable
+        return {
+          status: 503,
+          headers: {},
+          data: { message: 'Service temporarily unavailable' },
+        };
+      }
+
       if (error.response) {
         return {
           status: error.response.status,
@@ -108,6 +139,7 @@ class ProxyService {
           data: error.response.data,
         };
       }
+
       throw new Error('Failed to communicate with the service.');
     }
   }
