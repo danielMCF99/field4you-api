@@ -1,7 +1,6 @@
   import { Request } from 'express';
   import mongoose from 'mongoose';
-  import { userRepository } from '../../app';
-  import { v4 as uuidv4 } from 'uuid';
+  import { userRepository, firebase } from '../../app';
   import { NotFoundException } from '../../domain/exceptions/NotFoundException';
   import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
   import { BadRequestException } from '../../domain/exceptions/BadRequestException';
@@ -9,7 +8,13 @@
   
   export const updateUserImage = async (req: Request): Promise<User> => {
     const id = req.params.id.toString();
-    const { imageURL } = req.body;
+    const uploadResult = await firebase.uploadFileToFirebase(req);
+  
+    if (!uploadResult) {
+      throw new BadRequestException('Failed to upload image to Firebase');
+    }
+
+    const { imageURL, fileName } = uploadResult;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -19,17 +24,18 @@
       throw new BadRequestException('Image is required');
     }
 
+    if (!imageURL) {
+      throw new BadRequestException('Failed to upload image to Firebase');
+    }
+
     const user = await userRepository.getById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    const now = new Date().toISOString().replace(/[:.]/g, '-');
-    const generatedImageName = `${now}_${uuidv4()}`;
   
     try {
       const updatedUser = await userRepository.updateUserImage(id,  {
-        imageName: generatedImageName,
+        imageName: fileName,
         imageURL,
       });
   

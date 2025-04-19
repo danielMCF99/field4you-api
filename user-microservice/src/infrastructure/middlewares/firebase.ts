@@ -16,7 +16,7 @@ export class FirebaseImplementation implements Firebase {
     return FirebaseImplementation.instance;
   }
 
-  async uploadFileToFirebase(req: Request): Promise<string | undefined> {
+  async uploadFileToFirebase(req: Request): Promise<{ imageURL: string, fileName: string } | undefined> {
     if (!req.file) {
       return undefined;
     }
@@ -34,7 +34,8 @@ export class FirebaseImplementation implements Firebase {
       });
 
       // Image URL
-      return `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+      const imageURL = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+      return { imageURL, fileName };
     } catch (error) {
       console.log(error);
       return undefined;
