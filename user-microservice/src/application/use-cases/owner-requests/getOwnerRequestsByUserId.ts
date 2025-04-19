@@ -12,15 +12,12 @@ export async function getOwnerRequestsByUserId(req: Request) {
   }
   const { userId } = req.params;
   if (userType !== 'admin' && userIdHeader !== userId) {
-    throw new ForbiddenException('Forbidden');
+    throw new ForbiddenException('You can only view your own requests');
   }
   try {
     const ownerRequests = await ownerRequestRepository.getByUserId(userId);
     return ownerRequests;
   } catch (error: any) {
-    if (error.details) {
-      throw new BadRequestException(error.details);
-    }
     throw new InternalServerErrorException(error.message);
   }
 }

@@ -20,22 +20,36 @@ export const getAllOwnerRequests = async (req: Request) => {
     const { status, startDate, endDate, sortBy, order, page, limit } =
       req.query;
 
+    const toDateEndOfDayIfNoTime = (dateStr?: string): Date | undefined => {
+      if (!dateStr) return undefined;
+
+      const date = new Date(dateStr);
+      const isMidnight =
+        date.getHours() === 0 &&
+        date.getMinutes() === 0 &&
+        date.getSeconds() === 0 &&
+        date.getMilliseconds() === 0;
+
+      if (isMidnight) {
+        date.setHours(23, 59, 59, 999);
+      }
+
+      return date;
+    };
+
     const filters = {
       status: status?.toString(),
       startDate: startDate ? new Date(startDate.toString()) : undefined,
-      endDate: endDate ? new Date(endDate.toString()) : undefined,
-      sortBy: sortBy?.toString() as 'createdAt' | 'status',
-      order: order?.toString() as 'asc' | 'desc',
-      page: page ? parseInt(page.toString()) : 1,
-      limit: limit ? parseInt(limit.toString()) : 10,
+      endDate: toDateEndOfDayIfNoTime(endDate?.toString()),
+      sortBy: (sortBy?.toString() as 'createdAt' | 'status') ?? 'createdAt',
+      order: (order?.toString() as 'asc' | 'desc') ?? 'desc',
+      page: parseInt(page?.toString() || '1'),
+      limit: parseInt(limit?.toString() || '10'),
     };
 
     const ownerRequests = await ownerRequestRepository.getAll(filters);
     return ownerRequests;
   } catch (error: any) {
-    if (error.details) {
-      throw new BadRequestException(error.details);
-    }
     throw new InternalServerErrorException(error.message);
   }
 };

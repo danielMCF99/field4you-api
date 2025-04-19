@@ -64,6 +64,7 @@ export class MongoUserRepository implements IUserRepository {
     id: string,
     updatedDAta: Partial<User>
   ): Promise<User | undefined> {
+    console.log(updatedDAta);
     const updatedUser = await UserModel.findByIdAndUpdate(id, updatedDAta, {
       new: true,
       runValidators: true,

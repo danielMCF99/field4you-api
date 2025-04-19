@@ -22,14 +22,11 @@ export const getOwnerRequest = async (req: Request) => {
       throw new NotFoundException('Owner Request not found');
     }
     if (userType !== 'admin' && userId !== ownerRequest.userId.toString()) {
-      throw new ForbiddenException('Forbidden');
+      throw new ForbiddenException('You can only view your own requests');
     }
 
     return ownerRequest;
   } catch (error: any) {
-    if (error.details) {
-      throw new BadRequestException(error.details);
-    }
     throw new InternalServerErrorException(error.message);
   }
 };

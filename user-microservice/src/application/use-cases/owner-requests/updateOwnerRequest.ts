@@ -33,22 +33,20 @@ export const updateOwnerRequest = async (req: Request) => {
       'Status must be either "approved" or "rejected"'
     );
   }
-  try {
-    const ownerRequest = await ownerRequestRepository.get(id);
-    if (!ownerRequest) {
-      throw new NotFoundException('Owner Request not found');
-    }
-    if (ownerRequest.status !== 'pending') {
-      throw new BadRequestException(
-        'Only pending owner requests can be updated'
-      );
-    }
-    if (userType !== 'admin') {
-      throw new ForbiddenException(
-        'Only admins can update the status of owner requests'
-      );
-    }
 
+  const ownerRequest = await ownerRequestRepository.get(id);
+  if (!ownerRequest) {
+    throw new NotFoundException('Owner Request not found');
+  }
+  if (ownerRequest.status !== 'pending') {
+    throw new BadRequestException('Only pending owner requests can be updated');
+  }
+  if (userType !== 'admin') {
+    throw new ForbiddenException(
+      'Only admins can update the status of owner requests'
+    );
+  }
+  try {
     const updatedOwnerRequest = await ownerRequestRepository.updateStatus(
       id,
       status,
@@ -69,11 +67,7 @@ export const updateOwnerRequest = async (req: Request) => {
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-    if (error.statusCode && error.message) {
-      throw error;
-    }
-    throw new InternalServerErrorException(
-      error.message || 'Internal Server Error'
-    );
+
+    throw new InternalServerErrorException('Internal Server Error');
   }
 };
