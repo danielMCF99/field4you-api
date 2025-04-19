@@ -11,7 +11,7 @@ export async function getOwnerRequestsByUserId(req: Request) {
     throw new InternalServerErrorException('Internal Server Erro');
   }
   const { userId } = req.params;
-  if (userType !== 'admin' || userIdHeader !== userId) {
+  if (userType !== 'admin' && userIdHeader !== userId) {
     throw new ForbiddenException('Forbidden');
   }
   try {

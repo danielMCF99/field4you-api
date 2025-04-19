@@ -21,9 +21,10 @@ export const getOwnerRequest = async (req: Request) => {
     if (!ownerRequest) {
       throw new NotFoundException('Owner Request not found');
     }
-    if (userId !== ownerRequest.userId || userType !== 'admin') {
+    if (userType !== 'admin' && userId !== ownerRequest.userId.toString()) {
       throw new ForbiddenException('Forbidden');
     }
+
     return ownerRequest;
   } catch (error: any) {
     if (error.details) {
