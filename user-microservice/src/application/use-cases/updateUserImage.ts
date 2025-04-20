@@ -8,13 +8,6 @@
   
   export const updateUserImage = async (req: Request): Promise<User> => {
     const id = req.params.id.toString();
-    const uploadResult = await firebase.uploadFileToFirebase(req);
-  
-    if (!uploadResult) {
-      throw new BadRequestException('Failed to upload image to Firebase');
-    }
-
-    const { imageURL, fileName } = uploadResult;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -24,16 +17,24 @@
       throw new BadRequestException('Image is required');
     }
 
-    if (!imageURL) {
-      throw new BadRequestException('Failed to upload image to Firebase');
-    }
-
     const user = await userRepository.getById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
   
     try {
+      const uploadResult = await firebase.uploadFileToFirebase(req);
+
+      if (!uploadResult) {
+        throw new BadRequestException('Upload result is undefined');
+      } 
+  
+      const { imageURL, fileName } = uploadResult;
+
+      if (!imageURL || !fileName) {
+        throw new BadRequestException('Upload result is missing required data');
+      }
+
       const updatedUser = await userRepository.updateUserImage(id,  {
         imageName: fileName,
         imageURL,
