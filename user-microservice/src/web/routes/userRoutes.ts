@@ -8,6 +8,13 @@ import {
   updateUserImageController,
 } from '../controllers/userController';
 import swaggerDocument from '../../docs/swagger/swagger.json';
+import {
+  createOwnerRequestController,
+  getAllOwnerRequestsController,
+  getOwnerRequestController,
+  getOwnerRequestsByUserIdController,
+  updateOwnerRequestController,
+} from '../controllers/ownerRequestController';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -23,5 +30,18 @@ userRoutes.get('/users/:id', getByIdController);
 userRoutes.put('/users/:id', updateUserController);
 userRoutes.delete('/users/:id', deleteUserController);
 userRoutes.patch('/users/:id/image', upload.single('image'), updateUserImageController);
+
+userRoutes.post('/users/owner-requests/create', createOwnerRequestController);
+
+userRoutes.get('/users/owner-requests/all', getAllOwnerRequestsController);
+
+userRoutes.get('/users/owner-requests/:id', getOwnerRequestController);
+
+userRoutes.get(
+  '/users/:userId/owner-requests',
+  getOwnerRequestsByUserIdController
+);
+
+userRoutes.patch('/users/owner-requests/:id', updateOwnerRequestController);
 
 export default userRoutes;

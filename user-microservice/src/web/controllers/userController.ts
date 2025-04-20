@@ -1,14 +1,11 @@
 import { Request, Response } from 'express';
-import { deleteUser } from '../../application/use-cases/deleteUser';
-import { getAll } from '../../application/use-cases/getAll';
-import { getById } from '../../application/use-cases/getById';
-import { updateUser } from '../../application/use-cases/updateUser';
+import { deleteUser } from '../../application/use-cases/users/deleteUser';
+import { getAll } from '../../application/use-cases/users/getAll';
+import { getById } from '../../application/use-cases/users/getById';
+import { updateUser } from '../../application/use-cases/users/updateUser';
 import { updateUserImage } from '../../application/use-cases/updateUserImage';
 
-export const getAllController = async (
-  req: Request, 
-  res: Response
-) => {
+export const getAllController = async (req: Request, res: Response) => {
   try {
     const allUsers = await getAll(req.query);
     res.status(200).json({ users: allUsers });
@@ -55,7 +52,10 @@ export const deleteUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUserImageController = async (req: Request, res: Response) => {
+export const updateUserImageController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const response = await updateUserImage(req);
     res.status(200).json(response);

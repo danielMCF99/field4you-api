@@ -56,7 +56,7 @@ export async function publishUserUpdate(updatePayload: {
       const message = JSON.stringify(updatePayload);
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
       console.log(
-        `[x] Sent User delete event: ${message} for Queue: ${queue}s`
+        `[x] Sent User update event: ${message} for Queue: ${queue}s`
       );
     });
     setTimeout(() => {

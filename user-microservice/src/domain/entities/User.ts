@@ -1,6 +1,6 @@
 export enum UserType {
-  'user',
-  'owner',
+  user = "user",
+  owner = "owner",
 }
 
 export class Location {
@@ -57,7 +57,7 @@ export class User {
   }
 
   getId(): string {
-    return this.id ? this.id : 'N/A';
+    return this.id ? this.id : "N/A";
   }
 
   getLocation(): Location {

@@ -1,13 +1,14 @@
-import config from './config/env';
-import { connectDB } from './infrastructure/database/database';
-import app from './app';
+import config from "./config/env";
+import { connectDB } from "./infrastructure/database/database";
+import app from "./app";
 import {
   subscribeSportsVenueCreation,
   subscribeUserCreation,
   subscribeSportsVenueDeletion,
   subscribeSportsVenueUpdates,
   subscribeUserDeletion,
-} from './infrastructure/middlewares/rabbitmq.subscriber';
+  subscribeUserUpdate,
+} from "./infrastructure/middlewares/rabbitmq.subscriber";
 
 const startServer = async () => {
   try {
@@ -16,6 +17,7 @@ const startServer = async () => {
     // Subscribe queues
     await subscribeUserCreation();
     await subscribeUserDeletion();
+    await subscribeUserUpdate();
     await subscribeSportsVenueCreation();
     await subscribeSportsVenueDeletion();
     await subscribeSportsVenueUpdates();
@@ -24,7 +26,7 @@ const startServer = async () => {
       console.log(`Server running on port ${config.port}`);
     });
   } catch (error) {
-    console.error('Error starting the server:', error);
+    console.error("Error starting the server:", error);
     process.exit(1);
   }
 };
