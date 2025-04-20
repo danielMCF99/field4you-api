@@ -22,6 +22,18 @@ export class MongoUserRepository implements IUserRepository {
     return User.fromMongooseDocument(newUser);
   }
 
+  async updateUserImage(
+    id: string, 
+    imageData: Partial<User>
+  ): Promise<User | undefined> {
+    const updatedUser = await UserModel.findByIdAndUpdate(id, imageData, { 
+      new: true, 
+      runValidators: true 
+    });
+  
+    return updatedUser ? User.fromMongooseDocument(updatedUser) : undefined;
+  }  
+
   async getAll(params?: UserFilterParams): Promise<User[]> {
     const {
       firstName,
