@@ -3,11 +3,9 @@ import { deleteUser } from '../../application/use-cases/users/deleteUser';
 import { getAll } from '../../application/use-cases/users/getAll';
 import { getById } from '../../application/use-cases/users/getById';
 import { updateUser } from '../../application/use-cases/users/updateUser';
+import { updateUserImage } from '../../application/use-cases/updateUserImage';
 
-export const getAllController = async (
-  req: Request, 
-  res: Response
-) => {
+export const getAllController = async (req: Request, res: Response) => {
   try {
     const allUsers = await getAll(req.query);
     res.status(200).json({ users: allUsers });
@@ -47,6 +45,20 @@ export const deleteUserController = async (req: Request, res: Response) => {
       deleted: deleted,
       message: 'User was deleted',
     });
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
+export const updateUserImageController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const response = await updateUserImage(req);
+    res.status(200).json(response);
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
