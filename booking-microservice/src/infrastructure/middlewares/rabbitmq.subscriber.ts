@@ -8,7 +8,7 @@ import config from '../../config/env';
 
 async function connectWithRetry(
   retries: number = 5,
-  delay: number = 5000
+  delay: number = 50000
 ): Promise<Connection> {
   for (let i = 0; i < retries; i++) {
     try {
@@ -79,6 +79,35 @@ export async function subscribeUserEvents() {
   }
 }
 
+export async function subscribeUserUpdate() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    // Ensure queue is durable
+    await channel.assertQueue(USER_UPDATE_QUEUE, { durable: true });
+
+    console.log(`[*] Waiting for User update events...`);
+
+    channel.consume(
+      USER_UPDATE_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const user = JSON.parse(msg.content.toString());
+          console.log(`[x] Received User update event:`, user);
+
+          await updateUser(user.userId, user.updatedData);
+
+          // Acknowledge message after processing
+          channel.ack(msg);
+        }
+      },
+      { noAck: false } // Ensure message is acknowledged only after processing
+    );
+  } catch (error) {
+    console.error('Error subscribing to queue:', error);
+  }
+}
 /**
  *
  * Sports Venue related queues
@@ -89,57 +118,89 @@ export async function subscribeSportsVenueEvents() {
     const connection = await connectWithRetry();
     const channel = await connection.createChannel();
 
-    await channel.assertExchange('sportsvenue.events', 'topic', {
-      durable: true,
-    });
+    // Ensure queue is durable
+    await channel.assertQueue(SPORTS_VENUE_CREATION_QUEUE, { durable: true });
 
-    const queue = await channel.assertQueue('booking_sportsvenue_events', {
-      durable: true,
-    });
+    console.log(`[*] Waiting for Sport Venue registration events...`);
 
-    await channel.bindQueue(
-      queue.queue,
-      'sportsvenue.events',
-      'sportsvenue.created'
+    channel.consume(
+      SPORTS_VENUE_CREATION_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const sportsVenue = JSON.parse(msg.content.toString());
+          console.log(
+            `[x] Received Sport Venue registration event:`,
+            sportsVenue
+          );
+
+          await createSportsVenue(sportsVenue);
+
+          // Acknowledge message after processing
+          channel.ack(msg);
+        }
+      },
+      { noAck: false } // Ensure message is acknowledged only after processing
     );
-    await channel.bindQueue(
-      queue.queue,
-      'sportsvenue.events',
-      'sportsvenue.deleted'
-    );
-    await channel.bindQueue(
-      queue.queue,
-      'sportsvenue.events',
-      'sportsvenue.updated'
-    );
-
-    console.log(`[*] Waiting for Sport Venue events...`);
-    channel.consume(queue.queue, async (msg) => {
-      if (!msg?.content) return;
-
-      const routingKey = msg.fields.routingKey;
-      const data = JSON.parse(msg.content.toString());
-
-      switch (routingKey) {
-        case 'sportsvenue.created':
-          console.log('Received Sport Venue created:', data);
-          await createSportsVenue(data);
-          break;
-        case 'sportsvenue.updated':
-          console.log('Received Sport Venue updated:', data);
-          await updateSportsVenue(data.sportsVenueId, data);
-          break;
-        case 'sportsvenue.deleted':
-          console.log('Received Sport Venue deleted:', data);
-          await deleteSportsVenue(data.sportsVenueId);
-          break;
-        default:
-          console.warn(`Unknown routing key: ${routingKey}`);
-      }
-
-      channel.ack(msg);
-    });
   } catch (error) {
-    console.log(error);
+    console.error('Error subscribing to queue:', error);
+  }
+}
+
+export async function subscribeSportsVenueDeletion() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    await channel.assertQueue(SPORTS_VENUE_DELETION_QUEUE, { durable: true });
+
+    console.log(`[*] Waiting for Sport Venue deletion events...`);
+
+    channel.consume(
+      SPORTS_VENUE_DELETION_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const sportsVenue = JSON.parse(msg.content.toString());
+          console.log(`[x] Received Sport Venue deletion event:`, sportsVenue);
+
+          await deleteSportsVenue(sportsVenue.sportsVenueId);
+          channel.ack(msg);
+        }
+      },
+      { noAck: false }
+    );
+  } catch (error) {
+    console.error('Error subscribing to deletion queue:', error);
+  }
+}
+
+export async function subscribeSportsVenueUpdates() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    await channel.assertQueue(SPORTS_VENUE_UPDATE_QUEUE, { durable: true });
+    console.log('[*] Waiting for Sports Venue update events...');
+
+    channel.consume(
+      SPORTS_VENUE_UPDATE_QUEUE,
+      async (msg) => {
+        if (msg?.content) {
+          const updatedSportsVenue = JSON.parse(msg.content.toString());
+          console.log(
+            '[x] Received Sports Venue update event:',
+            updatedSportsVenue
+          );
+
+          await updateSportsVenue(
+            updatedSportsVenue.sportsVenueId,
+            updatedSportsVenue
+          );
+          channel.ack(msg);
+        }
+      },
+      { noAck: false }
+    );
+  } catch (error) {
+    console.error('Error subscribing to update queue:', error);
   }
 }

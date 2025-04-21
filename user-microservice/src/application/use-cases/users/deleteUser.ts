@@ -1,11 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { userRepository } from '../../app';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { publishUserDeletion } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { userRepository } from '../../../app';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { publishUserDeletion } from '../../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const deleteUser = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();

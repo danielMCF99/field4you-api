@@ -1,12 +1,12 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { userRepository } from '../../app';
-import { User } from '../../domain/entities/User';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { publishUserUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { userRepository } from '../../../app';
+import { User } from '../../../domain/entities/User';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { publishUserUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const updateUser = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();
@@ -30,27 +30,34 @@ export const updateUser = async (req: Request): Promise<User> => {
     );
   }
 
-  // Validate that fields sent in the request body are allowed to be updated
-  const allowedFields = [
-    'phoneNumber',
+  const locationFields = [
     'district',
     'city',
     'address',
     'latitude',
     'longitude',
   ];
-
+  const rootFields = ['phoneNumber'];
   const updatedData: Record<string, any> = {};
-  Object.keys(req.body).forEach((key) => {
-    if (allowedFields.includes(key)) {
-      updatedData[key] = req.body[key];
+  const updatedLocation: Record<string, any> = {};
+
+  Object.entries(req.body).forEach(([key, value]) => {
+    if (locationFields.includes(key)) {
+      updatedLocation[key] = value;
+    } else if (rootFields.includes(key)) {
+      updatedData[key] = value;
     }
   });
 
+  if (Object.keys(updatedLocation).length > 0) {
+    updatedData.location = {
+      ...user.location,
+      ...updatedLocation,
+    };
+  }
+
   try {
-    const updatedUser = await userRepository.update(user.getId(), {
-      ...updatedData,
-    });
+    const updatedUser = await userRepository.update(user.getId(), updatedData);
 
     if (!updatedUser) {
       throw new InternalServerErrorException(

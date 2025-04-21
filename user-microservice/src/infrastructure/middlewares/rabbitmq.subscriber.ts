@@ -1,5 +1,5 @@
 import amqp, { Connection } from 'amqplib';
-import { createUser } from '../../application/use-cases/createUser';
+import { createUser } from '../../application/use-cases/users/createUser';
 import config from '../../config/env';
 
 async function connectWithRetry(

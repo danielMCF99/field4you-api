@@ -1,6 +1,6 @@
 export enum UserType {
-  'user',
-  'owner',
+  user = "user",
+  owner = "owner",
 }
 
 export class Location {
@@ -21,6 +21,8 @@ export class User {
   public location: Location;
   public birthDate: string;
   public registerDate: Date;
+  public imageName?: string;
+  public imageURL?: string;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -34,6 +36,8 @@ export class User {
     location: Location;
     birthDate: string;
     registerDate: Date;
+    imageName?: string;
+    imageURL?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -46,12 +50,14 @@ export class User {
     this.location = user.location;
     this.birthDate = user.birthDate;
     this.registerDate = user.registerDate;
+    this.imageName = user.imageName;
+    this.imageURL = user.imageURL;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
   }
 
   getId(): string {
-    return this.id ? this.id : 'N/A';
+    return this.id ? this.id : "N/A";
   }
 
   getLocation(): Location {
@@ -69,6 +75,8 @@ export class User {
       location: doc.location,
       birthDate: doc.birthDate,
       registerDate: doc.registerDate,
+      imageName: doc.imageName,
+      imageURL: doc.imageURL,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

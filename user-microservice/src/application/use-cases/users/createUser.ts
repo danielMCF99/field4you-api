@@ -1,6 +1,6 @@
-import { userRepository } from '../../app';
-import { User } from '../../domain/entities/User';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { userRepository } from '../../../app';
+import { User } from '../../../domain/entities/User';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
 export const createUser = async (user: any): Promise<User | undefined> => {
   try {
