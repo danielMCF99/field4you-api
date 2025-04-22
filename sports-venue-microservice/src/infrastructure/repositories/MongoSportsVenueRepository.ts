@@ -50,6 +50,7 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
 
   async findAll(params?: SportsVenueFilterParams): Promise<SportsVenue[]> {
     const {
+      ownerId,
       sportsVenueName = '',
       page,
       limit,
@@ -58,6 +59,10 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     } = params || {};
 
     const query: any = {};
+
+    if (ownerId) {
+      query.ownerId = ownerId;
+    }
 
     if (sportsVenueName) {
       query.sportsVenueName = { $regex: sportsVenueName, $options: 'i' };

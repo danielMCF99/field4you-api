@@ -2,6 +2,7 @@ import { Request } from 'express';
 import mongoose from 'mongoose';
 import { bookingRepository, sportsVenueRepository } from '../../../app';
 import { Booking, BookingStatus } from '../../../domain/entities/Booking';
+import { SportsVenueStatus } from '../../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -20,7 +21,6 @@ export const createBooking = async (
   const {
     sportsVenueId,
     bookingType,
-    status,
     title,
     bookingStartDate,
     bookingEndDate,
@@ -35,7 +35,6 @@ export const createBooking = async (
   const requiredFields = {
     sportsVenueId,
     bookingType,
-    status,
     title,
     bookingStartDate,
     bookingEndDate,
@@ -48,6 +47,19 @@ export const createBooking = async (
 
   if (missingFields.length > 0) {
     throw new BadRequestException('Missing required fields', { missingFields });
+  }
+
+  // Check if Sports Venue Exists
+  const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
+  if (!sportsVenue) {
+    throw new NotFoundException('Sports Venue for given Booking not found');
+  }
+
+  // Check Sports Venue status
+  if (sportsVenue.status != SportsVenueStatus.active) {
+    throw new BadRequestException(
+      'Unable to create booking. Chosen Sports Venue is inactive.'
+    );
   }
 
   const hasConflicts = await checkBookingConflicts(
@@ -85,12 +97,6 @@ export const createBooking = async (
     throw new BadRequestException('Booking end date must be after start date');
   }
 
-  // Check if Sports Venue Exists
-  const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
-  if (!sportsVenue) {
-    throw new NotFoundException('Sports Venue for given Booking not found');
-  }
-
   booking.ownerId = ownerId;
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -114,9 +120,18 @@ export const createBooking = async (
     session.endSession();
 
     return newBooking;
-  } catch (error) {
+  } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
+    console.log(error);
+
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException(error.message);
+    }
+
+    if (error instanceof BadRequestException) {
+      throw new BadRequestException(error.message);
+    }
 
     throw new InternalServerErrorException(
       'Internal server error creating booking'

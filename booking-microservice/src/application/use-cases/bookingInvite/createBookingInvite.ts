@@ -3,6 +3,7 @@ import { bookingInviteRepository, userRepository } from '../../../app';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 
 export const createBookingInvite = async (
   invitedUsersIds: string[],
@@ -58,7 +59,7 @@ export const createBookingInvite = async (
           bookingStartDate: bookingInfo.bookingStartDate,
           bookingEndDate: bookingInfo.bookingEndDate,
           userId: id,
-          status: 'pending',
+          status: BookingInviteStatus.pending,
         });
       }
     }
