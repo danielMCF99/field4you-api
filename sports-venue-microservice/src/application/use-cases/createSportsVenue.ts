@@ -21,7 +21,9 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const userStatus = req.headers['x-user-status'] as string | undefined;
 
   if (!userStatus) {
-    throw new InternalServerErrorException('Internal Server Error');
+    throw new InternalServerErrorException(
+      'Internal Server Error. User status header missing'
+    );
   }
 
   if (userStatus != 'active') {
@@ -32,7 +34,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
 
   if (!ownerId || !userType) {
     throw new InternalServerErrorException(
-      'Internal Server Error. Missing required authentication headers'
+      'Internal Server Error. Owner identification or user type header missing.'
     );
   }
 
