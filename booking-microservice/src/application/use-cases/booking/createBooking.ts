@@ -1,6 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
+import { ZodError } from 'zod';
 import { bookingRepository, sportsVenueRepository } from '../../../app';
+import {
+  CreateBookingDTO,
+  createBookingSchema,
+} from '../../../domain/dtos/create-booking.dto';
 import { Booking, BookingStatus } from '../../../domain/entities/Booking';
 import { SportsVenueStatus } from '../../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
@@ -9,20 +14,13 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
-import {
-  CreateBookingDTO,
-  createBookingSchema,
-} from '../../../domain/dtos/create-booking.dto';
-import { ZodError } from 'zod';
-import { UserStatus } from '../../../domain/entities/User';
-import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
 export const createBooking = async (
   req: Request
 ): Promise<Booking | undefined> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
   if (!ownerId) {
-    throw new InternalServerErrorException('Internal Server Error');
+    throw new InternalServerErrorException('Missing user-id header');
   }
 
   let parsed: CreateBookingDTO;
