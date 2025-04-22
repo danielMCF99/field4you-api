@@ -9,7 +9,7 @@ import { updateUser } from '../../application/use-cases/user/updateUser';
 
 async function connectWithRetry(
   retries: number = 5,
-  delay: number = 50000
+  delay: number = 30000
 ): Promise<Connection> {
   for (let i = 0; i < retries; i++) {
     try {

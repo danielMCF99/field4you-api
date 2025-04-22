@@ -8,10 +8,28 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { publishSportsVenueCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import {
+  CreateSportsVenueDTO,
+  createSportsVenueSchema,
+} from '../../domain/dtos/create-sports-venue.dto';
+import { ZodError } from 'zod';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
+  const userStatus = req.headers['x-user-status'] as string | undefined;
+
+  if (!userStatus) {
+    throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  if (userStatus != 'active') {
+    throw new UnauthorizedException(
+      'User must be active to create sports venue'
+    );
+  }
+
   if (!ownerId || !userType) {
     throw new InternalServerErrorException(
       'Internal Server Error. Missing required authentication headers'
@@ -21,6 +39,22 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   if (userType != 'owner') {
     throw new ForbiddenException(
       'Regular users are not able to create a sports venue'
+    );
+  }
+
+  let parsed: CreateSportsVenueDTO;
+  try {
+    parsed = createSportsVenueSchema.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const missingFields = error.errors.map((err) => err.path.join('.'));
+      throw new BadRequestException('Missing or invalid required fields', {
+        missingFields,
+      });
+    }
+
+    throw new InternalServerErrorException(
+      'Unexpected error parsing request data'
     );
   }
 
@@ -36,26 +70,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     district,
     city,
     address,
-  } = req.body;
-
-  const requiredFields = {
-    sportsVenueType,
-    sportsVenueName,
-    bookingMinDuration,
-    bookingMinPrice,
-    sportsVenuePicture,
-    district,
-    city,
-    address,
-  };
-
-  const missingFields = Object.entries(requiredFields)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
-
-  if (missingFields.length > 0) {
-    throw new BadRequestException('Missing required fields', { missingFields });
-  }
+  } = parsed;
 
   const sportsVenue = new SportsVenue({
     ownerId,

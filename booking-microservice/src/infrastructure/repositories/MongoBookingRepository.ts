@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
-import { Booking } from '../../domain/entities/Booking';
+import { BookingFilterParams } from '../../domain/dtos/booking-filter.dto';
+import { Booking, BookingStatus } from '../../domain/entities/Booking';
 import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
 import { BookingModel } from '../database/models/booking.model';
 
@@ -149,6 +149,7 @@ export class MongoBookingRepository implements IBookingRepository {
   ): Promise<Booking[]> {
     const query: Record<string, unknown> = {
       sportsVenueId,
+      status: BookingStatus.active,
       $or: [
         {
           bookingStartDate: { $lt: bookingEndDate },

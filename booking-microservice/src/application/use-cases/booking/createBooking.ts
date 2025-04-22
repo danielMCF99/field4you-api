@@ -9,13 +9,45 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
+import {
+  CreateBookingDTO,
+  createBookingSchema,
+} from '../../../domain/dtos/create-booking.dto';
+import { ZodError } from 'zod';
+import { UserStatus } from '../../../domain/entities/User';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
 export const createBooking = async (
   req: Request
 ): Promise<Booking | undefined> => {
+  const userStatus = req.headers['x-user-status'] as string | undefined;
+  if (!userStatus) {
+    throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  if (userStatus != UserStatus.active) {
+    throw new UnauthorizedException('User must be active to create booking');
+  }
+
   const ownerId = req.headers['x-user-id'] as string | undefined;
   if (!ownerId) {
     throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  let parsed: CreateBookingDTO;
+  try {
+    parsed = createBookingSchema.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const missingFields = error.errors.map((err) => err.path.join('.'));
+      throw new BadRequestException('Missing or invalid required fields', {
+        missingFields,
+      });
+    }
+
+    throw new InternalServerErrorException(
+      'Unexpected error parsing request data'
+    );
   }
 
   const {
@@ -26,28 +58,7 @@ export const createBooking = async (
     bookingEndDate,
     isPublic,
     invitedUsersIds,
-  } = req.body;
-
-  if (!req) {
-    throw new BadRequestException('Request body is required');
-  }
-
-  const requiredFields = {
-    sportsVenueId,
-    bookingType,
-    title,
-    bookingStartDate,
-    bookingEndDate,
-    isPublic,
-  };
-
-  const missingFields = Object.entries(requiredFields)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
-
-  if (missingFields.length > 0) {
-    throw new BadRequestException('Missing required fields', { missingFields });
-  }
+  } = parsed;
 
   // Check if Sports Venue Exists
   const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
@@ -79,8 +90,8 @@ export const createBooking = async (
     bookingType,
     status: BookingStatus.active,
     title,
-    bookingStartDate,
-    bookingEndDate,
+    bookingStartDate: new Date(parsed.bookingStartDate),
+    bookingEndDate: new Date(parsed.bookingEndDate),
     isPublic,
     invitedUsersIds,
   });

@@ -1,6 +1,11 @@
 export enum UserType {
-  'user',
-  'owner',
+  user = 'user',
+  owner = 'owner',
+}
+
+export enum UserStatus {
+  active = 'active',
+  inactive = 'inactive',
 }
 
 export class User {
@@ -8,6 +13,7 @@ export class User {
   public userType: UserType;
   public email: string;
   public password: string;
+  public status: UserStatus;
   public registerDate: Date;
   public lastAccessDate: Date;
   public resetPasswordToken?: string;
@@ -20,6 +26,7 @@ export class User {
     userType: UserType;
     email: string;
     password: string;
+    status: UserStatus;
     registerDate: Date;
     lastAccessDate: Date;
     resetPasswordToken?: string;
@@ -31,6 +38,7 @@ export class User {
     this.userType = user.userType;
     this.email = user.email;
     this.password = user.password;
+    this.status = user.status;
     this.registerDate = user.registerDate;
     this.lastAccessDate = user.lastAccessDate;
     this.resetPasswordToken = user.resetPasswordToken;
@@ -49,6 +57,7 @@ export class User {
       userType: doc.userType,
       email: doc.email,
       password: doc.password,
+      status: doc.status,
       registerDate: doc.registerDate,
       lastAccessDate: doc.lastAccessDate,
       resetPasswordToken: doc.resetPasswordToken,

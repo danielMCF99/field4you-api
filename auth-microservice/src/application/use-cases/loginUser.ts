@@ -32,7 +32,8 @@ export const loginUser = async (req: Request): Promise<string> => {
   const token = await jwtHelper.generateToken(
     user.getId(),
     user.userType.toString(),
-    email
+    email,
+    user.status
   );
 
   // Update the last access date of the User

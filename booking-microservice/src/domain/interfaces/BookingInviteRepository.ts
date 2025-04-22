@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { BookingInviteFilterParams } from '../dto/booking-invite-filter.dto';
+import { BookingInviteFilterParams } from '../dtos/booking-invite-filter.dto';
 import { BookingInvite } from '../entities/BookingInvite';
 
 export interface IBookingInviteRepository {

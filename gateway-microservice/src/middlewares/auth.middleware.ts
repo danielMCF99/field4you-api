@@ -53,6 +53,7 @@ export const authenticate = async (
   req.headers['x-user-id'] = decodedPayload.userId;
   req.headers['x-user-email'] = decodedPayload.email;
   req.headers['x-user-type'] = decodedPayload.userType;
+  req.headers['x-user-status'] = decodedPayload.status;
 
   return next();
 };

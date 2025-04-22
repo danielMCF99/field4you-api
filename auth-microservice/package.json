@@ -33,6 +33,7 @@
     "mongodb-memory-server": "^10.1.2",
     "mongoose": "^8.8.1",
     "nodemailer": "^6.9.16",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "zod": "^3.24.3"
   }
 }

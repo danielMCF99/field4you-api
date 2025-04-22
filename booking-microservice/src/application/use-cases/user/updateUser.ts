@@ -31,7 +31,6 @@ export const updateUser = async (
           });
 
           // Find all bookings associated to given sportsVenue and cancel them if necessary
-
           if (user.status == UserStatus.inactive) {
             const bookings = await bookingRepository.findAll({
               status: BookingStatus.active,

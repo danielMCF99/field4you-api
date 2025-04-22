@@ -1,6 +1,7 @@
 import amqp, { Connection } from 'amqplib';
 import { deleteUser } from '../../application/use-cases/deleteUser';
 import config from '../../config/env';
+import { updateUser } from '../../application/use-cases/updateUser';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -37,16 +38,29 @@ export async function subscribeUserDeletion() {
     const queue = 'auth_user_events';
     await channel.assertQueue(queue, { durable: true });
     await channel.bindQueue(queue, 'user.events', 'user.deleted');
+    await channel.bindQueue(queue, 'user.events', 'user.status.updated');
 
     console.log(`[*] Waiting for User delete events...`);
     channel.consume(queue, async (msg) => {
-      if (msg !== null) {
-        const payload = JSON.parse(msg.content.toString());
-        console.log('[x] Received User delete event:', payload);
+      if (!msg?.content) return;
 
-        await deleteUser(payload.userId);
-        channel.ack(msg);
+      const routingKey = msg.fields.routingKey;
+      const data = JSON.parse(msg.content.toString());
+
+      switch (routingKey) {
+        case 'user.status.updated':
+          console.log('Received User status updated:', data);
+          await updateUser(data.userId, data.updatedData);
+          break;
+        case 'user.deleted':
+          console.log('Received User deleted:', data);
+          await deleteUser(data.userId);
+          break;
+        default:
+          console.warn(`Unknown routing key: ${routingKey}`);
       }
+
+      channel.ack(msg);
     });
   } catch (error) {
     console.log(error);

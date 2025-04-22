@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { Request } from 'express';
 
 export interface JwtHelper {
   extractBearerToken(req: Request): Promise<string | undefined>;
@@ -9,6 +9,7 @@ export interface CustomJwtPayload {
   userId: string;
   userType: string;
   email: string;
+  status: string;
   iat: number;
   exp: number;
 }

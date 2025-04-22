@@ -1,6 +1,6 @@
 import { bookingRepository } from '../../../app';
 import { Booking } from '../../../domain/entities/Booking';
-import { BookingFilterParams } from '../../../domain/dto/booking-filter.dto';
+import { BookingFilterParams } from '../../../domain/dtos/booking-filter.dto';
 
 export const getAllBookings = async (queryParams: any): Promise<Booking[]> => {
   const {

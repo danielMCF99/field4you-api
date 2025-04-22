@@ -1,9 +1,8 @@
 import mongoose from 'mongoose';
 import { bookingInviteRepository, userRepository } from '../../../app';
-import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 
 export const createBookingInvite = async (
   invitedUsersIds: string[],
@@ -14,14 +13,6 @@ export const createBookingInvite = async (
   },
   session?: mongoose.ClientSession
 ): Promise<Boolean> => {
-  // Check invited user ids
-  const invalidIds = invitedUsersIds.some(
-    (id: string) => !mongoose.Types.ObjectId.isValid(id)
-  );
-  if (invalidIds) {
-    throw new BadRequestException('Invalid user IDs');
-  }
-
   // Check if any of the invited users does not exist
   const nonExistingUsers = await Promise.all(
     invitedUsersIds.map(async (id: string) => {

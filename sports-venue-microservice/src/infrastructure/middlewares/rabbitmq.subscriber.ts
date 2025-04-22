@@ -4,7 +4,7 @@ import config from '../../config/env';
 
 async function connectWithRetry(
   retries: number = 5,
-  delay: number = 50000
+  delay: number = 30000
 ): Promise<any> {
   for (let i = 0; i < retries; i++) {
     try {

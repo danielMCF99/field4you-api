@@ -1,4 +1,4 @@
-import { SportsVenueFilterParams } from '../dto/sports-venue-filter.dto';
+import { SportsVenueFilterParams } from '../dtos/sports-venue-filter.dto';
 import { SportsVenue } from '../entities/sports-venue';
 
 export interface ISportsVenueRepository {
