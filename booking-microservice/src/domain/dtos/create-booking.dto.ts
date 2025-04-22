@@ -9,10 +9,10 @@ export const createBookingSchema = z.object({
   bookingType: z.nativeEnum(BookingType),
   title: z.string().min(3).max(100),
   bookingStartDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: 'Invalid birthDate format',
+    message: 'Invalid booking start date format',
   }),
   bookingEndDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: 'Invalid birthDate format',
+    message: 'Invalid booking end date format',
   }),
   isPublic: z.boolean(),
   invitedUsersIds: z.array(
