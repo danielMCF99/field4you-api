@@ -73,11 +73,22 @@ export const createBooking = async (
     );
   }
 
+  const startDate = new Date(bookingStartDate);
+  const endDate = new Date(bookingEndDate);
+  const now = new Date();
+  if (startDate < now) {
+    throw new BadRequestException('Booking start date cannot be in the past');
+  }
+
+  if (endDate <= startDate) {
+    throw new BadRequestException('Booking end date must be after start date');
+  }
+
   const hasConflicts = await checkBookingConflicts(
     bookingRepository,
     sportsVenueId,
-    new Date(bookingStartDate),
-    new Date(bookingEndDate),
+    startDate,
+    endDate,
     undefined
   );
 
@@ -85,28 +96,30 @@ export const createBooking = async (
     throw new ConflictException('Booking conflicts with existing bookings');
   }
 
+  // Calculate Booking price based on start and end dates
+  const diffInMinutes = Math.floor(
+    (endDate.getTime() - startDate.getTime()) / 60000
+  );
+
+  if (diffInMinutes < sportsVenue.bookingMinDuration) {
+    throw new BadRequestException(
+      'Booking duration must be higher to fulfill given Sports Venue Booking minimum time constraint'
+    );
+  }
+
   const booking = new Booking({
     sportsVenueId,
     bookingType,
     status: BookingStatus.active,
     title,
-    bookingStartDate: new Date(parsed.bookingStartDate),
-    bookingEndDate: new Date(parsed.bookingEndDate),
+    bookingStartDate: startDate,
+    bookingEndDate: endDate,
+    bookingPrice:
+      (diffInMinutes / sportsVenue.bookingMinDuration) *
+      sportsVenue.bookingMinPrice,
     isPublic,
     invitedUsersIds,
   });
-
-  const formatedStartDate = new Date(booking.bookingStartDate);
-  const formatedEndDate = new Date(booking.bookingEndDate);
-  const now = new Date();
-
-  if (formatedStartDate < now) {
-    throw new BadRequestException('Booking start date cannot be in the past');
-  }
-
-  if (formatedEndDate <= formatedStartDate) {
-    throw new BadRequestException('Booking end date must be after start date');
-  }
 
   booking.ownerId = ownerId;
   const session = await mongoose.startSession();

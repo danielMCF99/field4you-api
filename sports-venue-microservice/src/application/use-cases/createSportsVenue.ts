@@ -106,11 +106,6 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       sportsVenueName: newSportsVenue.sportsVenueName,
       bookingMinDuration: newSportsVenue.bookingMinDuration,
       bookingMinPrice: newSportsVenue.bookingMinPrice,
-      sportsVenuePicture: newSportsVenue.sportsVenuePicture,
-      hasParking: newSportsVenue.hasParking,
-      hasShower: newSportsVenue.hasShower,
-      hasBar: newSportsVenue.hasBar,
-      location: newSportsVenue.getLocation(),
     });
 
     return newSportsVenue;

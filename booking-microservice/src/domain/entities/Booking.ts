@@ -18,6 +18,7 @@ export class Booking {
   public title: string;
   public bookingStartDate: Date;
   public bookingEndDate: Date;
+  public bookingPrice: number;
   public isPublic: boolean;
   public invitedUsersIds: string[];
   public createdAt?: Date;
@@ -32,6 +33,7 @@ export class Booking {
     title: string;
     bookingStartDate: Date;
     bookingEndDate: Date;
+    bookingPrice: number;
     isPublic: boolean;
     invitedUsersIds?: string[];
     createdAt?: Date;
@@ -45,6 +47,7 @@ export class Booking {
     this.title = booking.title;
     this.bookingStartDate = booking.bookingStartDate;
     this.bookingEndDate = booking.bookingEndDate;
+    this.bookingPrice = booking.bookingPrice;
     this.isPublic = booking.isPublic;
     this.invitedUsersIds = booking.invitedUsersIds || [];
     this.createdAt = booking.createdAt;
@@ -67,6 +70,7 @@ export class Booking {
       title: doc.title,
       bookingStartDate: doc.bookingStartDate,
       bookingEndDate: doc.bookingEndDate,
+      bookingPrice: doc.bookingPrice,
       isPublic: doc.isPublic,
       invitedUsersIds: doc.invitedUsersIds,
       createdAt: doc.createdAt,

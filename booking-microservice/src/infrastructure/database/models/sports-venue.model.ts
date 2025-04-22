@@ -9,6 +9,8 @@ interface ISportsVenue extends Document {
   ownerId: string;
   sportsVenueType: SportsVenueType;
   status: SportsVenueStatus;
+  bookingMinDuration: number;
+  bookingMinPrice: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -31,6 +33,22 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
       type: String,
       required: true,
       enum: [SportsVenueStatus.active, SportsVenueStatus.inactive],
+    },
+    bookingMinDuration: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value > 0,
+        message: 'Booking minimum duration must be greater than 0 minutes',
+      },
+    },
+    bookingMinPrice: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value >= 0,
+        message: 'Booking minimum price must be equal or greater than 0',
+      },
     },
   },
   {

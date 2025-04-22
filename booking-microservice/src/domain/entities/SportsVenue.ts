@@ -15,6 +15,8 @@ export class SportsVenue {
   public ownerId?: string;
   public sportsVenueType: SportsVenueType;
   public status: SportsVenueStatus;
+  public bookingMinDuration: number;
+  public bookingMinPrice: number;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -23,6 +25,8 @@ export class SportsVenue {
     ownerId?: string;
     sportsVenueType: SportsVenueType;
     status: SportsVenueStatus;
+    bookingMinDuration: number;
+    bookingMinPrice: number;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -30,6 +34,8 @@ export class SportsVenue {
     this.ownerId = sportsVenue.ownerId;
     this.sportsVenueType = sportsVenue.sportsVenueType;
     this.status = sportsVenue.status;
+    this.bookingMinDuration = sportsVenue.bookingMinDuration;
+    this.bookingMinPrice = sportsVenue.bookingMinPrice;
     this.createdAt = sportsVenue.createdAt;
     this.updatedAt = sportsVenue.updatedAt;
   }
@@ -43,6 +49,8 @@ export class SportsVenue {
       ownerId: doc.ownerId.toString(),
       sportsVenueType: doc.sportsVenueType,
       status: doc.status,
+      bookingMinDuration: doc.bookingMinDuration,
+      bookingMinPrice: doc.bookingMinPrice,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

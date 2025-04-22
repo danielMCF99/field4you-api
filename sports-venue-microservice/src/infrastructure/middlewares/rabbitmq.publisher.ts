@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
-import { Location, SportsVenue } from '../../domain/entities/sports-venue';
+import { SportsVenue } from '../../domain/entities/sports-venue';
 
 const EXCHANGE_NAME = 'sportsvenue.events';
 const EXCHANGE_TYPE = 'topic';
@@ -37,11 +37,6 @@ export async function publishSportsVenueCreation(sportsVenuePayload: {
   sportsVenueName: string;
   bookingMinDuration: number;
   bookingMinPrice: number;
-  sportsVenuePicture: string;
-  hasParking: boolean;
-  hasShower: boolean;
-  hasBar: boolean;
-  location: Location;
 }) {
   await publishToExchange('sportsvenue.created', sportsVenuePayload);
 }

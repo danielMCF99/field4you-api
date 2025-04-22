@@ -46,8 +46,22 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
       enum: [SportsVenueStatus.active, SportsVenueStatus.inactive],
     },
     sportsVenueName: { type: String, required: true },
-    bookingMinDuration: { type: Number, required: true },
-    bookingMinPrice: { type: Number, required: true },
+    bookingMinDuration: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value > 0,
+        message: 'Booking minimum duration must be greater than 0 minutes',
+      },
+    },
+    bookingMinPrice: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value >= 0,
+        message: 'Booking minimum price must be equal or greater than 0',
+      },
+    },
     sportsVenuePicture: { type: String, required: true },
     hasParking: { type: Boolean, required: true },
     hasShower: { type: Boolean, required: true },

@@ -10,6 +10,7 @@ interface IBookingDocument extends Document {
   title: string;
   bookingStartDate: Date;
   bookingEndDate: Date;
+  bookingPrice: number;
   isPublic: boolean;
   invitedUsersIds: string[];
   createdAt?: Date;
@@ -34,6 +35,14 @@ const bookingSchema = new Schema<IBookingDocument>(
     title: { type: String, minlength: 3, maxlength: 100, required: true },
     bookingStartDate: { type: Date, required: true },
     bookingEndDate: { type: Date, required: true },
+    bookingPrice: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value >= 0,
+        message: 'Booking price must be equal or greater than 0',
+      },
+    },
     isPublic: { type: Boolean, default: false },
     invitedUsersIds: { type: [String], default: [] },
   },
