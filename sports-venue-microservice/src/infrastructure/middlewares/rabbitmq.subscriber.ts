@@ -46,6 +46,7 @@ export async function subscribeUserEvents() {
     });
 
     await channel.bindQueue(queue.queue, 'user.events', 'user.deleted');
+    await channel.bindQueue(queue.queue, 'user.events', 'user.status.updated');
 
     console.log(`[*] Waiting for User events...`);
     channel.consume(queue.queue, async (msg: any) => {
@@ -66,7 +67,7 @@ export async function subscribeUserEvents() {
           break;
 
         case 'user.status.updated':
-          console.log('Received User deleted:', data);
+          console.log('Received User updated:', data);
 
           const updatedCount =
             await sportsVenueRepository.findByOwnerIdAndUpdate(
