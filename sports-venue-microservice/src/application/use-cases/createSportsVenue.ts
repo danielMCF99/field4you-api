@@ -1,6 +1,9 @@
 import { Request } from 'express';
 import { sportsVenueRepository } from '../../app';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import {
+  SportsVenue,
+  SportsVenueStatus,
+} from '../../domain/entities/sports-venue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
@@ -57,7 +60,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const sportsVenue = new SportsVenue({
     ownerId,
     sportsVenueType,
-    status: 'inactive',
+    status: SportsVenueStatus.inactive,
     sportsVenueName,
     bookingMinDuration,
     bookingMinPrice,

@@ -6,6 +6,7 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { publishUserDeletion } from '../../../infrastructure/middlewares/rabbitmq.publisher';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 
 export const deleteUser = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();
@@ -14,8 +15,15 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
   }
 
   const authUserId = req.headers['x-user-id'] as string | undefined;
-  if (!authUserId) {
+  const userType = req.headers['x-user-type'] as string | undefined;
+  if (!authUserId || !userType) {
     throw new InternalServerErrorException('Internal Server Error');
+  }
+
+  if (userType != 'admin') {
+    throw new ForbiddenException(
+      'Only admin users are allowed to delete users'
+    );
   }
 
   const user = await userRepository.getById(id);

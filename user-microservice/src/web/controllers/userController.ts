@@ -4,6 +4,7 @@ import { getAll } from '../../application/use-cases/users/getAll';
 import { getById } from '../../application/use-cases/users/getById';
 import { updateUser } from '../../application/use-cases/users/updateUser';
 import { updateUserImage } from '../../application/use-cases/updateUserImage';
+import { updateUserStatus } from '../../application/use-cases/users/updateUserStatus';
 
 export const getAllController = async (req: Request, res: Response) => {
   try {
@@ -58,6 +59,20 @@ export const updateUserImageController = async (
 ) => {
   try {
     const response = await updateUserImage(req);
+    res.status(200).json(response);
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
+export const updateUserStatusController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const response = await updateUserStatus(req);
     res.status(200).json(response);
     return;
   } catch (error: any) {

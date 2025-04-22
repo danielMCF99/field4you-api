@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { bookingRepository, sportsVenueRepository } from '../../../app';
-import { Booking } from '../../../domain/entities/Booking';
+import { Booking, BookingStatus } from '../../../domain/entities/Booking';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -65,7 +65,7 @@ export const createBooking = async (
   const booking = new Booking({
     sportsVenueId,
     bookingType,
-    status: 'active',
+    status: BookingStatus.active,
     title,
     bookingStartDate,
     bookingEndDate,

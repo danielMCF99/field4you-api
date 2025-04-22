@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import { SportsVenue } from "../../domain/entities/SportsVenue";
-import { ISportsVenueRepository } from "../../domain/interfaces/SportsVenueRepository";
-import { SportsVenueModel } from "../database/models/sports-venue.model";
+import mongoose from 'mongoose';
+import { SportsVenue } from '../../domain/entities/SportsVenue';
+import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
+import { SportsVenueModel } from '../database/models/sports-venue.model';
 
 export class MongoSportsVenueRepository implements ISportsVenueRepository {
   private static instance: MongoSportsVenueRepository;
@@ -27,7 +27,7 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     updatedData: Partial<SportsVenue>
   ): Promise<SportsVenue | null> {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.error("ID inválido:", id);
+      console.error('ID inválido:', id);
       return null;
     }
 
@@ -56,10 +56,23 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
   }
 
-  async findAll(): Promise<SportsVenue[]> {
-    const allSportsVenue = await SportsVenueModel.find();
-    return allSportsVenue.map((sportsVenue) =>
-      SportsVenue.fromMongooseDocument(sportsVenue)
-    );
+  async findAll(ownerId?: string): Promise<SportsVenue[]> {
+    const query: any = {};
+
+    if (ownerId) {
+      query.ownerId = ownerId;
+    }
+
+    const queryBuilder = SportsVenueModel.find(query).sort({ createdAt: -1 });
+
+    const results = await queryBuilder.lean();
+
+    return results.map(SportsVenue.fromMongooseDocument);
+  }
+
+  async deleteManyByOwnerId(ownerId: string): Promise<number> {
+    const result = await SportsVenueModel.deleteMany({ ownerId: ownerId });
+    console.log(result); // { acknowledged: true, deletedCount: 1 }
+    return result.deletedCount;
   }
 }

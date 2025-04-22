@@ -1,6 +1,5 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
-import { Location } from '../../domain/entities/User';
 
 const USER_EVENTS_EXCHANGE = 'user.events';
 const USER_CREATED_ROUTING_KEY = 'user.created';
@@ -10,7 +9,11 @@ export async function publishUserCreation(userPayload: {
   email: string;
   firstName: string;
   lastName: string;
-  location: Location;
+  location: {
+    address: string;
+    city: string;
+    district: string;
+  };
   userType: string;
   birthDate: string;
   registerDate: string;

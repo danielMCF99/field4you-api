@@ -57,14 +57,6 @@ export const registerUser = async (req: Request): Promise<String> => {
       userType,
       email,
       password,
-      firstName,
-      lastName,
-      location: {
-        district,
-        city,
-        address,
-      },
-      birthDate,
       registerDate,
       lastAccessDate,
     })
@@ -88,9 +80,13 @@ export const registerUser = async (req: Request): Promise<String> => {
   publishUserCreation({
     userId: newUser.getId(),
     email: newUser.email,
-    firstName: newUser.firstName,
-    lastName: newUser.lastName,
-    location: newUser.getLocation(),
+    firstName: firstName,
+    lastName: lastName,
+    location: {
+      address: address,
+      city: city,
+      district: district,
+    },
     userType: newUser.userType.toString(),
     birthDate: birthDate,
     registerDate: registerDate.toString(),

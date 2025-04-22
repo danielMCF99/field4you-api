@@ -50,6 +50,7 @@ export class MongoBookingRepository implements IBookingRepository {
       bookingType = '',
       bookingStartDate,
       bookingEndDate,
+      sportsVenueId,
       page,
       limit,
     } = params || {};
@@ -62,6 +63,10 @@ export class MongoBookingRepository implements IBookingRepository {
 
     if (status) {
       query.status = status;
+    }
+
+    if (sportsVenueId) {
+      query.sportsVenueId = sportsVenueId;
     }
 
     if (bookingType) {

@@ -5,6 +5,7 @@ import { updateSportsVenue } from '../../application/use-cases/sportsVenue/updat
 import { createUser } from '../../application/use-cases/user/createUser';
 import { deleteUser } from '../../application/use-cases/user/deleteUser';
 import config from '../../config/env';
+import { updateUser } from '../../application/use-cases/user/updateUser';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -50,6 +51,8 @@ export async function subscribeUserEvents() {
     });
 
     await channel.bindQueue(queue.queue, 'user.events', 'user.created');
+    await channel.bindQueue(queue.queue, 'user.events', 'user.updated');
+    await channel.bindQueue(queue.queue, 'user.events', 'user.status.updated');
     await channel.bindQueue(queue.queue, 'user.events', 'user.deleted');
 
     console.log(`[*] Waiting for User events...`);
@@ -63,6 +66,14 @@ export async function subscribeUserEvents() {
         case 'user.created':
           console.log('Received User created:', data);
           await createUser(data);
+          break;
+        case 'user.updated':
+          console.log('Received User updated:', data);
+          await updateUser(data.userId, data.updatedData);
+          break;
+        case 'user.status.updated':
+          console.log('Received User status updated:', data);
+          await updateUser(data.userId, data.updatedData);
           break;
         case 'user.deleted':
           console.log('Received User deleted:', data);

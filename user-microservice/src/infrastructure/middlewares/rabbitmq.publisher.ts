@@ -39,3 +39,10 @@ export async function publishUserUpdate(updatePayload: {
 }) {
   await publishToExchange('user.updated', updatePayload);
 }
+
+export async function publishUserStatusUpdate(updatePayload: {
+  userId: string;
+  updatedData: Partial<User>;
+}) {
+  await publishToExchange('user.status.updated', updatePayload);
+}

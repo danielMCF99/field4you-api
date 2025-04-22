@@ -9,6 +9,7 @@ export const getAllBookings = async (queryParams: any): Promise<Booking[]> => {
     bookingType,
     bookingStartDate,
     bookingEndDate,
+    sportsVenueId,
     limit,
     page,
   } = queryParams;
@@ -16,6 +17,7 @@ export const getAllBookings = async (queryParams: any): Promise<Booking[]> => {
   const filters: BookingFilterParams = {
     title: title?.toString(),
     status: status?.toString(),
+    sportsVenueId: sportsVenueId?.toString(),
     bookingType: bookingType?.toString(),
     bookingStartDate: bookingStartDate ? new Date(bookingStartDate) : undefined,
     bookingEndDate: bookingEndDate ? new Date(bookingEndDate) : undefined,
