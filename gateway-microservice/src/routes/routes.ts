@@ -38,7 +38,6 @@ router.all(
         'x-user-id': req.headers['x-user-id'],
         'x-user-email': req.headers['x-user-email'],
         'x-user-type': req.headers['x-user-type'],
-        'x-user-status': req.headers['x-user-status'],
         'content-type': req.headers['content-type'],
         authorization: req.headers['authorization'],
       };

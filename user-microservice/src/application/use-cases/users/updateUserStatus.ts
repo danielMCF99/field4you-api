@@ -4,22 +4,35 @@ import { User } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { publishUserStatusUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const updateUserStatus = async (req: Request): Promise<User> => {
-  const userId = req.headers['x-user-id'] as string | undefined;
-  if (!userId) {
+  const userType = req.headers['x-user-type'] as string | undefined;
+  const authenticatedUserId = req.headers['x-user-id'] as string | undefined;
+  if (!authenticatedUserId) {
     throw new InternalServerErrorException(
       'Internal Server Error. Missing required authentication headers'
     );
   }
 
-  const { status } = req.body;
+  const { status, userId } = req.body;
   if (!status || (status != 'active' && status != 'inactive')) {
     throw new BadRequestException('Invalid status update request');
   }
 
-  const user = await userRepository.getById(userId);
+  let user;
+  if (userId) {
+    if (userType != 'admin') {
+      throw new UnauthorizedException(
+        'Regular user can only update its own status'
+      );
+    }
+
+    user = await userRepository.getById(userId);
+  } else {
+    user = await userRepository.getById(authenticatedUserId);
+  }
 
   if (!user) {
     throw new NotFoundException('User not found');

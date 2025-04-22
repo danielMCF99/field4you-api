@@ -7,24 +7,12 @@ import { ConflictException } from '../../../domain/exceptions/ConflictException'
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { checkBookingConflicts } from './checkBookingConflicts';
-import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
 export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new BadRequestException('Invalid ID format');
-  }
-  const userStatus = req.headers['x-user-status'] as string | undefined;
-
-  if (!userStatus) {
-    throw new InternalServerErrorException('Internal Server Error');
-  }
-
-  if (userStatus != 'active') {
-    throw new UnauthorizedException(
-      'User must be active to update booking status'
-    );
   }
 
   const allowedFields = ['status'];

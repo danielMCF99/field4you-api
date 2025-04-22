@@ -20,15 +20,6 @@ import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedEx
 export const createBooking = async (
   req: Request
 ): Promise<Booking | undefined> => {
-  const userStatus = req.headers['x-user-status'] as string | undefined;
-  if (!userStatus) {
-    throw new InternalServerErrorException('Internal Server Error');
-  }
-
-  if (userStatus != UserStatus.active) {
-    throw new UnauthorizedException('User must be active to create booking');
-  }
-
   const ownerId = req.headers['x-user-id'] as string | undefined;
   if (!ownerId) {
     throw new InternalServerErrorException('Internal Server Error');

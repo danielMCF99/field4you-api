@@ -1,9 +1,11 @@
 import {
+  bookingInviteRepository,
   bookingRepository,
   sportsVenueRepository,
   userRepository,
 } from '../../../app';
 import { BookingStatus } from '../../../domain/entities/Booking';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 import { SportsVenueStatus } from '../../../domain/entities/SportsVenue';
 import { User, UserStatus } from '../../../domain/entities/User';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -38,12 +40,26 @@ export const updateUser = async (
               bookingStartDate: new Date(),
             });
 
-            bookings.forEach((booking) => {
-              bookingRepository.updateStatus(
+            for (const booking of bookings) {
+              await bookingRepository.updateStatus(
                 booking.getId(),
                 BookingStatus.cancelled
               );
-            });
+
+              const invites = await bookingInviteRepository.findAll({
+                bookingId: booking.getId(),
+              });
+
+              await Promise.all(
+                invites.map((element) => {
+                  bookingInviteRepository.updateStatus(
+                    element.getId(),
+                    BookingInviteStatus.rejected,
+                    'Invited updated based on user status update'
+                  );
+                })
+              );
+            }
           }
         }
       }

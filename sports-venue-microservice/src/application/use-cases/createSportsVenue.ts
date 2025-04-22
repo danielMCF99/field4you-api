@@ -1,5 +1,10 @@
 import { Request } from 'express';
+import { ZodError } from 'zod';
 import { sportsVenueRepository } from '../../app';
+import {
+  CreateSportsVenueDTO,
+  createSportsVenueSchema,
+} from '../../domain/dtos/create-sports-venue.dto';
 import {
   SportsVenue,
   SportsVenueStatus,
@@ -8,29 +13,10 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { publishSportsVenueCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
-import {
-  CreateSportsVenueDTO,
-  createSportsVenueSchema,
-} from '../../domain/dtos/create-sports-venue.dto';
-import { ZodError } from 'zod';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
-  const userStatus = req.headers['x-user-status'] as string | undefined;
-
-  if (!userStatus) {
-    throw new InternalServerErrorException(
-      'Internal Server Error. User status header missing'
-    );
-  }
-
-  if (userStatus != 'active') {
-    throw new UnauthorizedException(
-      'User must be active to create sports venue'
-    );
-  }
 
   if (!ownerId || !userType) {
     throw new InternalServerErrorException(
