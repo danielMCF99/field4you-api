@@ -6,19 +6,6 @@ export const createSportsVenue = async (
   sportsVenue: any
 ): Promise<SportsVenue | undefined> => {
   // Perform validations
-  const {
-    sportsVenueId,
-    ownerId,
-    sportsVenueType,
-    status,
-    sportsVenueName,
-    bookingMinDuration,
-    bookingMinPrice,
-    sportsVenuePicture,
-    hasParking,
-    hasShower,
-    hasBar,
-  } = sportsVenue;
   try {
     sportsVenue._id = sportsVenue.sportsVenueId.toString();
     const newSportsVenue = await sportsVenueRepository.create(sportsVenue);

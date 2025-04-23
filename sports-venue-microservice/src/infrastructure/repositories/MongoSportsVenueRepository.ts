@@ -1,7 +1,7 @@
+import { SportsVenueFilterParams } from '../../domain/dtos/sports-venue-filter.dto';
 import { SportsVenue } from '../../domain/entities/sports-venue';
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venueModel';
-import { SportsVenueFilterParams } from '../../domain/dto/sports-venue-filter.dto';
 
 export class MongoSportsVenueRepository implements ISportsVenueRepository {
   private static instance: MongoSportsVenueRepository;
@@ -50,27 +50,32 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
 
   async findAll(params?: SportsVenueFilterParams): Promise<SportsVenue[]> {
     const {
+      ownerId,
       sportsVenueName = '',
       page,
       limit,
       status,
       sportsVenueType,
     } = params || {};
-  
+
     const query: any = {};
-  
+
+    if (ownerId) {
+      query.ownerId = ownerId;
+    }
+
     if (sportsVenueName) {
       query.sportsVenueName = { $regex: sportsVenueName, $options: 'i' };
     }
-  
+
     if (status) {
       query.status = status;
     }
-  
+
     if (sportsVenueType) {
       query.sportsVenueType = sportsVenueType;
     }
-  
+
     const skip = page && limit ? (page - 1) * limit : 0;
 
     const queryBuilder = SportsVenueModel.find(query)
@@ -84,5 +89,22 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     const results = await queryBuilder.lean();
 
     return results.map(SportsVenue.fromMongooseDocument);
+  }
+
+  async deleteManyByOwnerId(ownerId: string): Promise<number> {
+    const result = await SportsVenueModel.deleteMany({ ownerId: ownerId });
+    return result.deletedCount;
+  }
+
+  async findByOwnerIdAndUpdate(
+    ownerId: string,
+    updatedData: Partial<SportsVenue>
+  ): Promise<number> {
+    const updatedVenues = await SportsVenueModel.updateMany(
+      { ownerId },
+      { $set: updatedData }
+    );
+
+    return updatedVenues.modifiedCount;
   }
 }

@@ -1,24 +1,18 @@
 export enum UserType {
-  'user',
-  'owner',
+  user = 'user',
+  owner = 'owner',
 }
 
-export class Location {
-  public address?: string;
-  public city?: string;
-  public district?: string;
-  public latitude?: number;
-  public longitude?: number;
+export enum UserStatus {
+  active = 'active',
+  inactive = 'inactive',
 }
 
 export class User {
   private id?: string;
   public userType: UserType;
   public email: string;
-  public phoneNumber?: string;
-  public firstName: string;
-  public lastName: string;
-  public location: Location;
+  public status: UserStatus;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -26,20 +20,14 @@ export class User {
     id?: string;
     userType: UserType;
     email: string;
-    phoneNumber?: string;
-    firstName: string;
-    lastName: string;
-    location: Location;
+    status: UserStatus;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
     this.id = user.id;
     this.userType = user.userType;
     this.email = user.email;
-    this.phoneNumber = user.phoneNumber;
-    this.firstName = user.firstName;
-    this.lastName = user.lastName;
-    this.location = user.location;
+    this.status = user.status;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
   }
@@ -48,19 +36,12 @@ export class User {
     return this.id ? this.id : 'N/A';
   }
 
-  getLocation(): Location {
-    return this.location;
-  }
-
   static fromMongooseDocument(doc: any): User {
     return new User({
       id: doc._id.toString(), // Convert ObjectId to string
       userType: doc.userType,
       email: doc.email,
-      phoneNumber: doc.phoneNumber,
-      firstName: doc.firstName,
-      lastName: doc.lastName,
-      location: doc.location,
+      status: doc.status,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

@@ -22,15 +22,15 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
     );
   }
 
+  if (userType != 'admin') {
+    throw new ForbiddenException(
+      'Only admin users are allowed to delete sports venues'
+    );
+  }
+
   const sportsVenue = await sportsVenueRepository.findById(id);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue with given ID not found');
-  }
-
-  if (userType != 'owner') {
-    throw new ForbiddenException(
-      'Regular User is not allowed to delete this venue'
-    );
   }
 
   if (sportsVenue.ownerId.toString() !== ownerId.toString()) {
@@ -49,6 +49,7 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
 
     return true;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error deleting sports venue'
     );

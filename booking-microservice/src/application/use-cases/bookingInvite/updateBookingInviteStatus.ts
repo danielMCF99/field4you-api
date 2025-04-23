@@ -6,6 +6,7 @@ import { BadRequestException } from '../../../domain/exceptions/BadRequestExcept
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 
 export const updateBookingInviteStatus = async (
   req: Request
@@ -59,6 +60,12 @@ export const updateBookingInviteStatus = async (
     }
   }
 
+  if (bookingInvite.bookingEndDate < new Date()) {
+    throw new ForbiddenException(
+      'Unable to change status of booking invite associated to already completed booking'
+    );
+  }
+
   try {
     const updatedBookingInvite = await bookingInviteRepository.updateStatus(
       id,
@@ -71,6 +78,7 @@ export const updateBookingInviteStatus = async (
 
     return updatedBookingInvite;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating booking invite'
     );

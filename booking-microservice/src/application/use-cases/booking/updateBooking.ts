@@ -8,6 +8,12 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
+import {
+  UpdateBookingDTO,
+  updateBookingSchema,
+} from '../../../domain/dtos/update-booking.dto';
+import { ZodError } from 'zod';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -18,6 +24,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
 
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
+
   if (!ownerId || !userType) {
     throw new InternalServerErrorException(
       'Internal Server Error. Missing required authentication headers'
@@ -41,63 +48,71 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     throw new NotFoundException('Booking not found');
   }
 
-  const allowedFields = [
-    'bookingType',
-    'title',
-    'bookingStartDate',
-    'bookingEndDate',
-    'isPublic',
-  ];
-
-  const updatedData: Record<string, any> = {};
-  Object.keys(req.body).forEach((key) => {
-    if (allowedFields.includes(key)) {
-      updatedData[key] = req.body[key];
+  let parsed: UpdateBookingDTO;
+  try {
+    parsed = updateBookingSchema.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const missingFields = error.errors.map((err) => err.path.join('.'));
+      throw new BadRequestException('Missing or invalid required fields', {
+        missingFields,
+      });
     }
-  });
 
-  const isSportsVenueIdChanged =
+    throw new InternalServerErrorException(
+      'Unexpected error parsing request data'
+    );
+  }
+
+  const {
+    bookingType,
+    title,
+    bookingStartDate,
+    bookingEndDate,
+    isPublic,
+    invitedUsersIds,
+  } = parsed;
+
+  if (parsed.invitedUsersIds && parsed.invitedUsersIds.length > 0) {
+    parsed.invitedUsersIds = Array.from(
+      new Set([...booking.invitedUsersIds, ...parsed.invitedUsersIds])
+    );
+  }
+
+  /*const isSportsVenueIdChanged =
     updatedData.sportsVenueId &&
-    updatedData.sportsVenueId !== booking.sportsVenueId;
+    updatedData.sportsVenueId !== booking.sportsVenueId;*/
+
   const isStartDateChanged =
-    updatedData.bookingStartDate &&
-    new Date(updatedData.bookingStartDate).getTime() !==
+    parsed.bookingStartDate &&
+    new Date(parsed.bookingStartDate).getTime() !==
       new Date(booking.bookingStartDate).getTime();
   const isEndDateChanged =
-    updatedData.bookingEndDate &&
-    new Date(updatedData.bookingEndDate).getTime() !==
+    parsed.bookingEndDate &&
+    new Date(parsed.bookingEndDate).getTime() !==
       new Date(booking.bookingEndDate).getTime();
 
-  if (isSportsVenueIdChanged) {
+  /*if (isSportsVenueIdChanged) {
     // Check if Sports Venue Exists
     const sportsVenue = await sportsVenueRepository.findById(
       updatedData.sportsVenueId
     );
     if (!sportsVenue) {
       throw new NotFoundException('Sports Venue for given Booking not found');
-    }
+    }*/
 
-    if (isStartDateChanged || isEndDateChanged) {
-      const hasConflicts = await checkBookingConflicts(
-        bookingRepository,
-        updatedData.sportsVenueId || booking.sportsVenueId,
-        new Date(updatedData.bookingStartDate || booking.bookingStartDate),
-        new Date(updatedData.bookingEndDate || booking.bookingEndDate),
-        id
-      );
-
-      if (hasConflicts) {
-        throw new ConflictException('Booking conflicts found');
-      }
-    }
-  }
-
-  if (req.body.invitedUsersIds && req.body.invitedUsersIds.length > 0) {
-    const invitedUsersIds = req.body.invitedUsersIds;
-    const finalResult = Array.from(
-      new Set([...booking.invitedUsersIds, ...invitedUsersIds])
+  if (isStartDateChanged || isEndDateChanged) {
+    const hasConflicts = await checkBookingConflicts(
+      bookingRepository,
+      booking.sportsVenueId,
+      new Date(parsed.bookingStartDate || booking.bookingStartDate),
+      new Date(parsed.bookingEndDate || booking.bookingEndDate),
+      id
     );
-    updatedData['invitedUsersIds'] = finalResult;
+
+    if (hasConflicts) {
+      throw new ConflictException('Booking conflicts found');
+    }
   }
 
   const session = await mongoose.startSession();
@@ -107,7 +122,14 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     const updatedBooking = await bookingRepository.update(
       booking.getId(),
       {
-        ...updatedData,
+        bookingType: bookingType,
+        title: title,
+        bookingStartDate: bookingStartDate
+          ? new Date(bookingStartDate)
+          : undefined,
+        bookingEndDate: bookingEndDate ? new Date(bookingEndDate) : undefined,
+        isPublic: isPublic,
+        invitedUsersIds: invitedUsersIds,
       },
       session
     );
@@ -115,9 +137,9 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
       throw new InternalServerErrorException('Error updating booking');
     }
 
-    if (updatedData.invitedUsersIds && updatedData.invitedUsersIds.length > 0) {
+    if (parsed.invitedUsersIds && parsed.invitedUsersIds.length > 0) {
       await createBookingInvite(
-        updatedData.invitedUsersIds,
+        parsed.invitedUsersIds,
         {
           bookingId: updatedBooking.getId(),
           bookingStartDate: updatedBooking.bookingStartDate,

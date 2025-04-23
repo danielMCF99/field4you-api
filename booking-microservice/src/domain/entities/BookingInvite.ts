@@ -1,10 +1,16 @@
+export enum BookingInviteStatus {
+  accepted = 'accepted',
+  rejected = 'rejected',
+  pending = 'pending',
+}
+
 export class BookingInvite {
   public id?: string;
   public bookingId: string;
   public userId: string;
   public bookingStartDate: Date;
   public bookingEndDate: Date;
-  public status: string;
+  public status: BookingInviteStatus;
   public comments?: string;
   public createdAt?: Date;
   public updatedAt?: Date;
@@ -15,7 +21,7 @@ export class BookingInvite {
     userId: string;
     bookingStartDate: Date;
     bookingEndDate: Date;
-    status: string;
+    status: BookingInviteStatus;
     comments?: string;
     createdAt?: Date;
     updatedAt?: Date;

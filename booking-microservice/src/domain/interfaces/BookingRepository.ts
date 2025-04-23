@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { BookingFilterParams } from '../dto/booking-filter.dto';
+import mongoose, { ClientSession } from 'mongoose';
+import { BookingFilterParams } from '../dtos/booking-filter.dto';
 import { Booking } from '../entities/Booking';
 
 export interface IBookingRepository {
@@ -23,4 +23,16 @@ export interface IBookingRepository {
     bookingEndDate: Date,
     idToExclude?: string
   ): Promise<Booking[]>;
+
+  findAllActiveByVenueIds(venueIds: string[]): Promise<Booking[]>;
+
+  bulkStatusUpdateByIds(
+    bookingIds: string[],
+    session?: ClientSession
+  ): Promise<{ modifiedCount?: number }>;
+
+  cancelByUserId(
+    userId: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }>;
 }

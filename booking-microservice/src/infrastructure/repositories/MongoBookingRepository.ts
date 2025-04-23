@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { BookingFilterParams } from '../../domain/dto/booking-filter.dto';
-import { Booking } from '../../domain/entities/Booking';
+import mongoose, { ClientSession, Types } from 'mongoose';
+import { BookingFilterParams } from '../../domain/dtos/booking-filter.dto';
+import { Booking, BookingStatus } from '../../domain/entities/Booking';
 import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
 import { BookingModel } from '../database/models/booking.model';
 
@@ -50,6 +50,7 @@ export class MongoBookingRepository implements IBookingRepository {
       bookingType = '',
       bookingStartDate,
       bookingEndDate,
+      sportsVenueId,
       page,
       limit,
     } = params || {};
@@ -62,6 +63,10 @@ export class MongoBookingRepository implements IBookingRepository {
 
     if (status) {
       query.status = status;
+    }
+
+    if (sportsVenueId) {
+      query.sportsVenueId = sportsVenueId;
     }
 
     if (bookingType) {
@@ -144,6 +149,7 @@ export class MongoBookingRepository implements IBookingRepository {
   ): Promise<Booking[]> {
     const query: Record<string, unknown> = {
       sportsVenueId,
+      status: BookingStatus.active,
       $or: [
         {
           bookingStartDate: { $lt: bookingEndDate },
@@ -158,5 +164,55 @@ export class MongoBookingRepository implements IBookingRepository {
 
     const conflictingBookings = await BookingModel.find(query);
     return conflictingBookings.map((doc) => Booking.fromMongooseDocument(doc));
+  }
+
+  async findAllActiveByVenueIds(venueIds: string[]): Promise<Booking[]> {
+    const results = await BookingModel.find({
+      sportsVenueId: { $in: venueIds.map((id) => new Types.ObjectId(id)) },
+      status: BookingStatus.active,
+      bookingStartDate: { $gte: new Date() },
+    }).exec();
+
+    return results.map(Booking.fromMongooseDocument);
+  }
+
+  async bulkStatusUpdateByIds(
+    bookingIds: string[],
+    session?: ClientSession
+  ): Promise<{ modifiedCount?: number }> {
+    return BookingModel.updateMany(
+      {
+        _id: { $in: bookingIds.map((id) => new Types.ObjectId(id)) },
+      },
+      {
+        $set: {
+          status: BookingStatus.cancelled,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
+  }
+
+  async cancelByUserId(
+    userId: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }> {
+    return BookingModel.updateMany(
+      {
+        ownerId: new Types.ObjectId(userId),
+        status: BookingStatus.active,
+        bookingStartDate: { $gte: new Date() },
+      },
+      {
+        $set: {
+          status: BookingStatus.cancelled,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
   }
 }

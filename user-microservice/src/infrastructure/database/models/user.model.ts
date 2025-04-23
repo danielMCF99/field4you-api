@@ -1,9 +1,11 @@
 import { Document, Schema, Types, model } from 'mongoose';
+import { UserStatus } from '../../../domain/entities/User';
 
 interface IUserDocument extends Document {
   _id: Types.ObjectId;
   userType: string;
   email: string;
+  status: string;
   phoneNumber: string;
   firstName: string;
   lastName: string;
@@ -30,6 +32,12 @@ const userSchema = new Schema<IUserDocument>(
       required: true,
       unique: true,
       match: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+    },
+    status: {
+      type: String,
+      required: true,
+      default: UserStatus.active,
+      enum: [UserStatus.active, UserStatus.inactive],
     },
     phoneNumber: { type: String, required: false, length: 9 },
     firstName: { type: String, required: true, minlength: 3 },

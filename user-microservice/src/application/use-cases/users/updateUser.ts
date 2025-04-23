@@ -24,10 +24,13 @@ export const updateUser = async (req: Request): Promise<User> => {
     throw new NotFoundException('User not found');
   }
 
-  if (user.getId() != authUserId) {
-    throw new UnauthorizedException(
-      "You don't have permission to edit this user"
-    );
+  const userType = req.headers['x-user-type'] as string | undefined;
+  if (userType != 'admin') {
+    if (user.getId() != authUserId) {
+      throw new UnauthorizedException(
+        "You don't have permission to edit this user"
+      );
+    }
   }
 
   const locationFields = [
@@ -69,6 +72,7 @@ export const updateUser = async (req: Request): Promise<User> => {
 
     return updatedUser;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error when updating the user'
     );

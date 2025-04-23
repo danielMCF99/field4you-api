@@ -1,5 +1,5 @@
 import { bookingInviteRepository } from '../../../app';
-import { BookingInviteFilterParams } from '../../../domain/dto/booking-invite-filter.dto';
+import { BookingInviteFilterParams } from '../../../domain/dtos/booking-invite-filter.dto';
 import { BookingInvite } from '../../../domain/entities/BookingInvite';
 
 export const getAllBookingInvites = async (

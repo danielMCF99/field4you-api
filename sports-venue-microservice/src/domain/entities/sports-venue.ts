@@ -1,3 +1,15 @@
+export enum SportsVenueType {
+  five_vs_five = '5x5',
+  seven_vs_seven = '7x7',
+  nine_vs_nive = '9x9',
+  eleven_vs_eleven = '11x11',
+}
+
+export enum SportsVenueStatus {
+  active = 'active',
+  inactive = 'inactive',
+}
+
 export class Location {
   public address?: string;
   public city?: string;
@@ -9,8 +21,8 @@ export class Location {
 export class SportsVenue {
   public id?: string;
   public ownerId: string;
-  public sportsVenueType: string;
-  public status: string;
+  public sportsVenueType: SportsVenueType;
+  public status: SportsVenueStatus;
   public sportsVenueName: string;
   public bookingMinDuration: number;
   public bookingMinPrice: number;
@@ -25,8 +37,8 @@ export class SportsVenue {
   constructor(sportsVenue: {
     id?: string;
     ownerId: string;
-    sportsVenueType: string;
-    status: string;
+    sportsVenueType: SportsVenueType;
+    status: SportsVenueStatus;
     sportsVenueName: string;
     bookingMinDuration: number;
     bookingMinPrice: number;

@@ -1,4 +1,5 @@
 import { Document, Schema, Types, model } from 'mongoose';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 
 interface IBookingInviteDocument extends Document {
   _id: Types.ObjectId;
@@ -6,7 +7,7 @@ interface IBookingInviteDocument extends Document {
   userId: string;
   bookingStartDate: Date;
   bookingEndDate: Date;
-  status: string;
+  status: BookingInviteStatus;
   comments?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -20,8 +21,13 @@ const bookingInviteSchema = new Schema<IBookingInviteDocument>(
     bookingEndDate: { type: Date, required: true },
     status: {
       type: String,
-      default: 'pending',
-      enum: ['accepted', 'rejected', 'pending'],
+      required: true,
+      default: BookingInviteStatus.pending,
+      enum: [
+        BookingInviteStatus.pending,
+        BookingInviteStatus.accepted,
+        BookingInviteStatus.rejected,
+      ],
     },
     comments: { type: String },
   },

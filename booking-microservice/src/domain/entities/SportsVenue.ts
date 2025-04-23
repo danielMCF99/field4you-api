@@ -1,40 +1,32 @@
+export enum SportsVenueType {
+  five_vs_five = '5x5',
+  seven_vs_seven = '7x7',
+  nine_vs_nive = '9x9',
+  eleven_vs_eleven = '11x11',
+}
+
+export enum SportsVenueStatus {
+  active = 'active',
+  inactive = 'inactive',
+}
+
 export class SportsVenue {
   public id?: string;
   public ownerId?: string;
-  public sportsVenueType: string;
-  public status: string;
-  public sportsVenueName: string;
+  public sportsVenueType: SportsVenueType;
+  public status: SportsVenueStatus;
   public bookingMinDuration: number;
   public bookingMinPrice: number;
-  public sportsVenuePicture: string;
-  public hasParking: boolean;
-  public hasShower: boolean;
-  public hasBar: boolean;
-  public address?: string;
-  public city?: string;
-  public district?: string;
-  public latitude?: number;
-  public longitude?: number;
   public createdAt?: Date;
   public updatedAt?: Date;
 
   constructor(sportsVenue: {
     id?: string;
     ownerId?: string;
-    sportsVenueType: string;
-    status: string;
-    sportsVenueName: string;
+    sportsVenueType: SportsVenueType;
+    status: SportsVenueStatus;
     bookingMinDuration: number;
     bookingMinPrice: number;
-    sportsVenuePicture: string;
-    hasParking: boolean;
-    hasShower: boolean;
-    hasBar: boolean;
-    district?: string;
-    city?: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -42,18 +34,8 @@ export class SportsVenue {
     this.ownerId = sportsVenue.ownerId;
     this.sportsVenueType = sportsVenue.sportsVenueType;
     this.status = sportsVenue.status;
-    this.sportsVenueName = sportsVenue.sportsVenueName;
     this.bookingMinDuration = sportsVenue.bookingMinDuration;
     this.bookingMinPrice = sportsVenue.bookingMinPrice;
-    this.sportsVenuePicture = sportsVenue.sportsVenuePicture;
-    this.hasParking = sportsVenue.hasParking;
-    this.hasShower = sportsVenue.hasShower;
-    this.hasBar = sportsVenue.hasBar;
-    this.district = sportsVenue.district;
-    this.city = sportsVenue.city;
-    this.address = sportsVenue.address;
-    this.latitude = sportsVenue.latitude;
-    this.longitude = sportsVenue.longitude;
     this.createdAt = sportsVenue.createdAt;
     this.updatedAt = sportsVenue.updatedAt;
   }
@@ -67,18 +49,8 @@ export class SportsVenue {
       ownerId: doc.ownerId.toString(),
       sportsVenueType: doc.sportsVenueType,
       status: doc.status,
-      sportsVenueName: doc.sportsVenueName,
       bookingMinDuration: doc.bookingMinDuration,
       bookingMinPrice: doc.bookingMinPrice,
-      sportsVenuePicture: doc.sportsVenuePicture,
-      hasParking: doc.hasParking,
-      hasShower: doc.hasShower,
-      hasBar: doc.hasBar,
-      district: doc.district,
-      city: doc.city,
-      address: doc.address,
-      latitude: doc.latitude,
-      longitude: doc.longitude,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

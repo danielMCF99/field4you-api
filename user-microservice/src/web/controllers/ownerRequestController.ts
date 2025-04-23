@@ -73,7 +73,6 @@ export const updateOwnerRequestController = async (
 ) => {
   try {
     const ownerRequest = await updateOwnerRequest(req);
-    console.log(ownerRequest);
     res.status(200).json({ ownerRequest });
     return;
   } catch (error: any) {

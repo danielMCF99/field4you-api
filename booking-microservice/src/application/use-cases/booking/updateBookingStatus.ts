@@ -1,10 +1,12 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { bookingRepository } from '../../../app';
-import { Booking } from '../../../domain/entities/Booking';
+import { Booking, BookingStatus } from '../../../domain/entities/Booking';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { checkBookingConflicts } from './checkBookingConflicts';
 
 export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -23,15 +25,18 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   });
 
   const newStatus = updatedData.status;
-  if (
-    !newStatus ||
-    (newStatus != 'active' && newStatus != 'cancelled' && newStatus != 'done')
-  ) {
+  const validStatus = [
+    BookingStatus.active,
+    BookingStatus.cancelled,
+    BookingStatus.done,
+  ];
+  if (!newStatus || !validStatus.includes(newStatus)) {
     throw new BadRequestException('Invalid status update request');
   }
 
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
+
   if (!ownerId || !userType) {
     throw new InternalServerErrorException(
       'Internal Server Error. Missing required authentication headers'
@@ -55,6 +60,21 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     throw new NotFoundException('Booking not found');
   }
 
+  // Check for potential conflicts when activating a Booking
+  if (newStatus == BookingStatus.active) {
+    const hasConflicts = await checkBookingConflicts(
+      bookingRepository,
+      booking.sportsVenueId,
+      booking.bookingStartDate,
+      booking.bookingEndDate,
+      booking.getId()
+    );
+
+    if (hasConflicts) {
+      throw new ConflictException('Booking conflicts with existing bookings');
+    }
+  }
+
   try {
     const updatedBooking = await bookingRepository.updateStatus(id, newStatus);
     if (!updatedBooking) {
@@ -63,6 +83,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
 
     return updatedBooking;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating booking'
     );

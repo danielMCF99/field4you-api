@@ -1,6 +1,14 @@
 import { Request } from 'express';
+import { ZodError } from 'zod';
 import { sportsVenueRepository } from '../../app';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import {
+  CreateSportsVenueDTO,
+  createSportsVenueSchema,
+} from '../../domain/dtos/create-sports-venue.dto';
+import {
+  SportsVenue,
+  SportsVenueStatus,
+} from '../../domain/entities/sports-venue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
@@ -9,15 +17,32 @@ import { publishSportsVenueCreation } from '../../infrastructure/middlewares/rab
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
+
   if (!ownerId || !userType) {
     throw new InternalServerErrorException(
-      'Internal Server Error. Missing required authentication headers'
+      'Internal Server Error. Owner identification or user type header missing.'
     );
   }
 
   if (userType != 'owner') {
     throw new ForbiddenException(
       'Regular users are not able to create a sports venue'
+    );
+  }
+
+  let parsed: CreateSportsVenueDTO;
+  try {
+    parsed = createSportsVenueSchema.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const missingFields = error.errors.map((err) => err.path.join('.'));
+      throw new BadRequestException('Missing or invalid required fields', {
+        missingFields,
+      });
+    }
+
+    throw new InternalServerErrorException(
+      'Unexpected error parsing request data'
     );
   }
 
@@ -33,31 +58,12 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     district,
     city,
     address,
-  } = req.body;
-
-  const requiredFields = {
-    sportsVenueType,
-    sportsVenueName,
-    bookingMinDuration,
-    bookingMinPrice,
-    sportsVenuePicture,
-    district,
-    city,
-    address,
-  };
-
-  const missingFields = Object.entries(requiredFields)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
-
-  if (missingFields.length > 0) {
-    throw new BadRequestException('Missing required fields', { missingFields });
-  }
+  } = parsed;
 
   const sportsVenue = new SportsVenue({
     ownerId,
     sportsVenueType,
-    status: 'inactive',
+    status: SportsVenueStatus.inactive,
     sportsVenueName,
     bookingMinDuration,
     bookingMinPrice,
@@ -86,15 +92,11 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       sportsVenueName: newSportsVenue.sportsVenueName,
       bookingMinDuration: newSportsVenue.bookingMinDuration,
       bookingMinPrice: newSportsVenue.bookingMinPrice,
-      sportsVenuePicture: newSportsVenue.sportsVenuePicture,
-      hasParking: newSportsVenue.hasParking,
-      hasShower: newSportsVenue.hasShower,
-      hasBar: newSportsVenue.hasBar,
-      location: newSportsVenue.getLocation(),
     });
 
     return newSportsVenue;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error creating sports venue'
     );

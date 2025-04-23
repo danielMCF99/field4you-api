@@ -1,10 +1,14 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Document, Schema, Types, model } from 'mongoose';
+import {
+  SportsVenueStatus,
+  SportsVenueType,
+} from '../../../domain/entities/sports-venue';
 
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;
   ownerId: string;
-  sportsVenueType: string;
-  status: string;
+  sportsVenueType: SportsVenueType;
+  status: SportsVenueStatus;
   sportsVenueName: string;
   bookingMinDuration: number;
   bookingMinPrice: number;
@@ -29,12 +33,35 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
     sportsVenueType: {
       type: String,
       required: true,
-      enum: ['5x5', '7x7', '9x9', '11x11'],
+      enum: [
+        SportsVenueType.five_vs_five,
+        SportsVenueType.seven_vs_seven,
+        SportsVenueType.nine_vs_nive,
+        SportsVenueType.eleven_vs_eleven,
+      ],
     },
-    status: { type: String, required: true, enum: ['active', 'inactive'] },
+    status: {
+      type: String,
+      required: true,
+      enum: [SportsVenueStatus.active, SportsVenueStatus.inactive],
+    },
     sportsVenueName: { type: String, required: true },
-    bookingMinDuration: { type: Number, required: true },
-    bookingMinPrice: { type: Number, required: true },
+    bookingMinDuration: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value > 0,
+        message: 'Booking minimum duration must be greater than 0 minutes',
+      },
+    },
+    bookingMinPrice: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value >= 0,
+        message: 'Booking minimum price must be equal or greater than 0',
+      },
+    },
     sportsVenuePicture: { type: String, required: true },
     hasParking: { type: Boolean, required: true },
     hasShower: { type: Boolean, required: true },

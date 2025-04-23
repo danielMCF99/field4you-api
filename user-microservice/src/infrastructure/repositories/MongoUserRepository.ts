@@ -24,16 +24,16 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   async updateUserImage(
-    id: string, 
+    id: string,
     imageData: Partial<User>
   ): Promise<User | undefined> {
-    const updatedUser = await UserModel.findByIdAndUpdate(id, imageData, { 
-      new: true, 
-      runValidators: true 
+    const updatedUser = await UserModel.findByIdAndUpdate(id, imageData, {
+      new: true,
+      runValidators: true,
     });
-  
+
     return updatedUser ? User.fromMongooseDocument(updatedUser) : undefined;
-  }  
+  }
 
   async getAll(params?: UserFilterParams): Promise<User[]> {
     const { firstName, userType, page, limit } = params || {};
@@ -76,7 +76,6 @@ export class MongoUserRepository implements IUserRepository {
     id: string,
     updatedDAta: Partial<User>
   ): Promise<User | undefined> {
-    console.log(updatedDAta);
     const updatedUser = await UserModel.findByIdAndUpdate(id, updatedDAta, {
       new: true,
       runValidators: true,

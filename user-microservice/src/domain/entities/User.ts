@@ -1,6 +1,11 @@
 export enum UserType {
-  user = "user",
-  owner = "owner",
+  user = 'user',
+  owner = 'owner',
+}
+
+export enum UserStatus {
+  active = 'active',
+  inactive = 'inactive',
 }
 
 export class Location {
@@ -15,6 +20,7 @@ export class User {
   private readonly id?: string;
   public userType: UserType;
   public email: string;
+  public status: UserStatus;
   public phoneNumber?: string;
   public firstName: string;
   public lastName: string;
@@ -30,6 +36,7 @@ export class User {
     id?: string;
     userType: UserType;
     email: string;
+    status: UserStatus;
     phoneNumber?: string;
     firstName: string;
     lastName: string;
@@ -44,6 +51,7 @@ export class User {
     this.id = user.id;
     this.userType = user.userType;
     this.email = user.email;
+    this.status = user.status;
     this.phoneNumber = user.phoneNumber;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
@@ -57,7 +65,7 @@ export class User {
   }
 
   getId(): string {
-    return this.id ? this.id : "N/A";
+    return this.id ? this.id : 'N/A';
   }
 
   getLocation(): Location {
@@ -68,6 +76,7 @@ export class User {
     return new User({
       id: doc._id.toString(), // Convert ObjectId to string
       userType: doc.userType,
+      status: doc.status,
       email: doc.email,
       phoneNumber: doc.phoneNumber,
       firstName: doc.firstName,

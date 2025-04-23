@@ -1,18 +1,19 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
-import { Location } from '../../domain/entities/User';
 
-const USER_SERVICE_QUEUE = 'user_serv_user_registration_queue';
-const BOOKING_SERVICE_QUEUE = 'booking_serv_user_registration_queue';
-
-const queueList = [USER_SERVICE_QUEUE, BOOKING_SERVICE_QUEUE];
+const USER_EVENTS_EXCHANGE = 'user.events';
+const USER_CREATED_ROUTING_KEY = 'user.created';
 
 export async function publishUserCreation(userPayload: {
   userId: string;
   email: string;
   firstName: string;
   lastName: string;
-  location: Location;
+  location: {
+    address: string;
+    city: string;
+    district: string;
+  };
   userType: string;
   birthDate: string;
   registerDate: string;
@@ -21,16 +22,20 @@ export async function publishUserCreation(userPayload: {
     const connection = await amqp.connect(config.rabbitmqURL);
     const channel = await connection.createChannel();
 
-    queueList.forEach((queue) => {
-      // Ensure queue is durable
-      channel.assertQueue(queue, { durable: true });
-
-      const message = JSON.stringify(userPayload);
-      channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
-      console.log(
-        `[x] Sent user registration event: ${message} for Queue: ${queue}s`
-      );
+    await channel.assertExchange(USER_EVENTS_EXCHANGE, 'topic', {
+      durable: true,
     });
+
+    const message = JSON.stringify(userPayload);
+    channel.publish(
+      USER_EVENTS_EXCHANGE,
+      USER_CREATED_ROUTING_KEY,
+      Buffer.from(message),
+      { persistent: true }
+    );
+
+    console.log(`[x] Sent user.created event to ${USER_EVENTS_EXCHANGE}`);
+
     setTimeout(() => {
       connection.close();
     }, 500);

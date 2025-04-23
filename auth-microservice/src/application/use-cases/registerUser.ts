@@ -1,43 +1,46 @@
 import bcrypt from 'bcryptjs';
 import { Request } from 'express';
 import { jwtHelper, mailer, userRepository } from '../../app';
-import { User } from '../../domain/entities/User';
+import { User, UserStatus } from '../../domain/entities/User';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { publishUserCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import {
+  RegisterUserDTO,
+  registerUserSchema,
+} from '../../domain/dtos/register-user.dto';
+import { ZodError } from 'zod';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export const registerUser = async (req: Request): Promise<String> => {
   // Validate request sent for any necessary fields missing
-  let {
-    userType,
-    email,
-    password,
-    firstName,
-    lastName,
-    birthDate,
-    district,
-    city,
-    address,
-  } = req.body;
+  let parsed: RegisterUserDTO;
 
-  const requiredFields = {
-    userType,
-    password,
-    email,
-    firstName,
-    lastName,
-    birthDate,
-    district,
-    city,
-    address,
-  };
+  try {
+    parsed = registerUserSchema.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const missingFields = error.errors.map((err) => err.path.join('.'));
+      throw new BadRequestException('Missing or invalid required fields', {
+        missingFields,
+      });
+    }
 
-  const missingFields = Object.entries(requiredFields)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
-
-  if (missingFields.length > 0) {
-    throw new BadRequestException('Missing required fields', { missingFields });
+    throw new InternalServerErrorException(
+      'Unexpected error parsing request data'
+    );
   }
+
+  const {
+    userType,
+    email,
+    password: rawPassword,
+    firstName,
+    lastName,
+    birthDate,
+    district,
+    city,
+    address,
+  } = parsed;
 
   // Check if given email already exists
   const user = await userRepository.findByEmail(email);
@@ -47,7 +50,7 @@ export const registerUser = async (req: Request): Promise<String> => {
   }
 
   // Encrypt password
-  password = await bcrypt.hash(password, 10);
+  const password = await bcrypt.hash(rawPassword, 10);
   const registerDate = new Date();
   const lastAccessDate = new Date();
 
@@ -57,14 +60,7 @@ export const registerUser = async (req: Request): Promise<String> => {
       userType,
       email,
       password,
-      firstName,
-      lastName,
-      location: {
-        district,
-        city,
-        address,
-      },
-      birthDate,
+      status: UserStatus.active,
       registerDate,
       lastAccessDate,
     })
@@ -88,9 +84,13 @@ export const registerUser = async (req: Request): Promise<String> => {
   publishUserCreation({
     userId: newUser.getId(),
     email: newUser.email,
-    firstName: newUser.firstName,
-    lastName: newUser.lastName,
-    location: newUser.getLocation(),
+    firstName: firstName,
+    lastName: lastName,
+    location: {
+      address: address,
+      city: city,
+      district: district,
+    },
     userType: newUser.userType.toString(),
     birthDate: birthDate,
     registerDate: registerDate.toString(),

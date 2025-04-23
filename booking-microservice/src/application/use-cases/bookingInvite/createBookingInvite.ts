@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { bookingInviteRepository, userRepository } from '../../../app';
-import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 
@@ -13,14 +13,6 @@ export const createBookingInvite = async (
   },
   session?: mongoose.ClientSession
 ): Promise<Boolean> => {
-  // Check invited user ids
-  const invalidIds = invitedUsersIds.some(
-    (id: string) => !mongoose.Types.ObjectId.isValid(id)
-  );
-  if (invalidIds) {
-    throw new BadRequestException('Invalid user IDs');
-  }
-
   // Check if any of the invited users does not exist
   const nonExistingUsers = await Promise.all(
     invitedUsersIds.map(async (id: string) => {
@@ -58,7 +50,7 @@ export const createBookingInvite = async (
           bookingStartDate: bookingInfo.bookingStartDate,
           bookingEndDate: bookingInfo.bookingEndDate,
           userId: id,
-          status: 'pending',
+          status: BookingInviteStatus.pending,
         });
       }
     }
@@ -66,6 +58,7 @@ export const createBookingInvite = async (
 
     return true;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error creating booking invite'
     );

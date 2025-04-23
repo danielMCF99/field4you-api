@@ -1,22 +1,16 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import {
+  SportsVenueStatus,
+  SportsVenueType,
+} from '../../../domain/entities/SportsVenue';
 
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;
   ownerId: string;
-  sportsVenueType: string;
-  status: string;
-  sportsVenueName: string;
+  sportsVenueType: SportsVenueType;
+  status: SportsVenueStatus;
   bookingMinDuration: number;
   bookingMinPrice: number;
-  sportsVenuePicture: string;
-  hasParking: boolean;
-  hasShower: boolean;
-  hasBar: boolean;
-  district: string;
-  city: string;
-  address: string;
-  latitude: number;
-  longitude: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -28,21 +22,34 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
     sportsVenueType: {
       type: String,
       required: true,
-      enum: ['5x5', '7x7', '9x9', '11x11'],
+      enum: [
+        SportsVenueType.five_vs_five,
+        SportsVenueType.seven_vs_seven,
+        SportsVenueType.nine_vs_nive,
+        SportsVenueType.eleven_vs_eleven,
+      ],
     },
-    status: { type: String, required: true, enum: ['active', 'inactive'] },
-    sportsVenueName: { type: String, required: true },
-    bookingMinDuration: { type: Number, required: true },
-    bookingMinPrice: { type: Number, required: true },
-    sportsVenuePicture: { type: String, required: true },
-    hasParking: { type: Boolean, required: true },
-    hasShower: { type: Boolean, required: true },
-    hasBar: { type: Boolean, required: true },
-    district: { type: String },
-    city: { type: String },
-    address: { type: String },
-    latitude: { type: Number },
-    longitude: { type: Number },
+    status: {
+      type: String,
+      required: true,
+      enum: [SportsVenueStatus.active, SportsVenueStatus.inactive],
+    },
+    bookingMinDuration: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value > 0,
+        message: 'Booking minimum duration must be greater than 0 minutes',
+      },
+    },
+    bookingMinPrice: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value >= 0,
+        message: 'Booking minimum price must be equal or greater than 0',
+      },
+    },
   },
   {
     timestamps: true,

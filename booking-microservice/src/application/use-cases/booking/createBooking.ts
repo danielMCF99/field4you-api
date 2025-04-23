@@ -1,7 +1,13 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
+import { ZodError } from 'zod';
 import { bookingRepository, sportsVenueRepository } from '../../../app';
-import { Booking } from '../../../domain/entities/Booking';
+import {
+  CreateBookingDTO,
+  createBookingSchema,
+} from '../../../domain/dtos/create-booking.dto';
+import { Booking, BookingStatus } from '../../../domain/entities/Booking';
+import { SportsVenueStatus } from '../../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -14,47 +20,64 @@ export const createBooking = async (
 ): Promise<Booking | undefined> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
   if (!ownerId) {
-    throw new InternalServerErrorException('Internal Server Error');
+    throw new InternalServerErrorException('Missing user-id header');
+  }
+
+  let parsed: CreateBookingDTO;
+  try {
+    parsed = createBookingSchema.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const missingFields = error.errors.map((err) => err.path.join('.'));
+      throw new BadRequestException('Missing or invalid required fields', {
+        missingFields,
+      });
+    }
+
+    throw new InternalServerErrorException(
+      'Unexpected error parsing request data'
+    );
   }
 
   const {
     sportsVenueId,
     bookingType,
-    status,
     title,
     bookingStartDate,
     bookingEndDate,
     isPublic,
     invitedUsersIds,
-  } = req.body;
+  } = parsed;
 
-  if (!req) {
-    throw new BadRequestException('Request body is required');
+  // Check if Sports Venue Exists
+  const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
+  if (!sportsVenue) {
+    throw new NotFoundException('Sports Venue for given Booking not found');
   }
 
-  const requiredFields = {
-    sportsVenueId,
-    bookingType,
-    status,
-    title,
-    bookingStartDate,
-    bookingEndDate,
-    isPublic,
-  };
+  // Check Sports Venue status
+  if (sportsVenue.status != SportsVenueStatus.active) {
+    throw new BadRequestException(
+      'Unable to create booking. Chosen Sports Venue is inactive.'
+    );
+  }
 
-  const missingFields = Object.entries(requiredFields)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
+  const startDate = new Date(bookingStartDate);
+  const endDate = new Date(bookingEndDate);
+  const now = new Date();
+  if (startDate < now) {
+    throw new BadRequestException('Booking start date cannot be in the past');
+  }
 
-  if (missingFields.length > 0) {
-    throw new BadRequestException('Missing required fields', { missingFields });
+  if (endDate <= startDate) {
+    throw new BadRequestException('Booking end date must be after start date');
   }
 
   const hasConflicts = await checkBookingConflicts(
     bookingRepository,
     sportsVenueId,
-    new Date(bookingStartDate),
-    new Date(bookingEndDate),
+    startDate,
+    endDate,
     undefined
   );
 
@@ -62,34 +85,30 @@ export const createBooking = async (
     throw new ConflictException('Booking conflicts with existing bookings');
   }
 
+  // Calculate Booking price based on start and end dates
+  const diffInMinutes = Math.floor(
+    (endDate.getTime() - startDate.getTime()) / 60000
+  );
+
+  if (diffInMinutes < sportsVenue.bookingMinDuration) {
+    throw new BadRequestException(
+      'Booking duration must be higher to fulfill given Sports Venue Booking minimum time constraint'
+    );
+  }
+
   const booking = new Booking({
     sportsVenueId,
     bookingType,
-    status: 'active',
+    status: BookingStatus.active,
     title,
-    bookingStartDate,
-    bookingEndDate,
+    bookingStartDate: startDate,
+    bookingEndDate: endDate,
+    bookingPrice:
+      (diffInMinutes / sportsVenue.bookingMinDuration) *
+      sportsVenue.bookingMinPrice,
     isPublic,
     invitedUsersIds,
   });
-
-  const formatedStartDate = new Date(booking.bookingStartDate);
-  const formatedEndDate = new Date(booking.bookingEndDate);
-  const now = new Date();
-
-  if (formatedStartDate < now) {
-    throw new BadRequestException('Booking start date cannot be in the past');
-  }
-
-  if (formatedEndDate <= formatedStartDate) {
-    throw new BadRequestException('Booking end date must be after start date');
-  }
-
-  // Check if Sports Venue Exists
-  const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
-  if (!sportsVenue) {
-    throw new NotFoundException('Sports Venue for given Booking not found');
-  }
 
   booking.ownerId = ownerId;
   const session = await mongoose.startSession();
@@ -114,9 +133,18 @@ export const createBooking = async (
     session.endSession();
 
     return newBooking;
-  } catch (error) {
+  } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
+    console.log(error);
+
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException(error.message);
+    }
+
+    if (error instanceof BadRequestException) {
+      throw new BadRequestException(error.message);
+    }
 
     throw new InternalServerErrorException(
       'Internal server error creating booking'

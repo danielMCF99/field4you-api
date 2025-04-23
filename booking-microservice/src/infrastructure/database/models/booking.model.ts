@@ -1,14 +1,16 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { BookingStatus, BookingType } from '../../../domain/entities/Booking';
 
 interface IBookingDocument extends Document {
   _id: Types.ObjectId;
   ownerId: string;
   sportsVenueId: string;
-  bookingType: string;
-  status: string;
+  bookingType: BookingType;
+  status: BookingStatus;
   title: string;
   bookingStartDate: Date;
   bookingEndDate: Date;
+  bookingPrice: number;
   isPublic: boolean;
   invitedUsersIds: string[];
   createdAt?: Date;
@@ -19,15 +21,28 @@ const bookingSchema = new Schema<IBookingDocument>(
   {
     ownerId: { type: String, required: true },
     sportsVenueId: { type: String, required: true },
-    bookingType: { type: String, required: true, enum: ['regular', 'event'] },
+    bookingType: {
+      type: String,
+      required: true,
+      enum: [BookingType.event, BookingType.regular],
+    },
     status: {
       type: String,
-      default: 'active',
-      enum: ['active', 'cancelled', 'done'],
+      required: true,
+      default: BookingStatus.active,
+      enum: [BookingStatus.active, BookingStatus.cancelled, BookingStatus.done],
     },
     title: { type: String, minlength: 3, maxlength: 100, required: true },
     bookingStartDate: { type: Date, required: true },
     bookingEndDate: { type: Date, required: true },
+    bookingPrice: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value) => value >= 0,
+        message: 'Booking price must be equal or greater than 0',
+      },
+    },
     isPublic: { type: Boolean, default: false },
     invitedUsersIds: { type: [String], default: [] },
   },
