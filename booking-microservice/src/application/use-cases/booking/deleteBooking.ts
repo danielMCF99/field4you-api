@@ -1,10 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingRepository } from '../../../app';
+import { bookingInviteRepository, bookingRepository } from '../../../app';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 
 export const deleteBooking = async (req: Request): Promise<Boolean> => {
   const id = req.params.id.toString();
@@ -32,10 +33,32 @@ export const deleteBooking = async (req: Request): Promise<Boolean> => {
     throw new NotFoundException('Booking not found');
   }
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const isDeleted = await bookingRepository.delete(id);
+
+    if (booking.bookingStartDate > new Date()) {
+      const updatedInvitesByBookingIds =
+        await bookingInviteRepository.bulkUpdateStatusByBookingIds(
+          [booking.getId()],
+          BookingInviteStatus.rejected,
+          'Invites rejected due to user deletion',
+          session
+        );
+
+      console.log(
+        `${updatedInvitesByBookingIds.modifiedCount} invites rejected.`
+      );
+    }
+    await session.commitTransaction();
+    session.endSession();
+
     return isDeleted;
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     throw new InternalServerErrorException(
       'Internal server error deleting booking'
     );
