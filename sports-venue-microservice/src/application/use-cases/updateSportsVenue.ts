@@ -13,6 +13,7 @@ import { InternalServerErrorException } from '../../domain/exceptions/InternalSe
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { publishSportsVenueUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { parse } from 'dotenv';
 
 export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const id = req.params.id.toString();
@@ -64,7 +65,13 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   let updatedData;
   if (parsed.rating !== undefined) {
     const numberOfRatings = (sportsVenue.numberOfRatings || 0) + 1;
-    parsed.rating = (sportsVenue.rating || parsed.rating) + parsed.rating / 2;
+    console.log(`Number of existing ratings: ${numberOfRatings}`);
+    if (numberOfRatings != 0) {
+      parsed.rating = ((sportsVenue.rating || 0) + parsed.rating) / 2;
+      console.log(
+        `New rating: ${((sportsVenue.rating || 0) + parsed.rating) / 2}`
+      );
+    }
     updatedData = { ...parsed, numberOfRatings: numberOfRatings };
   } else {
     updatedData = { ...parsed };
