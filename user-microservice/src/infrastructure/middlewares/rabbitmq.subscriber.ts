@@ -42,11 +42,19 @@ export async function subscribeUserCreation() {
     console.log(`[*] Waiting for User registration events...`);
     channel.consume(queue.queue, async (msg) => {
       if (msg !== null) {
-        const payload = JSON.parse(msg.content.toString());
-        console.log('[x] Received User registration event:');
+        try {
+          const payload = JSON.parse(msg.content.toString());
+          console.log('[x] Received User registration event:');
 
-        await createUser(payload);
-        channel.ack(msg);
+          await createUser(payload);
+          channel.ack(msg);
+        } catch (error) {
+          console.error(
+            `Error processing message with routing key user.created:`,
+            error
+          );
+          channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior
+        }
       }
     });
   } catch (error) {
