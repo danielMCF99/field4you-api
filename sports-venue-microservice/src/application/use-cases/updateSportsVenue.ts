@@ -1,6 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
+import { ZodError } from 'zod';
 import { sportsVenueRepository } from '../../app';
+import {
+  UpdateSportsVenueDTO,
+  updateSportsVenueSchema,
+} from '../../domain/dtos/update-sports-venue.dto';
 import { SportsVenue } from '../../domain/entities/sports-venue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
@@ -30,8 +35,6 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
     );
   }
 
-  const updatedData = req.body;
-
   const sportsVenue = await sportsVenueRepository.findById(id);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue not found');
@@ -40,6 +43,31 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
     throw new UnauthorizedException(
       'User is not authorized to update this venue'
     );
+  }
+
+  let parsed: UpdateSportsVenueDTO;
+  try {
+    parsed = updateSportsVenueSchema.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const missingFields = error.errors.map((err) => err.path.join('.'));
+      throw new BadRequestException('Missing or invalid required fields', {
+        missingFields,
+      });
+    }
+
+    throw new InternalServerErrorException(
+      'Unexpected error parsing request data'
+    );
+  }
+
+  let updatedData;
+  if (parsed.rating !== undefined) {
+    const numberOfRatings = (sportsVenue.numberOfRatings || 0) + 1;
+    parsed.rating = (sportsVenue.rating || parsed.rating) + parsed.rating / 2;
+    updatedData = { ...parsed, numberOfRatings: numberOfRatings };
+  } else {
+    updatedData = { ...parsed };
   }
 
   try {

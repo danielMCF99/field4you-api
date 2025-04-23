@@ -31,6 +31,8 @@ export class SportsVenue {
   public hasShower: boolean;
   public hasBar: boolean;
   public location: Location;
+  public rating?: number;
+  public numberOfRatings?: number;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -47,6 +49,8 @@ export class SportsVenue {
     hasShower: boolean;
     hasBar: boolean;
     location: Location;
+    rating: number;
+    numberOfRatings: number;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -62,6 +66,8 @@ export class SportsVenue {
     this.hasShower = sportsVenue.hasShower;
     this.hasBar = sportsVenue.hasBar;
     this.location = sportsVenue.location;
+    this.rating = sportsVenue.rating;
+    this.numberOfRatings = sportsVenue.numberOfRatings;
     this.createdAt = sportsVenue.createdAt;
     this.updatedAt = sportsVenue.updatedAt;
   }
@@ -87,6 +93,8 @@ export class SportsVenue {
       hasShower: doc.hasShower,
       hasBar: doc.hasBar,
       location: doc.location,
+      rating: doc.rating,
+      numberOfRatings: doc.numberOfRatings,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });
