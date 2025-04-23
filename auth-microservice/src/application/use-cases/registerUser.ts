@@ -70,8 +70,7 @@ export const registerUser = async (req: Request): Promise<String> => {
   const token = await jwtHelper.generateToken(
     newUser.getId(),
     newUser.userType.toString(),
-    newUser.email,
-    newUser.status
+    newUser.email
   );
 
   // Send greeting email

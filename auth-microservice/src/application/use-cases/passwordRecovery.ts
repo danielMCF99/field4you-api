@@ -24,8 +24,7 @@ export const passwordRecovery = async (req: Request): Promise<string> => {
   const token = await jwtHelper.generateToken(
     user.getId(),
     user.email,
-    user.userType.toString(),
-    user.status
+    user.userType.toString()
   );
 
   const newResetPasswordToken = token;

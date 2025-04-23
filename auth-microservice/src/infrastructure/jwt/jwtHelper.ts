@@ -19,10 +19,9 @@ export class JwtHelperImplementation implements JwtHelper {
   async generateToken(
     userId: string,
     userType: string,
-    email: string,
-    status: string
+    email: string
   ): Promise<string> {
-    return jwt.sign({ userId, userType, email, status }, config.jwtSecret, {
+    return jwt.sign({ userId, userType, email }, config.jwtSecret, {
       expiresIn: '6h',
     });
   }
