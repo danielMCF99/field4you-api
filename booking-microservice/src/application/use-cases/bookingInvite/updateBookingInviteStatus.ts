@@ -6,6 +6,7 @@ import { BadRequestException } from '../../../domain/exceptions/BadRequestExcept
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 
 export const updateBookingInviteStatus = async (
   req: Request
@@ -57,6 +58,12 @@ export const updateBookingInviteStatus = async (
         'Authenticated user is not the owner of the invite'
       );
     }
+  }
+
+  if (bookingInvite.bookingEndDate < new Date()) {
+    throw new ForbiddenException(
+      'Unable to change status of booking invite associated to already completed booking'
+    );
   }
 
   try {
