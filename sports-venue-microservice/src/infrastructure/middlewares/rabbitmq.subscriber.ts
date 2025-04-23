@@ -57,7 +57,7 @@ export async function subscribeUserEvents() {
 
       switch (routingKey) {
         case 'user.deleted':
-          console.log('Received User deleted:');
+          console.log('Received User deleted');
           const deletedCount = await sportsVenueRepository.deleteManyByOwnerId(
             data.userId
           );
@@ -67,7 +67,7 @@ export async function subscribeUserEvents() {
           break;
 
         case 'user.status.updated':
-          console.log('Received User updated:');
+          console.log('Received User updated');
 
           const updatedCount =
             await sportsVenueRepository.findByOwnerIdAndUpdate(

@@ -40,7 +40,7 @@ export async function subscribeUserDeletion() {
     await channel.bindQueue(queue, 'user.events', 'user.deleted');
     await channel.bindQueue(queue, 'user.events', 'user.status.updated');
 
-    console.log(`[*] Waiting for User delete events...`);
+    console.log(`[*] Waiting for User events...`);
     channel.consume(queue, async (msg) => {
       if (!msg?.content) return;
 
@@ -49,11 +49,11 @@ export async function subscribeUserDeletion() {
 
       switch (routingKey) {
         case 'user.status.updated':
-          console.log('Received User status updated:');
+          console.log('Received User status updated');
           await updateUser(data.userId, data.updatedData);
           break;
         case 'user.deleted':
-          console.log('Received User deleted:');
+          console.log('Received User deleted');
           await deleteUser(data.userId);
           break;
         default:
