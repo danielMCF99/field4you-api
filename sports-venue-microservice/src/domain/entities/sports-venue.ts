@@ -49,8 +49,8 @@ export class SportsVenue {
     hasShower: boolean;
     hasBar: boolean;
     location: Location;
-    rating: number;
-    numberOfRatings: number;
+    rating?: number;
+    numberOfRatings?: number;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
