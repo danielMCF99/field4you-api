@@ -12,7 +12,7 @@ import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { publishSportsVenueUpdate } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishSportsVenueUpdate } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 import { parse } from 'dotenv';
 
 export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {

@@ -3,7 +3,7 @@ import { Request } from 'express';
 import { jwtHelper, mailer, userRepository } from '../../app';
 import { User, UserStatus } from '../../domain/entities/User';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { publishUserCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 import {
   RegisterUserDTO,
   registerUserSchema,

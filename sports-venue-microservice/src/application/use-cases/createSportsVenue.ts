@@ -12,7 +12,7 @@ import {
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { publishSportsVenueCreation } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishSportsVenueCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;

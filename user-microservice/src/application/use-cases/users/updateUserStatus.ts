@@ -5,7 +5,7 @@ import { BadRequestException } from '../../../domain/exceptions/BadRequestExcept
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
-import { publishUserStatusUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishUserStatusUpdate } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const updateUserStatus = async (req: Request): Promise<User> => {
   const userType = req.headers['x-user-type'] as string | undefined;

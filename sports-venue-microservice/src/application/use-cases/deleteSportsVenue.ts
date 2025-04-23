@@ -6,7 +6,7 @@ import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { publishSportsVenueDeletion } from '../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishSportsVenueDeletion } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();

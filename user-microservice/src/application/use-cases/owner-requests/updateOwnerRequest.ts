@@ -7,7 +7,7 @@ import { ForbiddenException } from '../../../domain/exceptions/ForbiddenExceptio
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
-import { publishUserUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishUserUpdate } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const updateOwnerRequest = async (req: Request) => {
   const session = await mongoose.startSession();

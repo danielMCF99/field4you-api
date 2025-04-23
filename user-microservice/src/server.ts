@@ -2,7 +2,7 @@
 import config from './config/env';
 import { connectToDB } from './infrastructure/database/database';
 import app from './app';
-import { subscribeUserCreation } from './infrastructure/middlewares/rabbitmq.subscriber';
+import { subscribeUserCreation } from './infrastructure/rabbitmq/rabbitmq.subscriber';
 
 const startServer = async () => {
   try {

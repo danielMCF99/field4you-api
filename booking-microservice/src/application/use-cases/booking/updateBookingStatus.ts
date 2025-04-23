@@ -7,6 +7,8 @@ import { ConflictException } from '../../../domain/exceptions/ConflictException'
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { checkBookingConflicts } from './checkBookingConflicts';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { validateBookingStatusTransition } from '../../../infrastructure/utils/bookingUtils';
 
 export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -58,6 +60,20 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
 
   if (!booking) {
     throw new NotFoundException('Booking not found');
+  }
+
+  if (booking.bookingEndDate < new Date()) {
+    throw new UnauthorizedException(
+      'Not allowed to update booking that is done'
+    );
+  }
+
+  const isValidStatusTransition = validateBookingStatusTransition(
+    booking.status,
+    newStatus
+  );
+  if (!isValidStatusTransition) {
+    throw new BadRequestException('Invalid status transition');
   }
 
   // Check for potential conflicts when activating a Booking

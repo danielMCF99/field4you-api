@@ -1,7 +1,7 @@
 import app from './app';
 import config from './config/env';
 import { connectDB } from './infrastructure/database/database';
-import { subscribeUserEvents } from './infrastructure/middlewares/rabbitmq.subscriber';
+import { subscribeUserEvents } from './infrastructure/rabbitmq/rabbitmq.subscriber';
 
 const startServer = async () => {
   try {
