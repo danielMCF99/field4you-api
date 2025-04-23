@@ -1,3 +1,4 @@
+import { ClientSession } from 'mongoose';
 import { SportsVenue } from '../entities/SportsVenue';
 
 export interface ISportsVenueRepository {
@@ -15,4 +16,9 @@ export interface ISportsVenueRepository {
   findAll(ownerId?: string): Promise<SportsVenue[]>;
 
   deleteManyByOwnerId(ownerId: string): Promise<number>;
+
+  bulkDeleteByIds(
+    venueIds: string[],
+    session?: ClientSession
+  ): Promise<{ deletedCount?: number }>;
 }

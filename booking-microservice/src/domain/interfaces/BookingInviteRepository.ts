@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import { BookingInviteFilterParams } from '../dtos/booking-invite-filter.dto';
-import { BookingInvite } from '../entities/BookingInvite';
+import { BookingInvite, BookingInviteStatus } from '../entities/BookingInvite';
 
 export interface IBookingInviteRepository {
   create(bookingInvite: BookingInvite): Promise<BookingInvite>;
@@ -34,4 +34,18 @@ export interface IBookingInviteRepository {
     status: string,
     comments?: string
   ): Promise<BookingInvite | undefined>;
+
+  bulkUpdateStatusByBookingIds(
+    bookingIds: string[],
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }>;
+
+  bulkUpdateStatusByUserId(
+    userId: string,
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }>;
 }

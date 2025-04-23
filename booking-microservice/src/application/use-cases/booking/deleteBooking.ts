@@ -4,6 +4,7 @@ import { bookingRepository } from '../../../app';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 
 export const deleteBooking = async (req: Request): Promise<Boolean> => {
   const id = req.params.id.toString();
@@ -20,13 +21,15 @@ export const deleteBooking = async (req: Request): Promise<Boolean> => {
   }
 
   if (userType != 'admin') {
-    // Check if booking belongs to the user
-    const booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
-    if (!booking) {
-      throw new NotFoundException(
-        'Booking with given ID not found for authenticated user'
-      );
-    }
+    throw new ForbiddenException(
+      'Only admin users are allowed to delete bookings'
+    );
+  }
+
+  // Check if booking belongs to the user
+  const booking = await bookingRepository.findById(id);
+  if (!booking) {
+    throw new NotFoundException('Booking not found');
   }
 
   try {

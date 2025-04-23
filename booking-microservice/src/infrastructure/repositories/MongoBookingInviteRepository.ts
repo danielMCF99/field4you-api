@@ -1,6 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession, Types } from 'mongoose';
 import { BookingInviteFilterParams } from '../../domain/dtos/booking-invite-filter.dto';
-import { BookingInvite } from '../../domain/entities/BookingInvite';
+import {
+  BookingInvite,
+  BookingInviteStatus,
+} from '../../domain/entities/BookingInvite';
 import { IBookingInviteRepository } from '../../domain/interfaces/BookingInviteRepository';
 import { BookingInviteModel } from '../database/models/booking-invite.model';
 
@@ -144,5 +147,49 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
     return updatedBookingInvite
       ? BookingInvite.fromMongooseDocument(updatedBookingInvite)
       : undefined;
+  }
+
+  async bulkUpdateStatusByBookingIds(
+    bookingIds: string[],
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }> {
+    return BookingInviteModel.updateMany(
+      {
+        bookingId: { $in: bookingIds.map((id) => new Types.ObjectId(id)) },
+      },
+      {
+        $set: {
+          status,
+          comments: reason,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
+  }
+
+  async bulkUpdateStatusByUserId(
+    userId: string,
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }> {
+    return BookingInviteModel.updateMany(
+      {
+        userId: new Types.ObjectId(userId),
+      },
+      {
+        $set: {
+          status,
+          cancelReason: reason,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
   }
 }

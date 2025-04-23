@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession, Types } from 'mongoose';
 import { SportsVenue } from '../../domain/entities/SportsVenue';
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venue.model';
@@ -74,5 +74,17 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     const result = await SportsVenueModel.deleteMany({ ownerId: ownerId });
     console.log(result); // { acknowledged: true, deletedCount: 1 }
     return result.deletedCount;
+  }
+
+  async bulkDeleteByIds(
+    venueIds: string[],
+    session?: ClientSession
+  ): Promise<{ deletedCount?: number }> {
+    return SportsVenueModel.deleteMany(
+      {
+        _id: { $in: venueIds.map((id) => new Types.ObjectId(id)) },
+      },
+      { session: session }
+    ).exec();
   }
 }

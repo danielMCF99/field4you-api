@@ -2,11 +2,10 @@ import { Request } from 'express';
 import mongoose from 'mongoose';
 import { userRepository } from '../../../app';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { publishUserDeletion } from '../../../infrastructure/middlewares/rabbitmq.publisher';
-import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 
 export const deleteUser = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();

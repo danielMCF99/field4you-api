@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession, Types } from 'mongoose';
 import { BookingFilterParams } from '../../domain/dtos/booking-filter.dto';
 import { Booking, BookingStatus } from '../../domain/entities/Booking';
 import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
@@ -164,5 +164,55 @@ export class MongoBookingRepository implements IBookingRepository {
 
     const conflictingBookings = await BookingModel.find(query);
     return conflictingBookings.map((doc) => Booking.fromMongooseDocument(doc));
+  }
+
+  async findAllActiveByVenueIds(venueIds: string[]): Promise<Booking[]> {
+    const results = await BookingModel.find({
+      sportsVenueId: { $in: venueIds.map((id) => new Types.ObjectId(id)) },
+      status: BookingStatus.active,
+      bookingStartDate: { $gte: new Date() },
+    }).exec();
+
+    return results.map(Booking.fromMongooseDocument);
+  }
+
+  async bulkStatusUpdateByIds(
+    bookingIds: string[],
+    session?: ClientSession
+  ): Promise<{ modifiedCount?: number }> {
+    return BookingModel.updateMany(
+      {
+        _id: { $in: bookingIds.map((id) => new Types.ObjectId(id)) },
+      },
+      {
+        $set: {
+          status: BookingStatus.cancelled,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
+  }
+
+  async cancelByUserId(
+    userId: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }> {
+    return BookingModel.updateMany(
+      {
+        ownerId: new Types.ObjectId(userId),
+        status: BookingStatus.active,
+        bookingStartDate: { $gte: new Date() },
+      },
+      {
+        $set: {
+          status: BookingStatus.cancelled,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
   }
 }

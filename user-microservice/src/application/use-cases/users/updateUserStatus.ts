@@ -39,7 +39,7 @@ export const updateUserStatus = async (req: Request): Promise<User> => {
   }
 
   try {
-    const updatedUser = await userRepository.update(userId, {
+    const updatedUser = await userRepository.update(user.getId(), {
       ...user,
       ...{ status: status },
     });
