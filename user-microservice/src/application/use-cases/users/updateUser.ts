@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { userRepository } from '../../../app';
-import { User, UserType } from '../../../domain/entities/User';
+import { User } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
