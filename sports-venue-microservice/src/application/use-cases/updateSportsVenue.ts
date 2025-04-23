@@ -59,6 +59,7 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
 
     return updatedSportsVenue;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating sports venue'
     );

@@ -43,7 +43,7 @@ export async function subscribeUserCreation() {
     channel.consume(queue.queue, async (msg) => {
       if (msg !== null) {
         const payload = JSON.parse(msg.content.toString());
-        console.log('[x] Received User registration event:', payload);
+        console.log('[x] Received User registration event:');
 
         await createUser(payload);
         channel.ack(msg);

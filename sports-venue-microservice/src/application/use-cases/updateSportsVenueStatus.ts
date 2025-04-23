@@ -58,6 +58,7 @@ export const updateSportsVenueStatus = async (
     });
     return updatedSportsVenue;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating sports venue status'
     );

@@ -9,6 +9,7 @@ export const createUser = async (user: any): Promise<User | undefined> => {
     const newUser = await userRepository.create(user);
     return newUser;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException('Error creating user using queue');
   }
 };

@@ -59,6 +59,8 @@ export const deleteBooking = async (req: Request): Promise<Boolean> => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error deleting booking'
     );

@@ -36,6 +36,7 @@ export const deleteUser = async (req: Request): Promise<boolean> => {
 
     return deletedUser;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error deleting user'
     );

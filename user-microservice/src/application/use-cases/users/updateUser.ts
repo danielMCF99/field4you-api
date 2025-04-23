@@ -72,6 +72,7 @@ export const updateUser = async (req: Request): Promise<User> => {
 
     return updatedUser;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error when updating the user'
     );

@@ -96,6 +96,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
 
     return newSportsVenue;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error creating sports venue'
     );

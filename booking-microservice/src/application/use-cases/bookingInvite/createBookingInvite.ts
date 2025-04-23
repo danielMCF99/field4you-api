@@ -58,6 +58,7 @@ export const createBookingInvite = async (
 
     return true;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error creating booking invite'
     );

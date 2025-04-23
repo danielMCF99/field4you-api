@@ -55,6 +55,7 @@ export const updateUserStatus = async (req: Request): Promise<User> => {
 
     return updatedUser;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating user status'
     );

@@ -64,19 +64,19 @@ export async function subscribeUserEvents() {
 
       switch (routingKey) {
         case 'user.created':
-          console.log('Received User created:', data);
+          console.log('Received User created:');
           await createUser(data);
           break;
         case 'user.updated':
-          console.log('Received User updated:', data);
+          console.log('Received User updated:');
           await updateUser(data.userId, data.updatedData);
           break;
         case 'user.status.updated':
-          console.log('Received User status updated:', data);
+          console.log('Received User status updated:');
           await updateUser(data.userId, data.updatedData);
           break;
         case 'user.deleted':
-          console.log('Received User deleted:', data);
+          console.log('Received User deleted:');
           await deleteUser(data.userId);
           break;
         default:
@@ -133,15 +133,15 @@ export async function subscribeSportsVenueEvents() {
 
       switch (routingKey) {
         case 'sportsvenue.created':
-          console.log('Received Sport Venue created:', data);
+          console.log('Received Sport Venue created:');
           await createSportsVenue(data);
           break;
         case 'sportsvenue.updated':
-          console.log('Received Sport Venue updated:', data);
+          console.log('Received Sport Venue updated:');
           await updateSportsVenue(data.sportsVenueId, data);
           break;
         case 'sportsvenue.deleted':
-          console.log('Received Sport Venue deleted:', data);
+          console.log('Received Sport Venue deleted:');
           await deleteSportsVenue(data.sportsVenueId);
           break;
         default:

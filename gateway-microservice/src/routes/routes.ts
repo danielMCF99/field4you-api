@@ -17,7 +17,6 @@ router.all(
     const { serviceName } = req.params as {
       serviceName: keyof typeof serviceConfig;
     };
-    console.log(req.params);
     const path = req.params['path']; // Capture the remaining path
     const method = req.method;
     const data = req.body;

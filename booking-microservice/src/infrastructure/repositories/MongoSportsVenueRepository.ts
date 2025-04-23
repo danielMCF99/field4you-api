@@ -72,7 +72,6 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
 
   async deleteManyByOwnerId(ownerId: string): Promise<number> {
     const result = await SportsVenueModel.deleteMany({ ownerId: ownerId });
-    console.log(result); // { acknowledged: true, deletedCount: 1 }
     return result.deletedCount;
   }
 

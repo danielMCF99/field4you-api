@@ -49,6 +49,7 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
 
     return true;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error deleting sports venue'
     );

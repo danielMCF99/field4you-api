@@ -71,6 +71,7 @@ export const updateBookingInviteStatus = async (
 
     return updatedBookingInvite;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating booking invite'
     );

@@ -49,11 +49,11 @@ export async function subscribeUserDeletion() {
 
       switch (routingKey) {
         case 'user.status.updated':
-          console.log('Received User status updated:', data);
+          console.log('Received User status updated:');
           await updateUser(data.userId, data.updatedData);
           break;
         case 'user.deleted':
-          console.log('Received User deleted:', data);
+          console.log('Received User deleted:');
           await deleteUser(data.userId);
           break;
         default:

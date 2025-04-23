@@ -83,6 +83,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
 
     return updatedBooking;
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating booking'
     );
