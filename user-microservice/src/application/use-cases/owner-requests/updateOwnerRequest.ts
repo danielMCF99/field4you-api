@@ -1,13 +1,13 @@
-import mongoose from 'mongoose';
 import { Request } from 'express';
-import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import mongoose from 'mongoose';
 import { ownerRequestRepository, userRepository } from '../../../app';
-import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
-import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
-import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
-import { publishUserUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
 import { UserType } from '../../../domain/entities/User';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { publishUserUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
 
 export const updateOwnerRequest = async (req: Request) => {
   const session = await mongoose.startSession();
@@ -38,14 +38,17 @@ export const updateOwnerRequest = async (req: Request) => {
   if (!ownerRequest) {
     throw new NotFoundException('Owner Request not found');
   }
+
   if (ownerRequest.status !== 'pending') {
     throw new BadRequestException('Only pending owner requests can be updated');
   }
+
   if (userType !== 'admin') {
     throw new ForbiddenException(
       'Only admins can update the status of owner requests'
     );
   }
+
   try {
     const updatedOwnerRequest = await ownerRequestRepository.updateStatus(
       id,
@@ -67,7 +70,7 @@ export const updateOwnerRequest = async (req: Request) => {
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-
+    console.log(error);
     throw new InternalServerErrorException('Internal Server Error');
   }
 };
