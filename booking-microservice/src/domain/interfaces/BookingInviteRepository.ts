@@ -7,10 +7,6 @@ export interface IBookingInviteRepository {
 
   findAll(params?: BookingInviteFilterParams): Promise<BookingInvite[]>;
 
-  findAllByBookingId(bookingId: string): Promise<BookingInvite[] | []>;
-
-  findAllByUserId(userId: string): Promise<BookingInvite[] | []>;
-
   update(
     bookingId: string,
     userId: string,

@@ -1,14 +1,16 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingRepository } from '../../../app';
+import { bookingInviteRepository, bookingRepository } from '../../../app';
 import { Booking, BookingStatus } from '../../../domain/entities/Booking';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { checkBookingConflicts } from './checkBookingConflicts';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
+import { publishFinishedBooking } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 import { validateBookingStatusTransition } from '../../../infrastructure/utils/bookingUtils';
+import { checkBookingConflicts } from './checkBookingConflicts';
 
 export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -95,6 +97,22 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     const updatedBooking = await bookingRepository.updateStatus(id, newStatus);
     if (!updatedBooking) {
       throw new InternalServerErrorException('Error updating booking');
+    }
+
+    if (newStatus == BookingStatus.done) {
+      const invitedUsers = await bookingInviteRepository.findAll({
+        status: BookingInviteStatus.accepted,
+        bookingId: booking.getId(),
+      });
+      const invitedUserIds = invitedUsers.map((elem) => elem.getUserId());
+      console.log(invitedUserIds);
+
+      await publishFinishedBooking({
+        bookingId: booking.getId(),
+        sportsVenueId: booking.sportsVenueId,
+        ownerId: booking.getOwnerId(),
+        invitedUserIds: invitedUserIds,
+      });
     }
 
     return updatedBooking;

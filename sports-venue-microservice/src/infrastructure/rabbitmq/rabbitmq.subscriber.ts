@@ -1,6 +1,7 @@
 import amqp from 'amqplib';
-import { sportsVenueRepository } from '../../app';
+import { bookingRepository, sportsVenueRepository } from '../../app';
 import config from '../../config/env';
+import { BookingModel } from '../database/models/booking-Model';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -79,6 +80,58 @@ export async function subscribeUserEvents() {
               console.log('User with given ID had no sports venues to update');
             }
 
+            break;
+
+          default:
+            console.warn(`Unknown routing key: ${routingKey}`);
+        }
+
+        channel.ack(msg);
+      } catch (error) {
+        console.error(
+          `Error processing message with routing key ${routingKey}:`,
+          error
+        );
+        channel.nack(msg, false, true);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/**
+ *
+ * Booking related queues
+ *
+ */
+export async function subscribeBookingEvents() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    await channel.assertExchange('booking.events', 'topic', {
+      durable: true,
+    });
+
+    const queue = await channel.assertQueue('booking_sports_venue_events', {
+      durable: true,
+    });
+
+    await channel.bindQueue(queue.queue, 'booking.events', 'booking.finished');
+
+    console.log(`[*] Waiting for Booking events...`);
+    channel.consume(queue.queue, async (msg: any) => {
+      if (!msg?.content) return;
+
+      const routingKey = msg.fields.routingKey;
+      const data = JSON.parse(msg.content.toString());
+
+      try {
+        switch (routingKey) {
+          case 'booking.finished':
+            console.log('Received finished booking');
+            await bookingRepository.create(data);
             break;
 
           default:

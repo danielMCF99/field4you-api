@@ -26,14 +26,6 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
     return BookingInvite.fromMongooseDocument(newBookingInvite);
   }
 
-  async findAllByBookingId(bookingId: string): Promise<BookingInvite[] | []> {
-    throw new Error('Method not implemented.');
-  }
-
-  async findAllByUserId(userId: string): Promise<BookingInvite[] | []> {
-    throw new Error('Method not implemented.');
-  }
-
   async update(
     bookingId: string,
     userId: string,
