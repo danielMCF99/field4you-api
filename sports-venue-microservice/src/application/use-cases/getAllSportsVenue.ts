@@ -1,5 +1,5 @@
 import { sportsVenueRepository } from '../../app';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import { SportsVenue } from '../../domain/entities/SportsVenue';
 import { SportsVenueFilterParams } from '../../domain/dtos/sports-venue-filter.dto';
 
 export const getAllSportsVenue = async (query: any): Promise<SportsVenue[]> => {

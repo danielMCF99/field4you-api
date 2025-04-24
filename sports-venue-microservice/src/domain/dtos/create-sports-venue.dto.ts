@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SportsVenueType } from '../entities/sports-venue';
+import { SportsVenueType } from '../entities/SportsVenue';
 
 export const createSportsVenueSchema = z.object({
   sportsVenueType: z.nativeEnum(SportsVenueType),

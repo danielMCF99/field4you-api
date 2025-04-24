@@ -29,10 +29,7 @@ async function publishToExchange(routingKey: string, payload: any) {
 }
 
 export async function publishFinishedBooking(finishedBookingPayload: {
-  bookingId: string;
-  sportsVenueId: string;
-  ownerId: string;
-  invitedUserIds: string[];
+  invitedUserIds: any[];
 }) {
   await publishToExchange('booking.finished', finishedBookingPayload);
 }

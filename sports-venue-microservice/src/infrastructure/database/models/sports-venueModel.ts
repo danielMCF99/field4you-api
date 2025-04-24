@@ -2,7 +2,7 @@ import { Document, Schema, Types, model } from 'mongoose';
 import {
   SportsVenueStatus,
   SportsVenueType,
-} from '../../../domain/entities/sports-venue';
+} from '../../../domain/entities/SportsVenue';
 
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;

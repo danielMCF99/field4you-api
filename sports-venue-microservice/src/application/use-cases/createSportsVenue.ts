@@ -8,7 +8,7 @@ import {
 import {
   SportsVenue,
   SportsVenueStatus,
-} from '../../domain/entities/sports-venue';
+} from '../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';

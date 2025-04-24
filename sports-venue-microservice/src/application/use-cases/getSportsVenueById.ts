@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { sportsVenueRepository } from '../../app';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import { SportsVenue } from '../../domain/entities/SportsVenue';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
 export const getSportsVenueById = async (

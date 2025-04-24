@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { sportsVenueRepository } from '../../app';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import { SportsVenue } from '../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';

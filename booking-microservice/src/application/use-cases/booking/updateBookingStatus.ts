@@ -104,14 +104,21 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
         status: BookingInviteStatus.accepted,
         bookingId: booking.getId(),
       });
-      const invitedUserIds = invitedUsers.map((elem) => elem.getUserId());
-      console.log(invitedUserIds);
 
+      const invitedUsersPayload = [];
+      for (const invite of invitedUsers) {
+        invitedUsersPayload.push({
+          userId: invite.getUserId(),
+          bookingId: invite.getBookingId(),
+          sportsVenueId: booking.sportsVenueId,
+        });
+      }
+
+      console.log(
+        `Invited users payload for sports venue service: ${invitedUsersPayload}`
+      );
       await publishFinishedBooking({
-        bookingId: booking.getId(),
-        sportsVenueId: booking.sportsVenueId,
-        ownerId: booking.getOwnerId(),
-        invitedUserIds: invitedUserIds,
+        invitedUserIds: invitedUsersPayload,
       });
     }
 

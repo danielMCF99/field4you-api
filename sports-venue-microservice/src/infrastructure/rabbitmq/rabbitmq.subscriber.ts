@@ -1,7 +1,6 @@
 import amqp from 'amqplib';
-import { bookingRepository, sportsVenueRepository } from '../../app';
+import { bookingInviteRepository, sportsVenueRepository } from '../../app';
 import config from '../../config/env';
-import { BookingModel } from '../database/models/booking-Model';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -130,8 +129,8 @@ export async function subscribeBookingEvents() {
       try {
         switch (routingKey) {
           case 'booking.finished':
-            console.log('Received finished booking');
-            await bookingRepository.create(data);
+            console.log('Received finished booking invites');
+            await bookingInviteRepository.insertMany(data.invitedUserIds);
             break;
 
           default:

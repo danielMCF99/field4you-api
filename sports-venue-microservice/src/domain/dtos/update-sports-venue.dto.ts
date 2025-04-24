@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SportsVenueType } from '../entities/sports-venue';
+import { SportsVenueType } from '../entities/SportsVenue';
 
 export const updateSportsVenueSchema = z
   .object({
@@ -18,7 +18,6 @@ export const updateSportsVenueSchema = z
     district: z.string().min(1, 'District is required'),
     city: z.string().min(1, 'City is required'),
     address: z.string().min(1, 'Address is required'),
-    rating: z.number().min(1).max(5),
   })
   .partial();
 

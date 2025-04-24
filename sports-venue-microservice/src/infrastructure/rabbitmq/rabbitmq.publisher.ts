@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import { SportsVenue } from '../../domain/entities/SportsVenue';
 
 const EXCHANGE_NAME = 'sportsvenue.events';
 const EXCHANGE_TYPE = 'topic';
