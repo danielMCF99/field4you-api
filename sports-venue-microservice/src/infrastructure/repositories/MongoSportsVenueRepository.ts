@@ -22,6 +22,18 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return SportsVenue.fromMongooseDocument(newSportsVenue);
   }
 
+  async updateSportsVenueImage(
+    id: string,
+    imageData: Partial<SportsVenue>
+  ): Promise<SportsVenue | undefined> {
+    const updatedSportsVenue = await SportsVenueModel.findByIdAndUpdate(id, imageData, {
+      new: true,
+      runValidators: true,
+    });
+    
+    return updatedSportsVenue ? SportsVenue.fromMongooseDocument(updatedSportsVenue) : undefined;
+  }
+
   async update(
     id: string,
     updatedData: Partial<SportsVenue>

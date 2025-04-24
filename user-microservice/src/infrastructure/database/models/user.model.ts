@@ -18,7 +18,7 @@ interface IUserDocument extends Document {
   };
   birthDate: string;
   registerDate: Date;
-  imageName?: string;
+  fileName?: string;
   imageURL?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -51,7 +51,7 @@ const userSchema = new Schema<IUserDocument>(
     },
     birthDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
     registerDate: { type: Date, required: true },
-    imageName: { type: String, required: false },
+    fileName: { type: String, required: false },
     imageURL: { type: String, required: false },
   },
   {

@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import multer from 'multer';
 import swaggerDocument from '../../docs/swagger/swagger.json';
 import {
   createSportsVenueController,
@@ -7,7 +8,11 @@ import {
   getSportsVenueByIdController,
   updateSportsVenueController,
   updateSportsVenueStatusController,
+  updateSportsVenueImageController
 } from '../controllers/sports-venueController';
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const router = Router();
 
@@ -21,6 +26,8 @@ router.put('/sports-venues/:id', updateSportsVenueController);
 router.get('/sports-venues', getAllSportsVenueController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
+router.patch('/sports-venues/:id/image', upload.array('image'), updateSportsVenueImageController);
+
 //router.post("/sports-venue/query", query-sports-venue);
 //router.post("/sports-venue/:id/schedule", create-query-sports-venue);
 //router.put("/sports-venue/:id/schedule/:id", update-sports-venue-schedule);

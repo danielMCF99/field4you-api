@@ -10,6 +10,17 @@ if (!mongoUri) {
   );
 }
 
+if(!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  throw new Error(
+    'The environment variable FIREBASE_SERVICE_ACCOUNT is required but is not defined.'
+  );
+}
+const jsonString = Buffer.from(
+  process.env.FIREBASE_SERVICE_ACCOUNT,
+  'base64'
+).toString('utf8');
+const firebaseConfig = JSON.parse(jsonString);
+
 // Configure RabbitMQ
 const rabbitmqURL = process.env.RABBITMQ_URL;
 if (!rabbitmqURL) {
@@ -23,4 +34,5 @@ export default {
   port: process.env.PORT || 3000,
   jwtSecret: process.env.JWT_SECRET || 'secret',
   rabbitmqURL,
+  firebaseConfig,
 };
