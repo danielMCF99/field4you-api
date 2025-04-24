@@ -18,7 +18,7 @@ export class Location {
   public longitude?: number;
 }
 
-export class SportsVenueImages{
+export class SportsVenueImage{
   public fileName?: string;
   public imageURL?: string;
 }
@@ -31,7 +31,7 @@ export class SportsVenue {
   public sportsVenueName: string;
   public bookingMinDuration: number;
   public bookingMinPrice: number;
-  public sportsVenuePictures: SportsVenueImages[];
+  public sportsVenuePictures: SportsVenueImage[];
   public hasParking: boolean;
   public hasShower: boolean;
   public hasBar: boolean;
@@ -47,7 +47,7 @@ export class SportsVenue {
     sportsVenueName: string;
     bookingMinDuration: number;
     bookingMinPrice: number;
-    sportsVenuePictures?: SportsVenueImages[];
+    sportsVenuePictures?: SportsVenueImage[];
     hasParking: boolean;
     hasShower: boolean;
     hasBar: boolean;
