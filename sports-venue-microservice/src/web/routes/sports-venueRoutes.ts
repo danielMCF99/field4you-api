@@ -4,6 +4,7 @@ import swaggerDocument from '../../docs/swagger/swagger.json';
 import {
   createSportsVenueController,
   deleteSportsVenueController,
+  deleteSportsVenueImageController,
   getAllSportsVenueController,
   getSportsVenueByIdController,
   updateSportsVenueController,
@@ -27,6 +28,7 @@ router.get('/sports-venues', getAllSportsVenueController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
 router.patch('/sports-venues/:id/image', upload.array('image'), updateSportsVenueImageController);
+router.delete('/sports-venues/:id/image/:imageId', deleteSportsVenueImageController);
 
 //router.post("/sports-venue/query", query-sports-venue);
 //router.post("/sports-venue/:id/schedule", create-query-sports-venue);

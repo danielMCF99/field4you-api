@@ -55,6 +55,16 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       : null;
   }
 
+  async deleteImage(id: string, imageId: string): Promise<SportsVenue | null> {
+    const deletedSportsVenueImage = await SportsVenueModel.findByIdAndUpdate(
+      id,
+      { $pull: { sportsVenuePictures: { _id: imageId } } },
+      { new: true }
+    );
+    
+    return deletedSportsVenueImage ? SportsVenue.fromMongooseDocument(deletedSportsVenueImage) : null;
+  }
+
   async findById(id: string): Promise<SportsVenue | null> {
     const sportsVenue = await SportsVenueModel.findById(id).lean();
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
