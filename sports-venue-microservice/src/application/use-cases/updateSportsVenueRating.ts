@@ -89,6 +89,13 @@ export const updateSportsVenueRating = async (
     if (!updatedSportsVenue) {
       throw new InternalServerErrorException('Failed to update Sports Venue');
     }
+
+    bookingInviteRepository.deleteByUserIdAndBookingIdAndSportsVenueId(
+      userId,
+      parsed.bookingId,
+      id
+    );
+
     publishSportsVenueUpdate({
       sportsVenueId: id,
       ownerId: sportsVenue.ownerId,

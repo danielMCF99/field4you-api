@@ -10,4 +10,10 @@ export interface IBookingInviteRepository {
     sportsVenueId: string,
     userId: string
   ): Promise<Boolean>;
+
+  deleteByUserIdAndBookingIdAndSportsVenueId(
+    userId: string,
+    bookingId: string,
+    sportsVenueId: string
+  ): Promise<BookingInvite | null>;
 }

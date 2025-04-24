@@ -75,4 +75,20 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
 
     return true;
   }
+
+  async deleteByUserIdAndBookingIdAndSportsVenueId(
+    userId: string,
+    bookingId: string,
+    sportsVenueId: string
+  ): Promise<BookingInvite | null> {
+    const deletedInvite = await BookingInviteModel.findOneAndDelete({
+      userId: userId,
+      bookingId: bookingId,
+      sportsVenueId: sportsVenueId,
+    });
+
+    return deletedInvite
+      ? BookingInvite.fromMongooseDocument(deletedInvite)
+      : null;
+  }
 }

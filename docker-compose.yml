@@ -1,12 +1,12 @@
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: field4you-db
-    restart: always
-    ports:
-      - '27017:27017'
-    volumes:
-      - mongodb_data:/data/db
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: mongodb
+  #   restart: always
+  #   ports:
+  #     - '27017:27017'
+  #   volumes:
+  #     - mongodb_data:/data/db
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -18,8 +18,8 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
 
   gateway-microservice:
     build:
@@ -34,79 +34,50 @@ services:
       - FEED_SERVICE_URL=http://feed-microservice:3005/posts
     depends_on:
       - rabbitmq
+      - auth-microservice
+      - user-microservice
+      - booking-microservice
+      - sports-venue-microservice
+      - feed-microservice
 
   auth-microservice:
     build:
       context: ./auth-microservice
     ports:
       - 3001:3001
-    environment:
-      - PORT=3001
-      #- MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/auth-microservice?retryWrites=true&w=majority&appName=field4you-cluster
-      - MONGODB_URI=mongodb://mongodb:27017/auth-microservice
-      - JWT_SECRET=field4you2024
-      - MAIL_ACCOUNT=field4youapi@gmail.com
-      - MAIL_PASSWORD=smrazgjluryzsbgp
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
-    depends_on:
-      - gateway-microservice
-
+    env_file:
+      - ./auth-microservice/.env
   user-microservice:
     build:
       context: ./user-microservice
     ports:
       - 3002:3002
-    environment:
-      - PORT=3002
-      #- MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/user-microservice?retryWrites=true&w=majority&appName=field4you-cluster
-      - MONGODB_URI=mongodb://mongodb:27017/user-microservice
-      - JWT_SECRET=field4you2024
-      - FIREBASE_SERVICE_ACCOUNT='eyJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsInByb2plY3RfaWQiOiAicGxhdC1jZW50cm8tbmV1cm9zZW5zb3JpYWwiLCJwcml2YXRlX2tleV9pZCI6ICIyY2MwN2RjYzlmNDY3YzVjZWM5MmM2N2I3N2ViODdiNTk0YzliNGU0IiwicHJpdmF0ZV9rZXkiOiAiLS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tXG5NSUlFdndJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLa3dnZ1NsQWdFQUFvSUJBUURNY3EzN21qeS9ub255XG5MbGhaa1ZzU2VLeDlCWFRQM2FxdVlRV09qY0VYOStkaHR0ZC9LY1lmWFBaeWpVOG8yNzRDL2JFU2hMd1d5cW9HXG5SVm95VmU0c25pUkd1S1R1a1V6NWZlM0JxbU5jUG1LQmo2VkpBNnUyaER4cGVFSWpsL3NDazhFSEJuZVJEZjBaXG5OeE1vRFlDWkgrcTlKaGd3UEZWSG5RUUxtWU44eDZiSXpTdEY5Sml5anlnU2MrYmxWUUZ0N1cxVy9wQUtyUXhpXG5sazhQcHpTUERlZ3JnRWt6R0d3OXk2U2MyUjgwb2JhZW9nVlVaSEJwTGI4NytEbXVHcmxpWjZ2Z3prRS8wbUF4XG55TFFqbFZkY3NEMmcxZ2t4Uk5hbFRYeW5nWk8vME1KWHFGMld0bkV1OVY5QW4zU2xzVmNqbVhRSWNGNG1yVVVZXG5KUndGWmI3bEFnTUJBQUVDZ2dFQVhsYllvNDNqVkVSeXdQYlR1OWpQM25FaW5yb0MwZHdtWXpyUDFwemdxZyt4XG5qQ3hUdWhEcnBCTkFnVkZsWXFRclJMUU5uazd6Zjh6YXNmUVVqNytKSEx1SVg3M2FGVitrMWtkZWk0djFOMTV1XG5FL3pWdHlCamZ0LzhCR3NDa2V3U1hua1JqQTFXNU85QWgvOGE3dE4wTUxSQ25DOVU0QVVuRU5tS1FWUUFFWFkzXG40NHlQd2pzUk53Q00xdFNkaDlSdGNpREJkOU9yNEtKdlA2L2VHVUQ5VzZPdnZ4QStRNUlwV2IxSEJ3V1FvTnRpXG5sSUxyd2JZM3RseEJnZVRqbmlodmtXNU5BN1pJdis3aVgyc2RjaUw3cVp0QnMxYURIOCtnaFY1RVFsVmJLdHJxXG5zTDdSdDlCRU1rWVJRb0J4MUZsVVVTdzFCZlkvUlVFb0tXTXNyS0pETFFLQmdRRGM2ZkpId2ozbytpNWZyeFZOXG40SVZhSEsvTXpsdXk2SUJORUFmdlcvZWIramVEMll5R3hzQ0c2RjN1VlJ6amxMY1diZGFYL3NNa0paelJ2Y2xMXG5QTWpiR0paVDRLUmZnMHFRODd5RnIxRmVJSXRuekFCRjJxbklrY1Evdml1Yi81bXp4NjZiSnFBVVFYRnlvdk8wXG5uMHJDMjFQUXQvZHBCL1NOelE3a0g5NFI1d0tCZ1FEczYwQy8yaEhsaEUwbEFReWlKQUdZd0pWZnBvallDT2MwXG5wcUgvajJUeGpoMlpWUVp5dVVYTU1Vamw5bjg1NjJrQ1ovNG9WQWZFWWMzMnZvWmg1SFRPbW16N3gzeFdzUXZRXG50bmloeG5PbTZjQmtQUk5FcVE5aCtlblFSVlR3Y1lkMHVZKzhYdzRrb1BnM2FTVml0cU9YZURDWGEwdjgybUxEXG5sSkpMVFA1blV3S0JnUUNzMDExVzVGQlkzcmkrNUpOUExMSkdzQ0Njb21nOHpBWHJ3L25oT1ZxNkxRT1hZKys3XG5WT3d6M3IvMWY2S3RMS0Fick94d1ZyL0ZuS05WdHhzdWdDeEdzN0tQaGpReUFOMnFEdlRTeFRocjRod05wUndsXG5pZzYvdWNJRmVEcFh2Wnc2ZUtKU0FPTEZWZmx5REtlS0RBQ0o5dHBZZEVQYmFIemJIcXhpcmNlbXl3S0JnUURxXG5oTUQyYUQyNDdTcVVDNkxleVRlUFptczJZSm9yQnowZW9DZlIycmE0YWM0ZzNzcGdPOGU4cGJpY2NsRmtHd1E2XG5ib2hta1MrVEZLR1ZzdWxBODYwd2FpcWhYTWxXNHpCbjdJZ2kwMWZlREpyMlhvSzVQNFJMbnQvMDJ2eUdla3IwXG5uMDZKejZvblZmUCtuYVYxUG9kWFE1RU9BaGNZOTNBMlc5WW9sZEZxb3dLQmdRQ2hQNG41Znc0cWw1NzZ6UXB1XG5RWlRidjNReDRhc0w0bVkwUmtXdklBaENjUEgwYkpyTHFPOU1uUSszODViNDAxSlppamw3K3ZKeldqS1FVbmN5XG5HbWpBZFFzbFVIU1RYR1ZGclFuQS9QU25VS2hKRUxkaytkSWdZd0NLdkFrTkplNTZMeUowVDNtMUNzWFVIK1dBXG5xditYVlNuOXVlcCtBWFUrVnQ2YzQvOWdrQT09XG4tLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tXG4iLCJjbGllbnRfZW1haWwiOiAiZmlyZWJhc2UtYWRtaW5zZGstdTRyZ3VAcGxhdC1jZW50cm8tbmV1cm9zZW5zb3JpYWwuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGllbnRfaWQiOiAiMTA2NjQ1MjIzNDg5NzQxODUzMDUyIiwiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLCJ0b2tlbl91cmkiOiAiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLCJhdXRoX3Byb3ZpZGVyX3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YxL2NlcnRzIiwiY2xpZW50X3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vcm9ib3QvdjEvbWV0YWRhdGEveDUwOS9maXJlYmFzZS1hZG1pbnNkay11NHJndSU0MHBsYXQtY2VudHJvLW5ldXJvc2Vuc29yaWFsLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwidW5pdmVyc2VfZG9tYWluIjogImdvb2dsZWFwaXMuY29tIn0='
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
-    depends_on:
-      - gateway-microservice
+    env_file:
+      - ./user-microservice/.env
 
   booking-microservice:
     build:
       context: ./booking-microservice
     ports:
       - 3003:3003
-    environment:
-      - PORT=3003
-      #- MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/booking-microservice?retryWrites=true&w=majority&appName=field4you-cluster
-      - MONGODB_URI=mongodb://mongodb:27017/booking-microservice
-      - JWT_SECRET=field4you2024
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
-    depends_on:
-      - gateway-microservice
+    env_file:
+      - ./booking-microservice/.env
 
   sports-venue-microservice:
     build:
       context: ./sports-venue-microservice
     ports:
       - 3004:3004
-    environment:
-      - PORT=3004
-      #- MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/sports-venue-microservice?retryWrites=true&w=majority&appName=field4you-cluster
-      - MONGODB_URI=mongodb://mongodb:27017/sports-venue-microservice
-      - JWT_SECRET=field4you2024
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672/
-    depends_on:
-      - gateway-microservice
+    env_file:
+      - ./sports-venue-microservice/.env
 
   feed-microservice:
     build:
       context: ./feed-microservice
     ports:
       - 3005:3005
-    environment:
-      - PORT=3005
-      #- MONGODB_URI=mongodb+srv://field4youadmin:field4youpass@field4you-cluster.sktb0.mongodb.net/feed-microservice?retryWrites=true&w=majority&appName=field4you-cluster
-      - MONGODB_URI=mongodb://mongodb:27017/feed-microservice
-      - JWT_SECRET=field4you2024
-      - FIREBASE_SERVICE_ACCOUNT='eyJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsInByb2plY3RfaWQiOiAicGxhdC1jZW50cm8tbmV1cm9zZW5zb3JpYWwiLCJwcml2YXRlX2tleV9pZCI6ICIyY2MwN2RjYzlmNDY3YzVjZWM5MmM2N2I3N2ViODdiNTk0YzliNGU0IiwicHJpdmF0ZV9rZXkiOiAiLS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tXG5NSUlFdndJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLa3dnZ1NsQWdFQUFvSUJBUURNY3EzN21qeS9ub255XG5MbGhaa1ZzU2VLeDlCWFRQM2FxdVlRV09qY0VYOStkaHR0ZC9LY1lmWFBaeWpVOG8yNzRDL2JFU2hMd1d5cW9HXG5SVm95VmU0c25pUkd1S1R1a1V6NWZlM0JxbU5jUG1LQmo2VkpBNnUyaER4cGVFSWpsL3NDazhFSEJuZVJEZjBaXG5OeE1vRFlDWkgrcTlKaGd3UEZWSG5RUUxtWU44eDZiSXpTdEY5Sml5anlnU2MrYmxWUUZ0N1cxVy9wQUtyUXhpXG5sazhQcHpTUERlZ3JnRWt6R0d3OXk2U2MyUjgwb2JhZW9nVlVaSEJwTGI4NytEbXVHcmxpWjZ2Z3prRS8wbUF4XG55TFFqbFZkY3NEMmcxZ2t4Uk5hbFRYeW5nWk8vME1KWHFGMld0bkV1OVY5QW4zU2xzVmNqbVhRSWNGNG1yVVVZXG5KUndGWmI3bEFnTUJBQUVDZ2dFQVhsYllvNDNqVkVSeXdQYlR1OWpQM25FaW5yb0MwZHdtWXpyUDFwemdxZyt4XG5qQ3hUdWhEcnBCTkFnVkZsWXFRclJMUU5uazd6Zjh6YXNmUVVqNytKSEx1SVg3M2FGVitrMWtkZWk0djFOMTV1XG5FL3pWdHlCamZ0LzhCR3NDa2V3U1hua1JqQTFXNU85QWgvOGE3dE4wTUxSQ25DOVU0QVVuRU5tS1FWUUFFWFkzXG40NHlQd2pzUk53Q00xdFNkaDlSdGNpREJkOU9yNEtKdlA2L2VHVUQ5VzZPdnZ4QStRNUlwV2IxSEJ3V1FvTnRpXG5sSUxyd2JZM3RseEJnZVRqbmlodmtXNU5BN1pJdis3aVgyc2RjaUw3cVp0QnMxYURIOCtnaFY1RVFsVmJLdHJxXG5zTDdSdDlCRU1rWVJRb0J4MUZsVVVTdzFCZlkvUlVFb0tXTXNyS0pETFFLQmdRRGM2ZkpId2ozbytpNWZyeFZOXG40SVZhSEsvTXpsdXk2SUJORUFmdlcvZWIramVEMll5R3hzQ0c2RjN1VlJ6amxMY1diZGFYL3NNa0paelJ2Y2xMXG5QTWpiR0paVDRLUmZnMHFRODd5RnIxRmVJSXRuekFCRjJxbklrY1Evdml1Yi81bXp4NjZiSnFBVVFYRnlvdk8wXG5uMHJDMjFQUXQvZHBCL1NOelE3a0g5NFI1d0tCZ1FEczYwQy8yaEhsaEUwbEFReWlKQUdZd0pWZnBvallDT2MwXG5wcUgvajJUeGpoMlpWUVp5dVVYTU1Vamw5bjg1NjJrQ1ovNG9WQWZFWWMzMnZvWmg1SFRPbW16N3gzeFdzUXZRXG50bmloeG5PbTZjQmtQUk5FcVE5aCtlblFSVlR3Y1lkMHVZKzhYdzRrb1BnM2FTVml0cU9YZURDWGEwdjgybUxEXG5sSkpMVFA1blV3S0JnUUNzMDExVzVGQlkzcmkrNUpOUExMSkdzQ0Njb21nOHpBWHJ3L25oT1ZxNkxRT1hZKys3XG5WT3d6M3IvMWY2S3RMS0Fick94d1ZyL0ZuS05WdHhzdWdDeEdzN0tQaGpReUFOMnFEdlRTeFRocjRod05wUndsXG5pZzYvdWNJRmVEcFh2Wnc2ZUtKU0FPTEZWZmx5REtlS0RBQ0o5dHBZZEVQYmFIemJIcXhpcmNlbXl3S0JnUURxXG5oTUQyYUQyNDdTcVVDNkxleVRlUFptczJZSm9yQnowZW9DZlIycmE0YWM0ZzNzcGdPOGU4cGJpY2NsRmtHd1E2XG5ib2hta1MrVEZLR1ZzdWxBODYwd2FpcWhYTWxXNHpCbjdJZ2kwMWZlREpyMlhvSzVQNFJMbnQvMDJ2eUdla3IwXG5uMDZKejZvblZmUCtuYVYxUG9kWFE1RU9BaGNZOTNBMlc5WW9sZEZxb3dLQmdRQ2hQNG41Znc0cWw1NzZ6UXB1XG5RWlRidjNReDRhc0w0bVkwUmtXdklBaENjUEgwYkpyTHFPOU1uUSszODViNDAxSlppamw3K3ZKeldqS1FVbmN5XG5HbWpBZFFzbFVIU1RYR1ZGclFuQS9QU25VS2hKRUxkaytkSWdZd0NLdkFrTkplNTZMeUowVDNtMUNzWFVIK1dBXG5xditYVlNuOXVlcCtBWFUrVnQ2YzQvOWdrQT09XG4tLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tXG4iLCJjbGllbnRfZW1haWwiOiAiZmlyZWJhc2UtYWRtaW5zZGstdTRyZ3VAcGxhdC1jZW50cm8tbmV1cm9zZW5zb3JpYWwuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGllbnRfaWQiOiAiMTA2NjQ1MjIzNDg5NzQxODUzMDUyIiwiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLCJ0b2tlbl91cmkiOiAiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLCJhdXRoX3Byb3ZpZGVyX3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YxL2NlcnRzIiwiY2xpZW50X3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vcm9ib3QvdjEvbWV0YWRhdGEveDUwOS9maXJlYmFzZS1hZG1pbnNkay11NHJndSU0MHBsYXQtY2VudHJvLW5ldXJvc2Vuc29yaWFsLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwidW5pdmVyc2VfZG9tYWluIjogImdvb2dsZWFwaXMuY29tIn0='
-    depends_on:
-      - gateway-microservice
+    env_file:
+      - ./feed-microservice/.env
 
 volumes:
   mongodb_data:
