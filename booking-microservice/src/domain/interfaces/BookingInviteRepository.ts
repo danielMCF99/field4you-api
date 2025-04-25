@@ -44,4 +44,11 @@ export interface IBookingInviteRepository {
     reason: string,
     session?: ClientSession
   ): Promise<{ modifiedCount: number }>;
+
+  bulkUpdateStatusByIds(
+    bookingInvitesIds: string[],
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }>;
 }

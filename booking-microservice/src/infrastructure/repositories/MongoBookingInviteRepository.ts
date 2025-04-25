@@ -184,4 +184,28 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
       }
     ).exec();
   }
+
+  async bulkUpdateStatusByIds(
+    bookingInvitesIds: string[],
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }> {
+    return BookingInviteModel.updateMany(
+      {
+        bookingId: {
+          $in: bookingInvitesIds.map((id) => new Types.ObjectId(id)),
+        },
+      },
+      {
+        $set: {
+          status,
+          comments: reason,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
+  }
 }

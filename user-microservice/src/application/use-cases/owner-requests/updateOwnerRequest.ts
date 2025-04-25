@@ -57,6 +57,7 @@ export const updateOwnerRequest = async (req: Request) => {
       response,
       session
     );
+
     if (status === 'approved') {
       await userRepository.updateType(ownerRequest.userId, 'owner', session);
       await publishUserUpdate({
@@ -64,12 +65,17 @@ export const updateOwnerRequest = async (req: Request) => {
         updatedData: { userType: UserType.owner },
       });
     }
+
+    // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
+
     return updatedOwnerRequest;
   } catch (error: any) {
+    // Abort DB Transaction
     await session.abortTransaction();
     session.endSession();
+
     console.log(error);
     throw new InternalServerErrorException('Internal Server Error');
   }

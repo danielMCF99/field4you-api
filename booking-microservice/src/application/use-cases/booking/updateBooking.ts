@@ -155,6 +155,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
       );
     }
 
+    // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
 
@@ -169,6 +170,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
 
     return response;
   } catch (error) {
+    // Abort DB Transaction
     await session.abortTransaction();
     session.endSession();
     console.log(error);

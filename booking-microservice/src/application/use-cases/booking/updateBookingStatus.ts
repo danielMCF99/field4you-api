@@ -93,37 +93,96 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     }
   }
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const updatedBooking = await bookingRepository.updateStatus(id, newStatus);
     if (!updatedBooking) {
       throw new InternalServerErrorException('Error updating booking');
     }
 
-    if (newStatus == BookingStatus.done) {
-      const invitedUsers = await bookingInviteRepository.findAll({
-        status: BookingInviteStatus.accepted,
-        bookingId: booking.getId(),
-      });
-
-      const invitedUsersPayload = [];
-      for (const invite of invitedUsers) {
-        invitedUsersPayload.push({
-          userId: invite.getUserId(),
-          bookingId: invite.getBookingId(),
-          sportsVenueId: booking.sportsVenueId,
+    let updatedInvites;
+    let pendingInvites;
+    let invitesIDs;
+    switch (newStatus) {
+      case BookingStatus.done:
+        const acceptedInvites = await bookingInviteRepository.findAll({
+          status: BookingInviteStatus.accepted,
+          bookingId: booking.getId(),
         });
-      }
 
-      console.log(
-        `Invited users payload for sports venue service: ${invitedUsersPayload}`
-      );
-      await publishFinishedBooking({
-        invitedUserIds: invitedUsersPayload,
-      });
+        const invitedUsersPayload = [];
+        for (const invite of acceptedInvites) {
+          invitedUsersPayload.push({
+            userId: invite.getUserId(),
+            bookingId: invite.getBookingId(),
+            sportsVenueId: booking.sportsVenueId,
+          });
+        }
+
+        console.log(
+          `Booking status changed to done. Invited users payload for sports venue service: ${invitedUsersPayload}`
+        );
+
+        await publishFinishedBooking({
+          invitedUserIds: invitedUsersPayload,
+        });
+
+        console.log(
+          'Updating pending invites to rejected because booking is considered done'
+        );
+
+        pendingInvites = await bookingInviteRepository.findAll({
+          status: BookingInviteStatus.pending,
+          bookingId: booking.getId(),
+        });
+        invitesIDs = pendingInvites.map((elem) => elem.getId());
+
+        updatedInvites = await bookingInviteRepository.bulkUpdateStatusByIds(
+          invitesIDs,
+          BookingInviteStatus.rejected,
+          'Booking status was updated to done and invite was in pending status',
+          session
+        );
+        console.log(
+          `Number of pending invites updated to rejected: ${updatedInvites.modifiedCount}`
+        );
+
+      case BookingStatus.cancelled:
+        console.log(
+          'Updating pending invites to rejected because booking is considered cancelled'
+        );
+
+        pendingInvites = await bookingInviteRepository.findAll({
+          status: BookingInviteStatus.pending,
+          bookingId: booking.getId(),
+        });
+        invitesIDs = pendingInvites.map((elem) => elem.getId());
+
+        updatedInvites = await bookingInviteRepository.bulkUpdateStatusByIds(
+          invitesIDs,
+          BookingInviteStatus.rejected,
+          'Booking status was updated to done and invite was in pending status',
+          session
+        );
+        console.log(
+          `Number of pending invites updated to rejected: ${updatedInvites.modifiedCount}`
+        );
+        break;
+      default:
+        break;
     }
+
+    // Commit DB Transaction
+    await session.commitTransaction();
+    session.endSession();
 
     return updatedBooking;
   } catch (error) {
+    // Abort DB Transaction
+    await session.abortTransaction();
+    session.endSession();
+
     console.log(error);
     throw new InternalServerErrorException(
       'Internal server error updating booking'
