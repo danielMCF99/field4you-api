@@ -193,7 +193,7 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
   ): Promise<{ modifiedCount: number }> {
     return BookingInviteModel.updateMany(
       {
-        bookingId: {
+        _id: {
           $in: bookingInvitesIds.map((id) => new Types.ObjectId(id)),
         },
       },

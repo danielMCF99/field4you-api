@@ -39,7 +39,6 @@ export const createBooking = async (
     );
   }
 
-  console.log('Here');
   const {
     sportsVenueId,
     bookingType,

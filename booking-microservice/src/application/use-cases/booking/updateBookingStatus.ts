@@ -134,7 +134,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
 
         pendingInvites = await bookingInviteRepository.findAll({
           status: BookingInviteStatus.pending,
-          bookingId: booking.getId(),
+          bookingId: id,
         });
         invitesIDs = pendingInvites.map((elem) => elem.getId());
 
@@ -155,7 +155,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
 
         pendingInvites = await bookingInviteRepository.findAll({
           status: BookingInviteStatus.pending,
-          bookingId: booking.getId(),
+          bookingId: id,
         });
         invitesIDs = pendingInvites.map((elem) => elem.getId());
 
