@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
-import { User } from '../../domain/entities/User';
+import { User, UserStatus } from '../../domain/entities/User';
 
 const EXCHANGE_NAME = 'user.events';
 const EXCHANGE_TYPE = 'topic';
@@ -42,7 +42,7 @@ export async function publishUserUpdate(updatePayload: {
 
 export async function publishUserStatusUpdate(updatePayload: {
   userId: string;
-  updatedData: Partial<User>;
+  status: UserStatus;
 }) {
   await publishToExchange('user.status.updated', updatePayload);
 }

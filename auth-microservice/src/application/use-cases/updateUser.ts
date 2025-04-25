@@ -1,13 +1,13 @@
-import { userRepository } from "../../app";
-import { User } from "../../domain/entities/User";
-import { InternalServerErrorException } from "../../domain/exceptions/InternalServerErrorException";
+import { userRepository } from '../../app';
+import { UserStatus } from '../../domain/entities/User';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export const updateUser = async (
   userId: string,
-  user: Partial<User>
+  status: UserStatus
 ): Promise<any> => {
   try {
-    const updatedUser = await userRepository.update(userId, user);
+    const updatedUser = await userRepository.update(userId, { status: status });
     return updatedUser;
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);

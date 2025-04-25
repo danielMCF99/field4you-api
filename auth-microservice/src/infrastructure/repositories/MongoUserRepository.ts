@@ -34,7 +34,7 @@ export class MongoUserRepository implements IUserRepository {
       new: true,
       runValidators: true,
     });
-
+    console.log(updatedUser);
     return updatedUser ? User.fromMongooseDocument(updatedUser) : undefined;
   }
 

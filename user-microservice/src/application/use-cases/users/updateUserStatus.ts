@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { userRepository } from '../../../app';
-import { User } from '../../../domain/entities/User';
+import { User, UserStatus } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
@@ -49,8 +49,8 @@ export const updateUserStatus = async (req: Request): Promise<User> => {
     }
 
     publishUserStatusUpdate({
-      userId: userId,
-      updatedData: { status: status },
+      userId: userId ? userId : authenticatedUserId,
+      status: status as UserStatus,
     });
 
     return updatedUser;

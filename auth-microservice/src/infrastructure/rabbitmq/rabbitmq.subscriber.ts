@@ -51,7 +51,7 @@ export async function subscribeUserDeletion() {
         switch (routingKey) {
           case 'user.status.updated':
             console.log('Received User status updated');
-            await updateUser(data.userId, data.updatedData);
+            await updateUser(data.userId, data.status);
             break;
           case 'user.deleted':
             console.log('Received User deleted');

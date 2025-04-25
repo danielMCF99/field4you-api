@@ -4,8 +4,8 @@ import { deleteSportsVenue } from '../../application/use-cases/sportsVenue/delet
 import { updateSportsVenue } from '../../application/use-cases/sportsVenue/updateSportsVenue';
 import { createUser } from '../../application/use-cases/user/createUser';
 import { deleteUser } from '../../application/use-cases/user/deleteUser';
-import config from '../../config/env';
 import { updateUser } from '../../application/use-cases/user/updateUser';
+import config from '../../config/env';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -74,7 +74,7 @@ export async function subscribeUserEvents() {
             break;
           case 'user.status.updated':
             console.log('Received User status updated');
-            await updateUser(data.userId, data.updatedData);
+            await updateUser(data.userId, { status: data.status });
             break;
           case 'user.deleted':
             console.log('Received User deleted');
