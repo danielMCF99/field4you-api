@@ -5,6 +5,7 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 
 export const deleteSportsVenueImage = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();
@@ -23,14 +24,20 @@ export const deleteSportsVenueImage = async (req: Request): Promise<boolean> => 
     );
   }
 
+  if (userType != 'owner' && userType !== 'admin') {
+    throw new ForbiddenException(
+      'Regular User is not allowed to delete this venue'
+    );
+  }
+
   const sportsVenue = await sportsVenueRepository.findById(id);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue with given ID not found');
   }
 
-  if (sportsVenue.ownerId.toString() !== ownerId.toString()) {
+  if (sportsVenue.ownerId !== ownerId) {
     throw new UnauthorizedException(
-      'Sports Venue does not belong to the current user'
+      'User is not authorized to update this venue'
     );
   }
 
