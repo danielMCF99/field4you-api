@@ -27,7 +27,6 @@ export const createBookingInvite = async (
       'You have invited at least one user that does not exist'
     );
   }
-
   try {
     // Create BookingInvites
     const bookingInvites: any = [];

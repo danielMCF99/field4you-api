@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SportsVenueType } from '../entities/sports-venue';
+import { SportsVenueType } from '../entities/SportsVenue';
 
 const timeRangeSchema = z.object({
   start: z
@@ -22,21 +22,27 @@ const weeklyScheduleSchema = z.object({
 
 export const createSportsVenueSchema = z.object({
   sportsVenueType: z.nativeEnum(SportsVenueType),
-  sportsVenueName: z.string().min(1, 'sportsVenueName is required'),
+  sportsVenueName: z.string().min(1, 'Sports Venue name is required'),
   bookingMinDuration: z
     .number()
     .positive('Booking minimum duration must be a positive number'),
   bookingMinPrice: z
     .number()
     .nonnegative('Booking minimum price must be zero or a positive number'),
-  sportsVenuePictures: z.array(z.object({
-    fileName: z.string(),
-    imageURL: z.string().url(),
-  })
-).optional(),
+  sportsVenuePictures: z
+    .array(
+      z.object({
+        fileName: z.string(),
+        imageURL: z.string().url(),
+      })
+    )
+    .optional(),
   hasParking: z.boolean(),
   hasShower: z.boolean(),
   hasBar: z.boolean(),
+  district: z.string().min(1, 'District is required'),
+  city: z.string().min(1, 'City is required'),
+  address: z.string().min(1, 'Address is required'),
   district: z.string().min(1, 'district is required'),
   city: z.string().min(1, 'city is required'),
   address: z.string().min(1, 'address is required'),

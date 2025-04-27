@@ -47,20 +47,28 @@ export async function subscribeUserDeletion() {
       const routingKey = msg.fields.routingKey;
       const data = JSON.parse(msg.content.toString());
 
-      switch (routingKey) {
-        case 'user.status.updated':
-          console.log('Received User status updated');
-          await updateUser(data.userId, data.updatedData);
-          break;
-        case 'user.deleted':
-          console.log('Received User deleted');
-          await deleteUser(data.userId);
-          break;
-        default:
-          console.warn(`Unknown routing key: ${routingKey}`);
-      }
+      try {
+        switch (routingKey) {
+          case 'user.status.updated':
+            console.log('Received User status updated');
+            await updateUser(data.userId, data.status);
+            break;
+          case 'user.deleted':
+            console.log('Received User deleted');
+            await deleteUser(data.userId);
+            break;
+          default:
+            console.warn(`Unknown routing key: ${routingKey}`);
+        }
 
-      channel.ack(msg);
+        channel.ack(msg);
+      } catch (error) {
+        console.error(
+          `Error processing message with routing key ${routingKey}:`,
+          error
+        );
+        channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior
+      }
     });
   } catch (error) {
     console.log(error);

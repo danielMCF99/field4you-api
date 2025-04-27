@@ -1,8 +1,6 @@
 import { SportsVenueFilterParams } from '../../domain/dtos/sports-venue-filter.dto';
-import {
-  SportsVenue,
-  WeeklySchedule,
-} from '../../domain/entities/sports-venue';
+import { SportsVenue, WeeklySchedule } from '../../domain/entities/SportsVenue';
+
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venueModel';
 
@@ -29,12 +27,18 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     id: string,
     imageData: Partial<SportsVenue>
   ): Promise<SportsVenue | undefined> {
-    const updatedSportsVenue = await SportsVenueModel.findByIdAndUpdate(id, imageData, {
-      new: true,
-      runValidators: true,
-    });
-    
-    return updatedSportsVenue ? SportsVenue.fromMongooseDocument(updatedSportsVenue) : undefined;
+    const updatedSportsVenue = await SportsVenueModel.findByIdAndUpdate(
+      id,
+      imageData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return updatedSportsVenue
+      ? SportsVenue.fromMongooseDocument(updatedSportsVenue)
+      : undefined;
   }
 
   async update(
@@ -64,8 +68,10 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       { $pull: { sportsVenuePictures: { _id: imageId } } },
       { new: true }
     );
-    
-    return deletedSportsVenueImage ? SportsVenue.fromMongooseDocument(deletedSportsVenueImage) : null;
+
+    return deletedSportsVenueImage
+      ? SportsVenue.fromMongooseDocument(deletedSportsVenueImage)
+      : null;
   }
 
   async findById(id: string): Promise<SportsVenue | null> {

@@ -1,5 +1,6 @@
-import bodyParser from 'body-parser'; 
+import bodyParser from 'body-parser';
 import express, { Application } from 'express';
+import { MongoBookingInviteRepository } from './infrastructure/repositories/MongoBookingInviteRepository';
 import user from 'firebase-admin';
 import config from './config/env';
 import { MongoSportsVenueRepository } from './infrastructure/repositories/MongoSportsVenueRepository';
@@ -10,12 +11,14 @@ const app: Application = express();
 app.disable('x-powered-by');
 
 user.initializeApp({
-    credential: user.credential.cert(config.firebaseConfig),
-    storageBucket: 'gs://plat-centro-neurosensorial.appspot.com',
+  credential: user.credential.cert(config.firebaseConfig),
+  storageBucket: 'gs://plat-centro-neurosensorial.appspot.com',
 });
 export const bucket = user.storage().bucket();
 
 export const sportsVenueRepository = MongoSportsVenueRepository.getInstance();
+export const bookingInviteRepository =
+  MongoBookingInviteRepository.getInstance();
 export const firebase = FirebaseImplementation.getInstance();
 
 /* Middlewares */

@@ -4,8 +4,8 @@ import { deleteSportsVenue } from '../../application/use-cases/sportsVenue/delet
 import { updateSportsVenue } from '../../application/use-cases/sportsVenue/updateSportsVenue';
 import { createUser } from '../../application/use-cases/user/createUser';
 import { deleteUser } from '../../application/use-cases/user/deleteUser';
-import config from '../../config/env';
 import { updateUser } from '../../application/use-cases/user/updateUser';
+import config from '../../config/env';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -62,28 +62,36 @@ export async function subscribeUserEvents() {
       const routingKey = msg.fields.routingKey;
       const data = JSON.parse(msg.content.toString());
 
-      switch (routingKey) {
-        case 'user.created':
-          console.log('Received User created');
-          await createUser(data);
-          break;
-        case 'user.updated':
-          console.log('Received User updated');
-          await updateUser(data.userId, data.updatedData);
-          break;
-        case 'user.status.updated':
-          console.log('Received User status updated');
-          await updateUser(data.userId, data.updatedData);
-          break;
-        case 'user.deleted':
-          console.log('Received User deleted');
-          await deleteUser(data.userId);
-          break;
-        default:
-          console.warn(`Unknown routing key: ${routingKey}`);
-      }
+      try {
+        switch (routingKey) {
+          case 'user.created':
+            console.log('Received User created');
+            await createUser(data);
+            break;
+          case 'user.updated':
+            console.log('Received User updated');
+            await updateUser(data.userId, data.updatedData);
+            break;
+          case 'user.status.updated':
+            console.log('Received User status updated');
+            await updateUser(data.userId, { status: data.status });
+            break;
+          case 'user.deleted':
+            console.log('Received User deleted');
+            await deleteUser(data.userId);
+            break;
+          default:
+            console.warn(`Unknown routing key: ${routingKey}`);
+        }
 
-      channel.ack(msg);
+        channel.ack(msg);
+      } catch (error) {
+        console.error(
+          `Error processing message with routing key ${routingKey}:`,
+          error
+        );
+        channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior
+      }
     });
   } catch (error) {
     console.log(error);
@@ -131,24 +139,32 @@ export async function subscribeSportsVenueEvents() {
       const routingKey = msg.fields.routingKey;
       const data = JSON.parse(msg.content.toString());
 
-      switch (routingKey) {
-        case 'sportsvenue.created':
-          console.log('Received Sport Venue created');
-          await createSportsVenue(data);
-          break;
-        case 'sportsvenue.updated':
-          console.log('Received Sport Venue updated');
-          await updateSportsVenue(data.sportsVenueId, data);
-          break;
-        case 'sportsvenue.deleted':
-          console.log('Received Sport Venue deleted');
-          await deleteSportsVenue(data.sportsVenueId);
-          break;
-        default:
-          console.warn(`Unknown routing key: ${routingKey}`);
-      }
+      try {
+        switch (routingKey) {
+          case 'sportsvenue.created':
+            console.log('Received Sport Venue created');
+            await createSportsVenue(data);
+            break;
+          case 'sportsvenue.updated':
+            console.log('Received Sport Venue updated');
+            await updateSportsVenue(data.sportsVenueId, data);
+            break;
+          case 'sportsvenue.deleted':
+            console.log('Received Sport Venue deleted');
+            await deleteSportsVenue(data.sportsVenueId);
+            break;
+          default:
+            console.warn(`Unknown routing key: ${routingKey}`);
+        }
 
-      channel.ack(msg);
+        channel.ack(msg);
+      } catch (error) {
+        console.error(
+          `Error processing message with routing key ${routingKey}:`,
+          error
+        );
+        channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior
+      }
     });
   } catch (error) {
     console.log(error);

@@ -4,7 +4,7 @@ import { connectDB } from './infrastructure/database/database';
 import {
   subscribeSportsVenueEvents,
   subscribeUserEvents,
-} from './infrastructure/middlewares/rabbitmq.subscriber';
+} from './infrastructure/rabbitmq/rabbitmq.subscriber';
 
 const startServer = async () => {
   try {

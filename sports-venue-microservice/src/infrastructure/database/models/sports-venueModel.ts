@@ -3,7 +3,7 @@ import {
   SportsVenueStatus,
   SportsVenueType,
   WeeklySchedule,
-} from '../../../domain/entities/sports-venue';
+} from '../../../domain/entities/SportsVenue';
 
 const TimeSlotSchema = new Schema(
   {
@@ -34,10 +34,12 @@ interface ISportsVenue extends Document {
   sportsVenueName: string;
   bookingMinDuration: number;
   bookingMinPrice: number;
-  sportsVenuePictures: [{
-    fileName: string,
-    imageURL: string,
-  }];
+  sportsVenuePictures: [
+    {
+      fileName: string;
+      imageURL: string;
+    }
+  ];
   hasParking: boolean;
   hasShower: boolean;
   hasBar: boolean;
@@ -48,6 +50,8 @@ interface ISportsVenue extends Document {
     latitude: number;
     longitude: number;
   };
+  rating: number;
+  numberOfRatings: number;
   weeklySchedule?: WeeklySchedule;
   createdAt?: Date;
   updatedAt?: Date;
@@ -88,10 +92,12 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
         message: 'Booking minimum price must be equal or greater than 0',
       },
     },
-    sportsVenuePictures: [{
-      fileName: { type: String },
-      imageURL: { type: String },
-    }],
+    sportsVenuePictures: [
+      {
+        fileName: { type: String },
+        imageURL: { type: String },
+      },
+    ],
     hasParking: { type: Boolean, required: true },
     hasShower: { type: Boolean, required: true },
     hasBar: { type: Boolean, required: true },
@@ -102,7 +108,9 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
       city: { type: String },
       district: { type: String },
     },
-    weeklySchedule: { type: WeeklyScheduleSchema, required: false }, // 👈 ADICIONADO AQUI
+    rating: { type: Number },
+    numberOfRatings: { type: Number, default: 0 },
+    weeklySchedule: { type: WeeklyScheduleSchema, required: false },
   },
   {
     timestamps: true,

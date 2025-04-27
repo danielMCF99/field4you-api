@@ -1,8 +1,7 @@
 import amqp from 'amqplib';
 import config from '../../config/env';
-import { User } from '../../domain/entities/User';
 
-const EXCHANGE_NAME = 'user.events';
+const EXCHANGE_NAME = 'booking.events';
 const EXCHANGE_TYPE = 'topic';
 
 async function publishToExchange(routingKey: string, payload: any) {
@@ -29,20 +28,8 @@ async function publishToExchange(routingKey: string, payload: any) {
   }
 }
 
-export async function publishUserDeletion(userPayload: { userId: string }) {
-  await publishToExchange('user.deleted', userPayload);
-}
-
-export async function publishUserUpdate(updatePayload: {
-  userId: string;
-  updatedData: Partial<User>;
+export async function publishFinishedBooking(finishedBookingPayload: {
+  invitedUserIds: any[];
 }) {
-  await publishToExchange('user.updated', updatePayload);
-}
-
-export async function publishUserStatusUpdate(updatePayload: {
-  userId: string;
-  updatedData: Partial<User>;
-}) {
-  await publishToExchange('user.status.updated', updatePayload);
+  await publishToExchange('booking.finished', finishedBookingPayload);
 }

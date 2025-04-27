@@ -52,11 +52,14 @@ export const deleteBooking = async (req: Request): Promise<Boolean> => {
         `${updatedInvitesByBookingIds.modifiedCount} invites rejected.`
       );
     }
+
+    // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
 
     return isDeleted;
   } catch (error) {
+    // Abort DB Transaction
     await session.abortTransaction();
     session.endSession();
 

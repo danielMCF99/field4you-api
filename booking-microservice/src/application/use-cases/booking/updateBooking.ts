@@ -1,6 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingRepository, sportsVenueRepository } from '../../../app';
+import { ZodError } from 'zod';
+import { bookingRepository } from '../../../app';
+import {
+  UpdateBookingDTO,
+  updateBookingSchema,
+} from '../../../domain/dtos/update-booking.dto';
 import { Booking } from '../../../domain/entities/Booking';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
@@ -8,11 +13,6 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
-import {
-  UpdateBookingDTO,
-  updateBookingSchema,
-} from '../../../domain/dtos/update-booking.dto';
-import { ZodError } from 'zod';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {
@@ -46,6 +46,12 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
 
   if (!booking) {
     throw new NotFoundException('Booking not found');
+  }
+
+  if (booking.bookingEndDate < new Date()) {
+    throw new UnauthorizedException(
+      'Not allowed to update booking that is done'
+    );
   }
 
   let parsed: UpdateBookingDTO;
@@ -149,6 +155,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
       );
     }
 
+    // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
 
@@ -163,6 +170,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
 
     return response;
   } catch (error) {
+    // Abort DB Transaction
     await session.abortTransaction();
     session.endSession();
     console.log(error);
