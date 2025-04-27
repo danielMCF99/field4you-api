@@ -5,7 +5,7 @@ import user from 'firebase-admin';
 import config from './config/env';
 import { MongoSportsVenueRepository } from './infrastructure/repositories/MongoSportsVenueRepository';
 import sportsVenueRoutes from './web/routes/sports-venueRoutes';
-import { FirebaseImplementation } from './infrastructure/middlewares/firebase';
+import { FirebaseImplementation } from './infrastructure/rabbitmq/firebase';
 
 const app: Application = express();
 app.disable('x-powered-by');

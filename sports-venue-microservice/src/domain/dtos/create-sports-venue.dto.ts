@@ -43,9 +43,6 @@ export const createSportsVenueSchema = z.object({
   district: z.string().min(1, 'District is required'),
   city: z.string().min(1, 'City is required'),
   address: z.string().min(1, 'Address is required'),
-  district: z.string().min(1, 'district is required'),
-  city: z.string().min(1, 'city is required'),
-  address: z.string().min(1, 'address is required'),
   weeklySchedule: weeklyScheduleSchema.optional(),
 });
 
