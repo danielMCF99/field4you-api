@@ -50,7 +50,7 @@ export const updateUserImage = async (req: Request): Promise<User> => {
     }
 
     const updatedUser = await userRepository.updateUserImage(id, {
-      imageName: fileName,
+      fileName,
       imageURL,
     });
 

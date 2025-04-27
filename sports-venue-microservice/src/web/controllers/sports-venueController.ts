@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import { createSportsVenue } from '../../application/use-cases/createSportsVenue';
 import { deleteSportsVenue } from '../../application/use-cases/deleteSportsVenue';
+import { deleteSportsVenueImage } from '../../application/use-cases/deleteSportsVenueImage';
 import { getAllSportsVenue } from '../../application/use-cases/getAllSportsVenue';
 import { getSportsVenueById } from '../../application/use-cases/getSportsVenueById';
 import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue';
 import { updateSportsVenueRating } from '../../application/use-cases/updateSportsVenueRating';
 import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
+import { updateSportsVenueImage } from '../../application/use-cases/updateSportsVenueImage';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -63,6 +65,34 @@ export const deleteSportsVenueController = async (
   try {
     await deleteSportsVenue(req);
     res.status(200).json({});
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
+export const deleteSportsVenueImageController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    await deleteSportsVenueImage(req);
+    res.status(200).json({});
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
+export const updateSportsVenueImageController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const sportsVenue = await updateSportsVenueImage(req);
+    res.status(200).json({ sportsVenue });
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

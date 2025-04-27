@@ -12,7 +12,10 @@ interface ISportsVenue extends Document {
   sportsVenueName: string;
   bookingMinDuration: number;
   bookingMinPrice: number;
-  sportsVenuePicture: string;
+  sportsVenuePictures: [{
+    fileName: string,
+    imageURL: string,
+  }];
   hasParking: boolean;
   hasShower: boolean;
   hasBar: boolean;
@@ -64,7 +67,10 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
         message: 'Booking minimum price must be equal or greater than 0',
       },
     },
-    sportsVenuePicture: { type: String, required: true },
+    sportsVenuePictures: [{
+      fileName: { type: String },
+      imageURL: { type: String },
+    }],
     hasParking: { type: Boolean, required: true },
     hasShower: { type: Boolean, required: true },
     hasBar: { type: Boolean, required: true },

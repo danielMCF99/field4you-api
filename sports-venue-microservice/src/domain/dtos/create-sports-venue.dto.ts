@@ -10,7 +10,11 @@ export const createSportsVenueSchema = z.object({
   bookingMinPrice: z
     .number()
     .nonnegative('Booking minimum price must be zero or a positive number'),
-  sportsVenuePicture: z.string(),
+  sportsVenuePictures: z.array(z.object({
+    fileName: z.string(),
+    imageURL: z.string().url(),
+  })
+).optional(),
   hasParking: z.boolean(),
   hasShower: z.boolean(),
   hasBar: z.boolean(),
