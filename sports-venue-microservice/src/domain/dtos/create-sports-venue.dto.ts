@@ -2,22 +2,24 @@ import { z } from 'zod';
 import { SportsVenueType } from '../entities/SportsVenue';
 
 const timeRangeSchema = z.object({
-  start: z
+  startTime: z
     .string()
     .regex(/^\d{2}:\d{2}$/, 'Start time must be in HH:mm format'),
-  end: z.string().regex(/^\d{2}:\d{2}$/, 'End time must be in HH:mm format'),
+  endTime: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, 'End time must be in HH:mm format'),
 });
 
 const dailyScheduleSchema = z.array(timeRangeSchema).max(7);
 
 const weeklyScheduleSchema = z.object({
-  monday: dailyScheduleSchema.optional(),
-  tuesday: dailyScheduleSchema.optional(),
-  wednesday: dailyScheduleSchema.optional(),
-  thursday: dailyScheduleSchema.optional(),
-  friday: dailyScheduleSchema.optional(),
-  saturday: dailyScheduleSchema.optional(),
-  sunday: dailyScheduleSchema.optional(),
+  Monday: dailyScheduleSchema.optional(),
+  Tuesday: dailyScheduleSchema.optional(),
+  Wednesday: dailyScheduleSchema.optional(),
+  Thursday: dailyScheduleSchema.optional(),
+  Friday: dailyScheduleSchema.optional(),
+  Saturday: dailyScheduleSchema.optional(),
+  Sunday: dailyScheduleSchema.optional(),
 });
 
 export const createSportsVenueSchema = z.object({

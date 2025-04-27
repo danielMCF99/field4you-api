@@ -37,6 +37,7 @@ export async function publishSportsVenueCreation(sportsVenuePayload: {
   sportsVenueName: string;
   bookingMinDuration: number;
   bookingMinPrice: number;
+  weeklySchedule: any;
 }) {
   await publishToExchange('sportsvenue.created', sportsVenuePayload);
 }

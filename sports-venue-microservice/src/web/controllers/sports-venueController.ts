@@ -8,6 +8,8 @@ import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue
 import { updateSportsVenueRating } from '../../application/use-cases/updateSportsVenueRating';
 import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
 import { updateSportsVenueImage } from '../../application/use-cases/updateSportsVenueImage';
+import { updateSportsVenueSchedule } from '../../application/use-cases/updateSportsVenueSchedule';
+import { getSportsVenueSchedule } from '../../application/use-cases/getSportsVenueSchedule';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -134,6 +136,34 @@ export const updateSportsVenueRatingController = async (
 ) => {
   try {
     const sportsVenue = await updateSportsVenueRating(req);
+    res.status(200).json(sportsVenue);
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
+export const updateSportsVenueScheduleController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const sportsVenue = await updateSportsVenueSchedule(req);
+    res.status(200).json(sportsVenue);
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
+export const getSportsVenueScheduleController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const sportsVenue = await getSportsVenueSchedule(req);
     res.status(200).json(sportsVenue);
     return;
   } catch (error: any) {

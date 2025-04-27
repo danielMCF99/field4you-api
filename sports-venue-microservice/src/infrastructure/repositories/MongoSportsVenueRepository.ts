@@ -142,6 +142,7 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     venueId: string,
     weeklySchedule: WeeklySchedule
   ): Promise<SportsVenue | null> {
+    console.log('Aqui', venueId, weeklySchedule);
     const updatedVenue = await SportsVenueModel.findByIdAndUpdate(
       venueId,
       { $set: { weeklySchedule } },
