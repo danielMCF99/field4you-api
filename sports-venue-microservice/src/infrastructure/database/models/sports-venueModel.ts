@@ -2,7 +2,29 @@ import { Document, Schema, Types, model } from 'mongoose';
 import {
   SportsVenueStatus,
   SportsVenueType,
+  WeeklySchedule,
 } from '../../../domain/entities/sports-venue';
+
+const TimeSlotSchema = new Schema(
+  {
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+  },
+  { _id: false }
+);
+
+const WeeklyScheduleSchema = new Schema(
+  {
+    Monday: { type: [TimeSlotSchema], default: [] },
+    Tuesday: { type: [TimeSlotSchema], default: [] },
+    Wednesday: { type: [TimeSlotSchema], default: [] },
+    Thursday: { type: [TimeSlotSchema], default: [] },
+    Friday: { type: [TimeSlotSchema], default: [] },
+    Saturday: { type: [TimeSlotSchema], default: [] },
+    Sunday: { type: [TimeSlotSchema], default: [] },
+  },
+  { _id: false }
+);
 
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;
@@ -23,6 +45,7 @@ interface ISportsVenue extends Document {
     latitude: number;
     longitude: number;
   };
+  weeklySchedule?: WeeklySchedule;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -73,6 +96,7 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
       city: { type: String },
       district: { type: String },
     },
+    weeklySchedule: { type: WeeklyScheduleSchema, required: false }, // 👈 ADICIONADO AQUI
   },
   {
     timestamps: true,

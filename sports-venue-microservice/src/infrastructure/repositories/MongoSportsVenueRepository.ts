@@ -1,5 +1,8 @@
 import { SportsVenueFilterParams } from '../../domain/dtos/sports-venue-filter.dto';
-import { SportsVenue } from '../../domain/entities/sports-venue';
+import {
+  SportsVenue,
+  WeeklySchedule,
+} from '../../domain/entities/sports-venue';
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venueModel';
 
@@ -106,5 +109,24 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     );
 
     return updatedVenues.modifiedCount;
+  }
+  async updateWeeklySchedule(
+    venueId: string,
+    weeklySchedule: WeeklySchedule
+  ): Promise<SportsVenue | null> {
+    const updatedVenue = await SportsVenueModel.findByIdAndUpdate(
+      venueId,
+      { $set: { weeklySchedule } },
+      { new: true, runValidators: true }
+    );
+
+    return updatedVenue ? SportsVenue.fromMongooseDocument(updatedVenue) : null;
+  }
+  async getWeeklySchedule(venueId: string): Promise<WeeklySchedule | null> {
+    const venue = await SportsVenueModel.findById(venueId, {
+      weeklySchedule: 1,
+    }).lean();
+
+    return venue?.weeklySchedule || null;
   }
 }

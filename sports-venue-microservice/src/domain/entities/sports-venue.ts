@@ -18,6 +18,21 @@ export class Location {
   public longitude?: number;
 }
 
+export type TimeSlot = {
+  startTime: string;
+  endTime: string;
+};
+
+export type WeeklySchedule = {
+  Monday: TimeSlot[];
+  Tuesday: TimeSlot[];
+  Wednesday: TimeSlot[];
+  Thursday: TimeSlot[];
+  Friday: TimeSlot[];
+  Saturday: TimeSlot[];
+  Sunday: TimeSlot[];
+};
+
 export class SportsVenue {
   public id?: string;
   public ownerId: string;
@@ -31,6 +46,7 @@ export class SportsVenue {
   public hasShower: boolean;
   public hasBar: boolean;
   public location: Location;
+  public weeklySchedule?: WeeklySchedule;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -47,6 +63,7 @@ export class SportsVenue {
     hasShower: boolean;
     hasBar: boolean;
     location: Location;
+    weeklySchedule?: WeeklySchedule;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -62,6 +79,7 @@ export class SportsVenue {
     this.hasShower = sportsVenue.hasShower;
     this.hasBar = sportsVenue.hasBar;
     this.location = sportsVenue.location;
+    this.weeklySchedule = sportsVenue.weeklySchedule;
     this.createdAt = sportsVenue.createdAt;
     this.updatedAt = sportsVenue.updatedAt;
   }
@@ -87,6 +105,7 @@ export class SportsVenue {
       hasShower: doc.hasShower,
       hasBar: doc.hasBar,
       location: doc.location,
+      weeklySchedule: doc.weeklySchedule,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });
