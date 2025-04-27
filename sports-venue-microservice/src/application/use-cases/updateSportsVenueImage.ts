@@ -1,16 +1,18 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { sportsVenueRepository, firebase } from '../../app';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { firebase, sportsVenueRepository } from '../../app';
+import { SportsVenue } from '../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { SportsVenue } from '../../domain/entities/sports-venue';
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
-export const updateSportsVenueImage = async (req: Request): Promise<SportsVenue> => {
+export const updateSportsVenueImage = async (
+  req: Request
+): Promise<SportsVenue> => {
   const id = req.params.id.toString();
-  
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new BadRequestException('Invalid user ID format');
   }
@@ -53,18 +55,26 @@ export const updateSportsVenueImage = async (req: Request): Promise<SportsVenue>
       throw new BadRequestException('Upload failed');
     }
 
-    const updatedImages = [...(sportsVenue.sportsVenuePictures || []), ...uploadResults];
+    const updatedImages = [
+      ...(sportsVenue.sportsVenuePictures || []),
+      ...uploadResults,
+    ];
 
-    const updatedSportsVenue = await sportsVenueRepository.updateSportsVenueImage(id, {
-      sportsVenuePictures: updatedImages,
-    });  
+    const updatedSportsVenue =
+      await sportsVenueRepository.updateSportsVenueImage(id, {
+        sportsVenuePictures: updatedImages,
+      });
 
     if (!updatedSportsVenue) {
-      throw new InternalServerErrorException('Failed to update Sports Venue images');
+      throw new InternalServerErrorException(
+        'Failed to update Sports Venue images'
+      );
     }
 
     return updatedSportsVenue;
   } catch (error) {
-    throw new InternalServerErrorException('Unexpected error during images updates');
+    throw new InternalServerErrorException(
+      'Unexpected error during images updates'
+    );
   }
 };

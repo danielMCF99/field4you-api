@@ -1,5 +1,5 @@
 import { SportsVenueFilterParams } from '../dtos/sports-venue-filter.dto';
-import { SportsVenue } from '../entities/sports-venue';
+import { SportsVenue } from '../entities/SportsVenue';
 
 export interface ISportsVenueRepository {
   create(sportsVenue: SportsVenue): Promise<SportsVenue>;

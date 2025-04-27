@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { SportsVenueType } from '../entities/sports-venue';
+import { SportsVenueType } from '../entities/SportsVenue';
 
 export const createSportsVenueSchema = z.object({
   sportsVenueType: z.nativeEnum(SportsVenueType),
-  sportsVenueName: z.string().min(1, 'sportsVenueName is required'),
+  sportsVenueName: z.string().min(1, 'Sports Venue name is required'),
   bookingMinDuration: z
     .number()
     .positive('Booking minimum duration must be a positive number'),
@@ -18,9 +18,9 @@ export const createSportsVenueSchema = z.object({
   hasParking: z.boolean(),
   hasShower: z.boolean(),
   hasBar: z.boolean(),
-  district: z.string().min(1, 'district is required'),
-  city: z.string().min(1, 'city is required'),
-  address: z.string().min(1, 'address is required'),
+  district: z.string().min(1, 'District is required'),
+  city: z.string().min(1, 'City is required'),
+  address: z.string().min(1, 'Address is required'),
 });
 
 export type CreateSportsVenueDTO = z.infer<typeof createSportsVenueSchema>;

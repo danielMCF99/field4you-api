@@ -1,4 +1,4 @@
-import { SportsVenueStatus, SportsVenueType } from '../entities/sports-venue';
+import { SportsVenueStatus, SportsVenueType } from '../entities/SportsVenue';
 
 export interface SportsVenueFilterParams {
   ownerId?: string;

@@ -74,10 +74,12 @@ export const deleteUser = async (id: string): Promise<Boolean> => {
       `${rejectedInvitesByUserId.modifiedCount} rejected invites by userId.`
     );
 
+    // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
     return true;
   } catch (error: any) {
+    // Abort DB Transaction
     await session.abortTransaction();
     session.endSession();
     throw new InternalServerErrorException(error.message);

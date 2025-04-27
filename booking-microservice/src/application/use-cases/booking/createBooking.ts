@@ -129,11 +129,13 @@ export const createBooking = async (
       );
     }
 
+    // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
 
     return newBooking;
   } catch (error: any) {
+    // Abort DB Transaction
     await session.abortTransaction();
     session.endSession();
     console.log(error);

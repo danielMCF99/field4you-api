@@ -8,6 +8,7 @@ import {
   getAllSportsVenueController,
   getSportsVenueByIdController,
   updateSportsVenueController,
+  updateSportsVenueRatingController,
   updateSportsVenueStatusController,
   updateSportsVenueImageController
 } from '../controllers/sports-venueController';
@@ -23,6 +24,7 @@ router.get('/sports-venues/swagger', async (req: Request, res: Response) => {
 
 router.post('/sports-venues/create', createSportsVenueController);
 router.patch('/sports-venues/:id/status', updateSportsVenueStatusController);
+router.patch('/sports-venues/:id/rating', updateSportsVenueRatingController);
 router.put('/sports-venues/:id', updateSportsVenueController);
 router.get('/sports-venues', getAllSportsVenueController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);

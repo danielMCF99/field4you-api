@@ -26,14 +26,6 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
     return BookingInvite.fromMongooseDocument(newBookingInvite);
   }
 
-  async findAllByBookingId(bookingId: string): Promise<BookingInvite[] | []> {
-    throw new Error('Method not implemented.');
-  }
-
-  async findAllByUserId(userId: string): Promise<BookingInvite[] | []> {
-    throw new Error('Method not implemented.');
-  }
-
   async update(
     bookingId: string,
     userId: string,
@@ -185,6 +177,30 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
         $set: {
           status,
           cancelReason: reason,
+        },
+      },
+      {
+        session: session,
+      }
+    ).exec();
+  }
+
+  async bulkUpdateStatusByIds(
+    bookingInvitesIds: string[],
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }> {
+    return BookingInviteModel.updateMany(
+      {
+        _id: {
+          $in: bookingInvitesIds.map((id) => new Types.ObjectId(id)),
+        },
+      },
+      {
+        $set: {
+          status,
+          comments: reason,
         },
       },
       {

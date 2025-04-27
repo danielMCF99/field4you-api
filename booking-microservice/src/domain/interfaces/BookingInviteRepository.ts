@@ -7,10 +7,6 @@ export interface IBookingInviteRepository {
 
   findAll(params?: BookingInviteFilterParams): Promise<BookingInvite[]>;
 
-  findAllByBookingId(bookingId: string): Promise<BookingInvite[] | []>;
-
-  findAllByUserId(userId: string): Promise<BookingInvite[] | []>;
-
   update(
     bookingId: string,
     userId: string,
@@ -44,6 +40,13 @@ export interface IBookingInviteRepository {
 
   bulkUpdateStatusByUserId(
     userId: string,
+    status: BookingInviteStatus,
+    reason: string,
+    session?: ClientSession
+  ): Promise<{ modifiedCount: number }>;
+
+  bulkUpdateStatusByIds(
+    bookingInvitesIds: string[],
     status: BookingInviteStatus,
     reason: string,
     session?: ClientSession

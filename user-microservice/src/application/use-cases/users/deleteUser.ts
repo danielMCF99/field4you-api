@@ -5,7 +5,7 @@ import { BadRequestException } from '../../../domain/exceptions/BadRequestExcept
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { publishUserDeletion } from '../../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishUserDeletion } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const deleteUser = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();

@@ -1,12 +1,16 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { bookingInviteRepository } from '../../../app';
-import { BookingInvite } from '../../../domain/entities/BookingInvite';
+import {
+  BookingInvite,
+  BookingInviteStatus,
+} from '../../../domain/entities/BookingInvite';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
-import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
+import { validateBookingInviteStatusTransition } from '../../../infrastructure/utils/bookingInviteUtils';
 
 export const updateBookingInviteStatus = async (
   req: Request
@@ -30,7 +34,8 @@ export const updateBookingInviteStatus = async (
   const comments = updatedData.comments;
   if (
     !newStatus ||
-    (newStatus != 'active' && newStatus != 'cancelled' && newStatus != 'done')
+    (newStatus != BookingInviteStatus.accepted &&
+      newStatus != BookingInviteStatus.rejected)
   ) {
     throw new BadRequestException('Invalid status update request');
   }
@@ -64,6 +69,14 @@ export const updateBookingInviteStatus = async (
     throw new ForbiddenException(
       'Unable to change status of booking invite associated to already completed booking'
     );
+  }
+
+  const isValidStatusTransition = validateBookingInviteStatusTransition(
+    bookingInvite.status,
+    newStatus
+  );
+  if (!isValidStatusTransition) {
+    throw new BadRequestException('Invalid status transition');
   }
 
   try {

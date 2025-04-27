@@ -2,7 +2,7 @@ import { Document, Schema, Types, model } from 'mongoose';
 import {
   SportsVenueStatus,
   SportsVenueType,
-} from '../../../domain/entities/sports-venue';
+} from '../../../domain/entities/SportsVenue';
 
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;
@@ -26,6 +26,8 @@ interface ISportsVenue extends Document {
     latitude: number;
     longitude: number;
   };
+  rating: number;
+  numberOfRatings: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -79,6 +81,8 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
       city: { type: String },
       district: { type: String },
     },
+    rating: { type: Number },
+    numberOfRatings: { type: Number, default: 0 },
   },
   {
     timestamps: true,

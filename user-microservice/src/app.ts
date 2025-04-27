@@ -4,7 +4,7 @@ import user from 'firebase-admin';
 import config from './config/env';
 import { MongoUserRepository } from './infrastructure/repositories/MongoUserRepository';
 import userRoutes from './web/routes/userRoutes';
-import { FirebaseImplementation } from './infrastructure/middlewares/firebase';
+import { FirebaseImplementation } from './infrastructure/firebase/firebase';
 import { MongoOwnerRequestRepository } from './infrastructure/repositories/MongoOwnerRequestRepository';
 
 const app: Application = express();

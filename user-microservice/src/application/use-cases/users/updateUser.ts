@@ -6,7 +6,7 @@ import { BadRequestException } from '../../../domain/exceptions/BadRequestExcept
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
-import { publishUserUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishUserUpdate } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const updateUser = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();

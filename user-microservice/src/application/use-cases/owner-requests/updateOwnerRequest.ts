@@ -7,7 +7,7 @@ import { ForbiddenException } from '../../../domain/exceptions/ForbiddenExceptio
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
-import { publishUserUpdate } from '../../../infrastructure/middlewares/rabbitmq.publisher';
+import { publishUserUpdate } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const updateOwnerRequest = async (req: Request) => {
   const session = await mongoose.startSession();
@@ -57,6 +57,7 @@ export const updateOwnerRequest = async (req: Request) => {
       response,
       session
     );
+
     if (status === 'approved') {
       await userRepository.updateType(ownerRequest.userId, 'owner', session);
       await publishUserUpdate({
@@ -64,12 +65,17 @@ export const updateOwnerRequest = async (req: Request) => {
         updatedData: { userType: UserType.owner },
       });
     }
+
+    // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
+
     return updatedOwnerRequest;
   } catch (error: any) {
+    // Abort DB Transaction
     await session.abortTransaction();
     session.endSession();
+
     console.log(error);
     throw new InternalServerErrorException('Internal Server Error');
   }
