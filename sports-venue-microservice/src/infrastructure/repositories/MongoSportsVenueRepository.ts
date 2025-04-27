@@ -25,6 +25,18 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return SportsVenue.fromMongooseDocument(newSportsVenue);
   }
 
+  async updateSportsVenueImage(
+    id: string,
+    imageData: Partial<SportsVenue>
+  ): Promise<SportsVenue | undefined> {
+    const updatedSportsVenue = await SportsVenueModel.findByIdAndUpdate(id, imageData, {
+      new: true,
+      runValidators: true,
+    });
+    
+    return updatedSportsVenue ? SportsVenue.fromMongooseDocument(updatedSportsVenue) : undefined;
+  }
+
   async update(
     id: string,
     updatedData: Partial<SportsVenue>
@@ -44,6 +56,16 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return deletedSportsVenue
       ? SportsVenue.fromMongooseDocument(deletedSportsVenue)
       : null;
+  }
+
+  async deleteImage(id: string, imageId: string): Promise<SportsVenue | null> {
+    const deletedSportsVenueImage = await SportsVenueModel.findByIdAndUpdate(
+      id,
+      { $pull: { sportsVenuePictures: { _id: imageId } } },
+      { new: true }
+    );
+    
+    return deletedSportsVenueImage ? SportsVenue.fromMongooseDocument(deletedSportsVenueImage) : null;
   }
 
   async findById(id: string): Promise<SportsVenue | null> {

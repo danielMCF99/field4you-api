@@ -18,6 +18,11 @@ export class Location {
   public longitude?: number;
 }
 
+export class SportsVenueImage {
+  public fileName?: string;
+  public imageURL?: string;
+}
+
 export type TimeSlot = {
   startTime: string;
   endTime: string;
@@ -41,7 +46,7 @@ export class SportsVenue {
   public sportsVenueName: string;
   public bookingMinDuration: number;
   public bookingMinPrice: number;
-  public sportsVenuePicture: string;
+  public sportsVenuePictures: SportsVenueImage[];
   public hasParking: boolean;
   public hasShower: boolean;
   public hasBar: boolean;
@@ -58,7 +63,7 @@ export class SportsVenue {
     sportsVenueName: string;
     bookingMinDuration: number;
     bookingMinPrice: number;
-    sportsVenuePicture: string;
+    sportsVenuePictures?: SportsVenueImage[];
     hasParking: boolean;
     hasShower: boolean;
     hasBar: boolean;
@@ -74,7 +79,7 @@ export class SportsVenue {
     this.sportsVenueName = sportsVenue.sportsVenueName;
     this.bookingMinDuration = sportsVenue.bookingMinDuration;
     this.bookingMinPrice = sportsVenue.bookingMinPrice;
-    this.sportsVenuePicture = sportsVenue.sportsVenuePicture;
+    this.sportsVenuePictures = sportsVenue.sportsVenuePictures ?? [];
     this.hasParking = sportsVenue.hasParking;
     this.hasShower = sportsVenue.hasShower;
     this.hasBar = sportsVenue.hasBar;
@@ -100,7 +105,7 @@ export class SportsVenue {
       sportsVenueName: doc.sportsVenueName,
       bookingMinDuration: doc.bookingMinDuration,
       bookingMinPrice: doc.bookingMinPrice,
-      sportsVenuePicture: doc.sportsVenuePicture,
+      sportsVenuePictures: doc.sportsVenuePictures,
       hasParking: doc.hasParking,
       hasShower: doc.hasShower,
       hasBar: doc.hasBar,

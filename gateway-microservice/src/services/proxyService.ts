@@ -60,7 +60,7 @@ class ProxyService {
     data?: any,
     query?: any,
     headers?: Record<string, any>,
-    file?: any
+    files?: any
   ): Promise<ProxyResponse> {
     const baseUrl = serviceConfig[serviceName as keyof typeof serviceConfig];
 
@@ -69,9 +69,11 @@ class ProxyService {
       throw new Error(`Service '${serviceName}' is not configured.`);
     }
 
-    if (file) {
+    if (Array.isArray(files)) {
       const formData = new FormData();
-      formData.append('image', file.buffer, file.originalname);
+      files.forEach((f: any) => {
+        formData.append(f.fieldname, f.buffer, f.originalname);
+      });
       data = formData;
       headers = {
         ...headers,
