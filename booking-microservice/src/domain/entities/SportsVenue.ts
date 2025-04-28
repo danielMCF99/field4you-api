@@ -15,14 +15,17 @@ export type TimeSlot = {
   endTime: string;
 };
 
+export type DayOfWeek =
+  | 'Sunday'
+  | 'Monday'
+  | 'Tuesday'
+  | 'Wednesday'
+  | 'Thursday'
+  | 'Friday'
+  | 'Saturday';
+
 export type WeeklySchedule = {
-  Monday: TimeSlot[];
-  Tuesday: TimeSlot[];
-  Wednesday: TimeSlot[];
-  Thursday: TimeSlot[];
-  Friday: TimeSlot[];
-  Saturday: TimeSlot[];
-  Sunday: TimeSlot[];
+  [key in DayOfWeek]?: TimeSlot[];
 };
 
 export class SportsVenue {

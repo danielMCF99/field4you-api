@@ -1,13 +1,17 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { ZodError } from 'zod';
+import { getDay, format } from 'date-fns';
 import { bookingRepository, sportsVenueRepository } from '../../../app';
 import {
   CreateBookingDTO,
   createBookingSchema,
 } from '../../../domain/dtos/create-booking.dto';
 import { Booking, BookingStatus } from '../../../domain/entities/Booking';
-import { SportsVenueStatus } from '../../../domain/entities/SportsVenue';
+import {
+  DayOfWeek,
+  SportsVenueStatus,
+} from '../../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -49,13 +53,11 @@ export const createBooking = async (
     invitedUsersIds,
   } = parsed;
 
-  // Check if Sports Venue Exists
   const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue for given Booking not found');
   }
 
-  // Check Sports Venue status
   if (sportsVenue.status != SportsVenueStatus.active) {
     throw new BadRequestException(
       'Unable to create booking. Chosen Sports Venue is inactive.'
@@ -85,7 +87,6 @@ export const createBooking = async (
     throw new ConflictException('Booking conflicts with existing bookings');
   }
 
-  // Calculate Booking price based on start and end dates
   const diffInMinutes = Math.floor(
     (endDate.getTime() - startDate.getTime()) / 60000
   );
@@ -94,6 +95,38 @@ export const createBooking = async (
     throw new BadRequestException(
       'Booking duration must be higher to fulfill given Sports Venue Booking minimum time constraint'
     );
+  }
+
+  const dayOfWeekMap = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+
+  const dayOfWeek = dayOfWeekMap[startDate.getDay()];
+  const availableSlots = sportsVenue.weeklySchedule?.[dayOfWeek as DayOfWeek];
+
+  if (!availableSlots || availableSlots.length === 0) {
+    throw new BadRequestException('No available slots for the selected day');
+  }
+
+  const bookingStartHour = format(startDate, 'HH:mm');
+  const bookingEndHour = format(endDate, 'HH:mm');
+
+  const isInsideSlot = availableSlots.some(
+    (slot: { startTime: string; endTime: string }) => {
+      return (
+        bookingStartHour >= slot.startTime && bookingEndHour <= slot.endTime
+      );
+    }
+  );
+
+  if (!isInsideSlot) {
+    throw new BadRequestException('Booking times are outside allowed schedule');
   }
 
   const booking = new Booking({
