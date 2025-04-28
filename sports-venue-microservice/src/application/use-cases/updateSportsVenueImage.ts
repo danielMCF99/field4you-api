@@ -1,13 +1,12 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { sportsVenueRepository, firebase } from '../../app';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-
-import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { firebase, sportsVenueRepository } from '../../app';
 import { SportsVenue } from '../../domain/entities/SportsVenue';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
+import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const updateSportsVenueImage = async (
   req: Request
