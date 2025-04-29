@@ -1,7 +1,10 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { bookingInviteRepository } from '../../../app';
-import { BookingInvite } from '../../../domain/entities/BookingInvite';
+import {
+  BookingInvite,
+  BookingInviteStatus,
+} from '../../../domain/entities/BookingInvite';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -31,7 +34,8 @@ export const updateBookingInviteStatus = async (
   const comments = updatedData.comments;
   if (
     !newStatus ||
-    (newStatus != 'active' && newStatus != 'cancelled' && newStatus != 'done')
+    (newStatus != BookingInviteStatus.accepted &&
+      newStatus != BookingInviteStatus.rejected)
   ) {
     throw new BadRequestException('Invalid status update request');
   }

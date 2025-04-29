@@ -12,7 +12,7 @@ const router = express.Router();
 // Proxy route for microservices
 router.all(
   '/:serviceName/:path(*)?',
-  upload.single('image'),
+  upload.array('image'),
   async (req: Request, res: Response) => {
     const { serviceName } = req.params as {
       serviceName: keyof typeof serviceConfig;
@@ -21,7 +21,7 @@ router.all(
     const method = req.method;
     const data = req.body;
     const query = req.query;
-    const file = req.file;
+    const files = req.files;
 
     // Validate serviceName
     if (!serviceConfig[serviceName]) {
@@ -48,7 +48,7 @@ router.all(
         data,
         query,
         filteredHeaders,
-        file
+        files
       );
 
       res.status(result.status).set(result.headers).json(result.data);

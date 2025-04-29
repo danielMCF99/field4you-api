@@ -20,7 +20,10 @@ router.get('/bookings/swagger', async (req: Request, res: Response) => {
 });
 
 router.get('/bookings/invites', getAllBookingInvitesController);
-router.patch('/bookings/invites/:id', updateBookingInviteStatusController);
+router.patch(
+  '/bookings/invites/:id/status',
+  updateBookingInviteStatusController
+);
 
 router.post('/bookings/create', createBookingController);
 router.get('/bookings', getAllBookingsController);
