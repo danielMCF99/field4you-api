@@ -10,6 +10,17 @@
       "post": {
         "summary": "Create a new booking",
         "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -25,11 +36,6 @@
                     "type": "string",
                     "example": "event",
                     "enum": ["regular", "event"]
-                  },
-                  "status": {
-                    "type": "string",
-                    "example": "active",
-                    "enum": ["active", "inactive"]
                   },
                   "title": { "type": "string", "example": "Football Match" },
                   "bookingStartDate": {
@@ -55,7 +61,6 @@
                 "required": [
                   "sportsVenueId",
                   "bookingType",
-                  "status",
                   "title",
                   "bookingStartDate",
                   "bookingEndDate",
@@ -72,12 +77,22 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Booking created successfully"
-                    }
-                  }
+                  "$ref": "#/components/schemas/Booking",
+                  "required": [
+                    "id",
+                    "ownerId",
+                    "sportsVenueId",
+                    "bookingType",
+                    "status",
+                    "title",
+                    "bookingStartDate",
+                    "bookingEndDate",
+                    "bookingPrice",
+                    "isPublic",
+                    "invitedUsersIds",
+                    "createdAt",
+                    "updatedAt"
+                  ]
                 }
               }
             }
@@ -146,7 +161,6 @@
               }
             }
           },
-
           "500": {
             "description": "Internal server error",
             "content": {
@@ -210,62 +224,98 @@
     },
     "/api/bookings/{id}": {
       "get": {
-        "summary": "Get a booking by ID",
+        "summary": "Get all bookings",
+        "operationId": "getAllBookings",
         "tags": ["Bookings"],
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
+            "name": "title",
+            "in": "query",
             "schema": {
               "type": "string",
-              "example": "643c9c5a12345abcd6789fgh"
-            },
-            "description": "Booking ID"
+              "description": "Filter bookings by title"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Filter bookings by status"
+            }
+          },
+          {
+            "name": "bookingType",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Filter bookings by booking type"
+            }
+          },
+          {
+            "name": "bookingStartDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Filter bookings by start date"
+            }
+          },
+          {
+            "name": "bookingEndDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Filter bookings by end date"
+            }
+          },
+          {
+            "name": "sportsVenueId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Filter bookings by sports venue ID"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "description": "Number of bookings per page"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "description": "Page number for pagination"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Booking details",
+            "description": "List of bookings successfully retrieved",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Booking"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Booking"
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid ID format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid ID format"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Invalid query parameters"
           },
-          "404": {
-            "description": "Booking not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Booking not found"
-                    }
-                  }
-                }
-              }
-            }
+          "500": {
+            "description": "Internal server error"
           }
         }
       },
@@ -336,18 +386,18 @@
         }
       },
       "put": {
-        "summary": "Update a booking by ID",
+        "summary": "Update a booking",
         "tags": ["Bookings"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
+            "description": "Booking ID",
             "schema": {
               "type": "string",
-              "example": "643c9c5a12345abcd6789fgh"
-            },
-            "description": "Booking ID"
+              "example": "6632f26df88e5f180e1a01a9"
+            }
           }
         ],
         "requestBody": {
@@ -357,39 +407,35 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "sportsVenueId": {
-                    "type": "string",
-                    "example": "643c9c5a12345abcd6789fgh"
-                  },
                   "bookingType": {
                     "type": "string",
-                    "example": "regular",
-                    "enum": ["regular", "event"]
+                    "enum": ["regular", "event"],
+                    "example": "regular"
                   },
-                  "status": {
+                  "title": {
                     "type": "string",
-                    "example": "active",
-                    "enum": ["active", "inactive"]
+                    "example": "Booking Daniel"
                   },
-                  "title": { "type": "string", "example": "Updated Title" },
                   "bookingStartDate": {
                     "type": "string",
                     "format": "date-time",
-                    "example": "2024-12-10T14:00:00.000Z"
+                    "example": "2025-07-03T17:00:00.000Z"
                   },
                   "bookingEndDate": {
                     "type": "string",
                     "format": "date-time",
-                    "example": "2024-12-10T16:00:00.000Z"
+                    "example": "2025-07-03T19:00:00.000Z"
                   },
-                  "isPublic": { "type": "boolean", "example": false },
+                  "isPublic": {
+                    "type": "boolean",
+                    "example": false
+                  },
                   "invitedUsersIds": {
                     "type": "array",
-                    "items": { "type": "string" },
-                    "example": [
-                      "643c9c5a12345abcd6789fgh",
-                      "643c9c5a12345abcd6789xyz"
-                    ]
+                    "items": {
+                      "type": "string",
+                      "example": "680ae9785b629393eb461839"
+                    }
                   }
                 }
               }
@@ -398,87 +444,310 @@
         },
         "responses": {
           "200": {
-            "description": "Booking updated successfully",
+            "description": "Booking successfully updated",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Booking updated successfully"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/Booking"
-                    }
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Booking not found"
+          },
+          "409": {
+            "description": "Booking conflicts detected"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [],
+        "headers": {
+          "x-user-id": {
+            "required": true,
+            "description": "Authenticated user's ID",
+            "schema": {
+              "type": "string",
+              "example": "680af0a3d18df4e7fc18ecfe"
+            }
+          },
+          "x-user-type": {
+            "required": true,
+            "description": "User type (admin or user)",
+            "schema": {
+              "type": "string",
+              "example": "user"
+            }
+          }
+        }
+      }
+    },
+    "/api/bookings/{id}/status": {
+      "patch": {
+        "summary": "Update booking status",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "BookingID",
+            "schema": {
+              "type": "string",
+              "example": "680b7a4d62c2a6155f00f016"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "description": "Authenticated user id",
+            "schema": {
+              "type": "string",
+              "example": "680af0a3d18df4e7fc18ecfe"
+            }
+          },
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "description": "User type (ex: 'admin', 'user')",
+            "schema": {
+              "type": "string",
+              "example": "user"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "cancelled", "done"],
+                    "example": "done"
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking status successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status update request"
+          },
+          "401": {
+            "description": "Unauthorized access to update booking"
+          },
+          "404": {
+            "description": "Booking not found for the given ID"
+          },
+          "409": {
+            "description": "Booking conflicts with existing bookings"
+          },
+          "500": {
+            "description": "Internal server error during booking update"
+          }
+        }
+      }
+    },
+    "/api/bookings/invites": {
+      "get": {
+        "summary": "Get all booking invites",
+        "operationId": "getAllBookingInvites",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the user making the request"
+            }
+          },
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The type of the user making the request (e.g., 'admin', 'user')"
+            }
+          },
+          {
+            "name": "bookingId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the booking"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the user"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "The status of the invite"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Limit the number of results returned"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Page number for pagination"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched all booking invites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookingInvite"
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid input or ID format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid ID format"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Invalid request format"
           },
           "401": {
-            "description": "Unauthorized - Bearer token required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Bearer token required"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Booking not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Booking not found"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Unauthorized access to get booking invites"
           },
           "500": {
-            "description": "Error updating booking",
+            "description": "Internal server error while fetching booking invites"
+          }
+        }
+      }
+    },
+    "/api/bookings/invites/{id}": {
+      "patch": {
+        "summary": "Update booking invite status",
+        "operationId": "updateBookingInviteStatus",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique identifier of the booking invite"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the user making the request"
+            }
+          },
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The type of the user making the request (e.g., 'admin', 'user')"
+            }
+          },
+          {
+            "name": "status",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["active", "cancelled", "done"],
+                  "description": "The new status of the booking invite"
+                },
+                "comments": {
+                  "type": "string",
+                  "description": "Any additional comments for the booking invite"
+                }
+              },
+              "required": ["status"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated booking invite status",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "example": "Error updating booking"
-                    }
-                  }
+                  "$ref": "#/components/schemas/BookingInvite"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid request format or status update"
+          },
+          "401": {
+            "description": "Unauthorized user attempting to update booking invite"
+          },
+          "403": {
+            "description": "Forbidden action (booking invite belongs to already completed booking)"
+          },
+          "404": {
+            "description": "Booking invite not found"
+          },
+          "500": {
+            "description": "Internal server error while updating booking invite"
           }
         }
       }
@@ -489,30 +758,117 @@
       "Booking": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
-          "ownerId": { "type": "string", "example": "owner123" },
+          "id": {
+            "type": "string",
+            "example": "680b7a4d62c2a6155f00f016"
+          },
+          "ownerId": {
+            "type": "string",
+            "example": "680af0a3d18df4e7fc18ecfe"
+          },
           "sportsVenueId": {
             "type": "string",
-            "example": "643c9c5a12345abcd6789xyz"
+            "example": "680b7a4000f7422ec3a86ddf"
           },
-          "bookingType": { "type": "string", "example": "event" },
-          "status": { "type": "string", "example": "active" },
-          "title": { "type": "string", "example": "Football Match" },
+          "bookingType": {
+            "type": "string",
+            "enum": ["regular", "event"],
+            "example": "regular"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "cancelled", "completed"],
+            "example": "active"
+          },
+          "title": {
+            "type": "string",
+            "example": "Booking Daniel"
+          },
           "bookingStartDate": {
             "type": "string",
             "format": "date-time",
-            "example": "2024-12-10T14:00:00.000Z"
+            "example": "2025-07-03T17:00:00.000Z"
           },
           "bookingEndDate": {
             "type": "string",
             "format": "date-time",
-            "example": "2024-12-10T16:00:00.000Z"
+            "example": "2025-07-03T19:00:00.000Z"
           },
-          "isPublic": { "type": "boolean", "example": true },
-          "invitedUserIds": {
+          "bookingPrice": {
+            "type": "number",
+            "example": 20
+          },
+          "isPublic": {
+            "type": "boolean",
+            "example": false
+          },
+          "invitedUsersIds": {
             "type": "array",
-            "items": { "type": "string" },
-            "example": ["643c9c5a12345abcd6789fgh", "643c9c5a12345abcd6789xyz"]
+            "items": {
+              "type": "string",
+              "example": "680ae9785b629393eb461839"
+            },
+            "example": [
+              "680ae9785b629393eb461839",
+              "680ae9705b629393eb461836",
+              "680ae9665b629393eb461833"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-04-25T12:04:29.156Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-04-25T12:04:29.156Z"
+          }
+        }
+      },
+      "BookingInvite": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier of the booking invite"
+          },
+          "bookingId": {
+            "type": "string",
+            "description": "The ID of the booking"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The ID of the user invited"
+          },
+          "bookingStartDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The start date and time of the booking"
+          },
+          "bookingEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The end date and time of the booking"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "accepted", "rejected"],
+            "description": "The status of the booking invite"
+          },
+          "comments": {
+            "type": "string",
+            "description": "Any additional comments for the booking invite"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The creation date of the booking invite"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last update date of the booking invite"
           }
         }
       }

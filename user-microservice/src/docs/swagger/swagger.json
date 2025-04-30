@@ -2,128 +2,30 @@
   "openapi": "3.0.0",
   "info": {
     "title": "User Management API Documentation",
-    "version": "1.0.0",
-    "description": "User Management API Information"
+    "version": "1.1.0",
+    "description": "Updated User Management API Information"
   },
   "paths": {
-    "/api/users/create": {
-      "post": {
-        "summary": "Create a new user",
-        "description": "Creates a new user in the user-service.",
-        "tags": ["User"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "authServiceUserId": {
-                    "type": "string",
-                    "example": "123456"
-                  },
-                  "userType": {
-                    "type": "string",
-                    "enum": ["ADMIN", "USER"],
-                    "example": "USER"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "Doe"
-                  },
-                  "birthDate": {
-                    "type": "string",
-                    "format": "date",
-                    "example": "1990-01-01"
-                  },
-                  "registerDate": {
-                    "type": "string",
-                    "format": "date-time",
-                    "example": "2024-12-07T12:00:00Z"
-                  }
-                },
-                "required": [
-                  "authServiceUserId",
-                  "userType",
-                  "email",
-                  "firstName",
-                  "lastName",
-                  "birthDate",
-                  "registerDate"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User successfully created.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Successfully registered the user."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request, required fields are missing.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Bad Request for User creation in user-service"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error during user creation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Something went wrong for new user registration"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/all": {
+    "/api/users": {
       "get": {
         "summary": "Get all users",
-        "description": "Fetches all users from the user-service.",
         "tags": ["User"],
-        "security": [
+        "parameters": [
           {
-            "BearerAuth": []
+            "name": "firstName",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          { "name": "userType", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "example": 10 }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "example": 1 }
           }
         ],
         "responses": {
@@ -132,263 +34,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "users": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "authServiceUserId": {
-                            "type": "string",
-                            "example": "123456"
-                          },
-                          "userType": {
-                            "type": "string",
-                            "enum": ["ADMIN", "USER"],
-                            "example": "USER"
-                          },
-                          "email": {
-                            "type": "string",
-                            "format": "email",
-                            "example": "user@example.com"
-                          },
-                          "firstName": {
-                            "type": "string",
-                            "example": "John"
-                          },
-                          "lastName": {
-                            "type": "string",
-                            "example": "Doe"
-                          },
-                          "birthDate": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "1990-01-01"
-                          },
-                          "registerDate": {
-                            "type": "string",
-                            "format": "date-time",
-                            "example": "2024-12-07T12:00:00Z"
-                          }
-                        },
-                        "required": [
-                          "authServiceUserId",
-                          "userType",
-                          "email",
-                          "firstName",
-                          "lastName",
-                          "birthDate",
-                          "registerDate"
-                        ]
-                      }
-                    }
-                  }
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
                 }
               }
             }
           },
-          "401": {
-            "description": "Unauthorized. Token is either missing or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Bearer token required"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error while fetching users.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Something went wrong"
-                    }
-                  }
-                }
-              }
-            }
-          }
+          "500": { "description": "Internal server error" }
         }
       }
     },
     "/api/users/{id}": {
       "get": {
         "summary": "Get user by ID",
-        "description": "Fetches a specific user by their ID.",
         "tags": ["User"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the user to fetch",
-            "schema": {
-              "type": "string",
-              "example": "605c72ef153207001f8e4e1"
-            }
-          }
-        ],
-        "security": [
-          {
-            "BearerAuth": []
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully fetched the user.",
+            "description": "Successfully fetched user.",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "authServiceUserId": {
-                      "type": "string",
-                      "example": "123456"
-                    },
-                    "userType": {
-                      "type": "string",
-                      "enum": ["ADMIN", "USER"],
-                      "example": "USER"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "user@example.com"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "Doe"
-                    },
-                    "birthDate": {
-                      "type": "string",
-                      "format": "date",
-                      "example": "1990-01-01"
-                    },
-                    "registerDate": {
-                      "type": "string",
-                      "format": "date-time",
-                      "example": "2024-12-07T12:00:00Z"
-                    }
-                  },
-                  "required": [
-                    "authServiceUserId",
-                    "userType",
-                    "email",
-                    "firstName",
-                    "lastName",
-                    "birthDate",
-                    "registerDate"
-                  ]
-                }
+                "schema": { "$ref": "#/components/schemas/User" }
               }
             }
           },
-          "400": {
-            "description": "Invalid ID format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid ID format"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized. Token is either missing or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Bearer token required"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found for the given ID.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "User for given ID not found"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error while fetching the user.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Something went wrong"
-                    }
-                  }
-                }
-              }
-            }
-          }
+          "404": { "description": "User not found" }
         }
       },
       "put": {
         "summary": "Update user by ID",
-        "description": "Updates a specific user's details. The user must be authenticated via Bearer token.",
         "tags": ["User"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the user to update",
-            "schema": {
-              "type": "string",
-              "example": "605c72ef153207001f8e4e1"
-            }
-          },
-          {
-            "name": "Authorization",
-            "in": "header",
-            "required": true,
-            "description": "Bearer token for authentication",
-            "schema": {
-              "type": "string",
-              "example": "Bearer your-token-here"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "requestBody": {
@@ -398,105 +86,93 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "phoneNumber": {
-                    "type": "string",
-                    "example": "+1234567890"
-                  },
-                  "district": {
-                    "type": "string",
-                    "example": "Central"
-                  },
-                  "city": {
-                    "type": "string",
-                    "example": "New York"
-                  },
-                  "address": {
-                    "type": "string",
-                    "example": "123 Main St"
-                  },
-                  "latitude": {
-                    "type": "number",
-                    "format": "float",
-                    "example": 40.7128
-                  },
-                  "longitude": {
-                    "type": "number",
-                    "format": "float",
-                    "example": -74.006
-                  }
-                },
-                "required": [
-                  "phoneNumber",
-                  "district",
-                  "city",
-                  "address",
-                  "latitude",
-                  "longitude"
-                ]
+                  "phoneNumber": { "type": "string" },
+                  "district": { "type": "string" },
+                  "city": { "type": "string" },
+                  "address": { "type": "string" },
+                  "latitude": { "type": "number" },
+                  "longitude": { "type": "number" }
+                }
               }
             }
           }
         },
-        "security": [
+        "responses": {
+          "200": { "description": "User updated successfully." },
+          "400": { "description": "Invalid input or ID format." },
+          "401": { "description": "Unauthorized to update this user." },
+          "404": { "description": "User not found." },
+          "500": { "description": "Internal server error updating user." }
+        }
+      },
+      "delete": {
+        "summary": "Delete user by ID",
+        "tags": ["User"],
+        "parameters": [
           {
-            "BearerAuth": []
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
+          "200": { "description": "User deleted successfully." },
+          "403": { "description": "Forbidden - only admin can delete." },
+          "404": { "description": "User not found." },
+          "500": { "description": "Internal server error deleting user." }
+        }
+      }
+    },
+    "/api/users/status": {
+      "patch": {
+        "summary": "Update a user's status",
+        "tags": ["User"],
+        "description": "Allows users to update their own status or admins to update any user's status. Only 'active' and 'inactive' are allowed.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive"],
+                    "example": "active"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "example": "643c9c5a12345abcd6789fgh",
+                    "description": "Optional: If provided, only admins can change the status of another user."
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
           "200": {
-            "description": "Successfully updated the user.",
+            "description": "User status updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "authServiceUserId": {
-                      "type": "string",
-                      "example": "123456"
-                    },
-                    "userType": {
-                      "type": "string",
-                      "enum": ["ADMIN", "USER"],
-                      "example": "USER"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "user@example.com"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "Doe"
-                    },
-                    "birthDate": {
-                      "type": "string",
-                      "format": "date",
-                      "example": "1990-01-01"
-                    },
-                    "registerDate": {
-                      "type": "string",
-                      "format": "date-time",
-                      "example": "2024-12-07T12:00:00Z"
-                    }
-                  }
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid ID format or bad request",
+            "description": "Invalid input or missing required fields",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
+                    "error": {
                       "type": "string",
-                      "example": "Invalid ID format"
+                      "example": "Invalid status update request"
                     }
                   }
                 }
@@ -504,7 +180,7 @@
             }
           },
           "401": {
-            "description": "Authentication failed or missing token",
+            "description": "Unauthorized - Regular users cannot update other users' statuses",
             "content": {
               "application/json": {
                 "schema": {
@@ -512,7 +188,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Authentication failed"
+                      "example": "Regular user can only update its own status"
                     }
                   }
                 }
@@ -520,7 +196,7 @@
             }
           },
           "404": {
-            "description": "User not found for the given ID",
+            "description": "User not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -528,7 +204,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "User with given ID not found"
+                      "example": "User not found"
                     }
                   }
                 }
@@ -536,15 +212,15 @@
             }
           },
           "500": {
-            "description": "Internal server error while updating the user.",
+            "description": "Internal server error updating user status",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
+                    "error": {
                       "type": "string",
-                      "example": "Something went wrong with user update"
+                      "example": "Failed to update User"
                     }
                   }
                 }
@@ -552,60 +228,64 @@
             }
           }
         }
-      },
-      "delete": {
-        "summary": "Delete user by ID",
-        "description": "Deletes a specific user based on the provided ID. The user must be authenticated via Bearer token.",
+      }
+    },
+    "/api/users/{id}/image": {
+      "patch": {
+        "summary": "Update user's profile image",
         "tags": ["User"],
+        "description": "Allows a user to update their profile image. Only the user itself or an admin can perform this action.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the user to delete",
             "schema": {
               "type": "string",
-              "example": "605c72ef153207001f8e4e1"
-            }
-          },
-          {
-            "name": "Authorization",
-            "in": "header",
-            "required": true,
-            "description": "Bearer token for authentication",
-            "schema": {
-              "type": "string",
-              "example": "Bearer your-token-here"
-            }
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "User ID"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Profile image file to upload"
+                  }
+                },
+                "required": ["image"]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Successfully deleted the user.",
+            "description": "User image updated successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Resource deleted"
-                    }
-                  }
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid ID format",
+            "description": "Bad request, invalid image or missing file",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
+                    "error": {
                       "type": "string",
-                      "example": "Invalid ID format"
+                      "example": "Image is required"
                     }
                   }
                 }
@@ -613,7 +293,7 @@
             }
           },
           "401": {
-            "description": "Authentication failed or missing token",
+            "description": "Unauthorized - user cannot update another user's image",
             "content": {
               "application/json": {
                 "schema": {
@@ -621,7 +301,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Authentication failed"
+                      "example": "User is only able to update its own image"
                     }
                   }
                 }
@@ -629,7 +309,7 @@
             }
           },
           "404": {
-            "description": "User not found for the given ID",
+            "description": "User not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -637,7 +317,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "User with given ID not found"
+                      "example": "User not found"
                     }
                   }
                 }
@@ -645,7 +325,180 @@
             }
           },
           "500": {
-            "description": "Internal server error while deleting the user",
+            "description": "Internal server error updating user image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unexpected error during image update"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/owner-requests/create": {
+      "post": {
+        "summary": "Create an owner request",
+        "tags": ["Owner Requests"],
+        "description": "Allows a user to submit a request to become an owner. Only users who are not already owners and have no pending requests can submit.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "I would like to become an owner to manage my sports venues."
+                  }
+                },
+                "required": ["message"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Owner request created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - user already an owner or has a pending request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User is already an owner"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error creating owner request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to create owner request"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/owner-requests/all": {
+      "get": {
+        "summary": "Get all owner requests",
+        "tags": ["Owner Requests"],
+        "description": "Allows an admin to retrieve all owner requests with optional filters like status, date range, sorting and pagination.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "approved", "rejected"]
+            },
+            "description": "Filter requests by their status."
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter requests submitted after this date."
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter requests submitted before this date."
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "status"],
+              "default": "createdAt"
+            },
+            "description": "Sort the requests by 'createdAt' or 'status'."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc"
+            },
+            "description": "Order of the sorting."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number for pagination."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Number of requests per page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of owner requests successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OwnerRequest"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Only admin users are allowed to access this endpoint.",
             "content": {
               "application/json": {
                 "schema": {
@@ -653,7 +506,240 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Something went wrong"
+                      "example": "Only admins can access all owner requests"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error retrieving owner requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/owner-requests/{id}": {
+      "get": {
+        "summary": "Get owner request by ID",
+        "tags": ["Owner Requests"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Owner request details." },
+          "404": { "description": "Owner request not found." }
+        }
+      },
+      "patch": {
+        "summary": "Update the status of an owner request",
+        "tags": ["Owner Requests"],
+        "description": "Allows an admin to approve or reject an owner request. Only pending requests can be updated.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "645f9c3b2fc13e0020123456"
+            },
+            "description": "ID of the owner request to update."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["approved", "rejected"],
+                    "example": "approved",
+                    "description": "New status for the owner request."
+                  },
+                  "response": {
+                    "type": "string",
+                    "example": "Congratulations, your request has been approved.",
+                    "description": "Optional response message when approving or rejecting the request."
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Owner request updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing or invalid fields, or request already processed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Status must be either 'approved' or 'rejected'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing authentication headers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Only admins can update owner requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Only admins can update the status of owner requests"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner request not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Owner Request not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error updating owner request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/owner-requests": {
+      "get": {
+        "summary": "Get owner requests by user ID",
+        "tags": ["Owner Requests"],
+        "description": "Allows a user to view their own owner requests, or admins to view any user's requests.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "ID of the user whose owner requests you want to fetch."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of owner requests retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OwnerRequest"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Non-admin users can only view their own owner requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "You can only view your own requests"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error retrieving owner requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal Server Error"
                     }
                   }
                 }
@@ -683,6 +769,46 @@
           "longitude": { "type": "number" },
           "birthDate": { "type": "string", "format": "date" },
           "registerDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "OwnerRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "645f9c3b2fc13e0020123456"
+          },
+          "userId": {
+            "type": "string",
+            "example": "643c9c5a12345abcd6789fgh"
+          },
+          "message": {
+            "type": "string",
+            "example": "I would like to manage sports venues in my area."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "approved", "rejected"],
+            "example": "pending"
+          },
+          "response": {
+            "type": "string",
+            "example": "Congratulations! You are now an owner."
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-04-25T12:04:29.156Z"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-04-28T10:15:00.000Z"
+          },
+          "reviewedBy": {
+            "type": "string",
+            "example": "admin_user_id"
+          }
         }
       }
     },

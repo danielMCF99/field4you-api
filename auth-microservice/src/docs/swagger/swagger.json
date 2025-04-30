@@ -31,6 +31,12 @@
                     "type": "string",
                     "format": "date",
                     "example": "1990-01-01"
+                  },
+                  "district": { "type": "string", "example": "Braga" },
+                  "city": { "type": "string", "example": "Barcelos" },
+                  "address": {
+                    "type": "string",
+                    "example": "Rua David Barbosa"
                   }
                 },
                 "required": [
@@ -39,7 +45,10 @@
                   "password",
                   "firstName",
                   "lastName",
-                  "birthDate"
+                  "birthDate",
+                  "district",
+                  "city",
+                  "address"
                 ]
               }
             }
@@ -67,7 +76,7 @@
             }
           },
           "400": {
-            "description": "Bad request, missing or invalid fields.",
+            "description": "Duplicate email.",
             "content": {
               "application/json": {
                 "schema": {
@@ -75,7 +84,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Bad Request for User creation"
+                      "example": "Given email is already being used"
                     }
                   }
                 }

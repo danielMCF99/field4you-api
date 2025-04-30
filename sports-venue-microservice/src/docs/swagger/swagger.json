@@ -44,7 +44,7 @@
                   "bookingMinPrice": {
                     "type": "number",
                     "format": "int32",
-                    "example": "25"
+                    "example": 25
                   },
                   "sportsVenuePicture": {
                     "type": "string",
@@ -366,7 +366,7 @@
                   "bookingMinPrice": {
                     "type": "number",
                     "format": "int32",
-                    "example": "25"
+                    "example": 25
                   },
                   "sportsVenuePicture": {
                     "type": "string",
@@ -480,11 +480,14 @@
   },
   "components": {
     "schemas": {
-      "sports-venue": {
+      "SportsVenue": {
         "type": "object",
         "properties": {
           "id": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
-          "ownerId": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
+          "ownerId": {
+            "type": "string",
+            "example": "643c9c5a12345abcd6789fgh"
+          },
           "location": {
             "type": "string",
             "example": "Barcelos, Braga, Portugal"
