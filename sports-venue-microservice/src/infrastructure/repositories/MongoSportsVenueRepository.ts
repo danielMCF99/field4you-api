@@ -1,5 +1,6 @@
 import { SportsVenueFilterParams } from '../../domain/dtos/sports-venue-filter.dto';
-import { SportsVenue } from '../../domain/entities/SportsVenue';
+import { SportsVenue, WeeklySchedule } from '../../domain/entities/SportsVenue';
+
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venueModel';
 
@@ -26,12 +27,18 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     id: string,
     imageData: Partial<SportsVenue>
   ): Promise<SportsVenue | undefined> {
-    const updatedSportsVenue = await SportsVenueModel.findByIdAndUpdate(id, imageData, {
-      new: true,
-      runValidators: true,
-    });
-    
-    return updatedSportsVenue ? SportsVenue.fromMongooseDocument(updatedSportsVenue) : undefined;
+    const updatedSportsVenue = await SportsVenueModel.findByIdAndUpdate(
+      id,
+      imageData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return updatedSportsVenue
+      ? SportsVenue.fromMongooseDocument(updatedSportsVenue)
+      : undefined;
   }
 
   async update(
@@ -61,8 +68,10 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       { $pull: { sportsVenuePictures: { _id: imageId } } },
       { new: true }
     );
-    
-    return deletedSportsVenueImage ? SportsVenue.fromMongooseDocument(deletedSportsVenueImage) : null;
+
+    return deletedSportsVenueImage
+      ? SportsVenue.fromMongooseDocument(deletedSportsVenueImage)
+      : null;
   }
 
   async findById(id: string): Promise<SportsVenue | null> {
@@ -128,5 +137,25 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     );
 
     return updatedVenues.modifiedCount;
+  }
+  async updateWeeklySchedule(
+    venueId: string,
+    weeklySchedule: WeeklySchedule
+  ): Promise<SportsVenue | null> {
+    console.log('Aqui', venueId, weeklySchedule);
+    const updatedVenue = await SportsVenueModel.findByIdAndUpdate(
+      venueId,
+      { $set: { weeklySchedule } },
+      { new: true, runValidators: true }
+    );
+
+    return updatedVenue ? SportsVenue.fromMongooseDocument(updatedVenue) : null;
+  }
+  async getWeeklySchedule(venueId: string): Promise<WeeklySchedule | null> {
+    const venue = await SportsVenueModel.findById(venueId, {
+      weeklySchedule: 1,
+    }).lean();
+
+    return venue?.weeklySchedule || null;
   }
 }

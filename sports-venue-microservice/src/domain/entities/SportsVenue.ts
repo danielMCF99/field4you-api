@@ -18,10 +18,25 @@ export class Location {
   public longitude?: number;
 }
 
-export class SportsVenueImage{
+export class SportsVenueImage {
   public fileName?: string;
   public imageURL?: string;
 }
+
+export type TimeSlot = {
+  startTime: string;
+  endTime: string;
+};
+
+export type WeeklySchedule = {
+  Monday: TimeSlot[];
+  Tuesday: TimeSlot[];
+  Wednesday: TimeSlot[];
+  Thursday: TimeSlot[];
+  Friday: TimeSlot[];
+  Saturday: TimeSlot[];
+  Sunday: TimeSlot[];
+};
 
 export class SportsVenue {
   public id?: string;
@@ -36,6 +51,7 @@ export class SportsVenue {
   public hasShower: boolean;
   public hasBar: boolean;
   public location: Location;
+  public weeklySchedule?: WeeklySchedule;
   public rating?: number;
   public numberOfRatings?: number;
   public createdAt?: Date;
@@ -54,6 +70,7 @@ export class SportsVenue {
     hasShower: boolean;
     hasBar: boolean;
     location: Location;
+    weeklySchedule?: WeeklySchedule;
     rating?: number;
     numberOfRatings?: number;
     createdAt?: Date;
@@ -71,6 +88,7 @@ export class SportsVenue {
     this.hasShower = sportsVenue.hasShower;
     this.hasBar = sportsVenue.hasBar;
     this.location = sportsVenue.location;
+    this.weeklySchedule = sportsVenue.weeklySchedule;
     this.rating = sportsVenue.rating;
     this.numberOfRatings = sportsVenue.numberOfRatings;
     this.createdAt = sportsVenue.createdAt;
@@ -98,6 +116,7 @@ export class SportsVenue {
       hasShower: doc.hasShower,
       hasBar: doc.hasBar,
       location: doc.location,
+      weeklySchedule: doc.weeklySchedule,
       rating: doc.rating,
       numberOfRatings: doc.numberOfRatings,
       createdAt: doc.createdAt,

@@ -10,6 +10,24 @@ export enum SportsVenueStatus {
   inactive = 'inactive',
 }
 
+export type TimeSlot = {
+  startTime: string;
+  endTime: string;
+};
+
+export type DayOfWeek =
+  | 'Sunday'
+  | 'Monday'
+  | 'Tuesday'
+  | 'Wednesday'
+  | 'Thursday'
+  | 'Friday'
+  | 'Saturday';
+
+export type WeeklySchedule = {
+  [key in DayOfWeek]?: TimeSlot[];
+};
+
 export class SportsVenue {
   public id?: string;
   public ownerId?: string;
@@ -17,6 +35,7 @@ export class SportsVenue {
   public status: SportsVenueStatus;
   public bookingMinDuration: number;
   public bookingMinPrice: number;
+  public weeklySchedule?: WeeklySchedule;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -27,6 +46,7 @@ export class SportsVenue {
     status: SportsVenueStatus;
     bookingMinDuration: number;
     bookingMinPrice: number;
+    weeklySchedule?: WeeklySchedule;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -36,6 +56,7 @@ export class SportsVenue {
     this.status = sportsVenue.status;
     this.bookingMinDuration = sportsVenue.bookingMinDuration;
     this.bookingMinPrice = sportsVenue.bookingMinPrice;
+    this.weeklySchedule = sportsVenue.weeklySchedule;
     this.createdAt = sportsVenue.createdAt;
     this.updatedAt = sportsVenue.updatedAt;
   }
@@ -51,6 +72,7 @@ export class SportsVenue {
       status: doc.status,
       bookingMinDuration: doc.bookingMinDuration,
       bookingMinPrice: doc.bookingMinPrice,
+      weeklySchedule: doc.weeklySchedule,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

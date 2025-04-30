@@ -13,6 +13,7 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { publishSportsVenueCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
+import { mapToWeeklySchedule } from '../../utils/mapToWeeklySchedule';
 
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
@@ -58,8 +59,14 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     district,
     city,
     address,
+    weeklySchedule,
   } = parsed;
 
+  const formattedWeeklySchedule = weeklySchedule
+    ? mapToWeeklySchedule(weeklySchedule)
+    : undefined;
+  console.log(parsed);
+  console.log(weeklySchedule);
   const sportsVenue = new SportsVenue({
     ownerId,
     sportsVenueType,
@@ -76,8 +83,10 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       city,
       address,
     },
+    weeklySchedule: formattedWeeklySchedule,
   });
-
+  console.log(weeklySchedule);
+  console.log(sportsVenue);
   try {
     const newSportsVenue = await sportsVenueRepository.create(sportsVenue);
     if (!newSportsVenue) {
@@ -92,6 +101,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
       sportsVenueName: newSportsVenue.sportsVenueName,
       bookingMinDuration: newSportsVenue.bookingMinDuration,
       bookingMinPrice: newSportsVenue.bookingMinPrice,
+      weeklySchedule: newSportsVenue.weeklySchedule,
     });
 
     return newSportsVenue;

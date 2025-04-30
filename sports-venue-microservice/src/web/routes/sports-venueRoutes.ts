@@ -10,7 +10,9 @@ import {
   updateSportsVenueController,
   updateSportsVenueRatingController,
   updateSportsVenueStatusController,
-  updateSportsVenueImageController
+  updateSportsVenueImageController,
+  updateSportsVenueScheduleController,
+  getSportsVenueScheduleController,
 } from '../controllers/sports-venueController';
 
 const storage = multer.memoryStorage();
@@ -29,8 +31,20 @@ router.put('/sports-venues/:id', updateSportsVenueController);
 router.get('/sports-venues', getAllSportsVenueController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
-router.patch('/sports-venues/:id/image', upload.array('image'), updateSportsVenueImageController);
-router.delete('/sports-venues/:id/image/:imageId', deleteSportsVenueImageController);
+router.patch(
+  '/sports-venues/:id/image',
+  upload.array('image'),
+  updateSportsVenueImageController
+);
+router.delete(
+  '/sports-venues/:id/image/:imageId',
+  deleteSportsVenueImageController
+);
+router.patch(
+  '/sports-venues/:id/schedule',
+  updateSportsVenueScheduleController
+);
+router.get('/sports-venues/:id/schedule', getSportsVenueScheduleController);
 
 //router.post("/sports-venue/query", query-sports-venue);
 //router.post("/sports-venue/:id/schedule", create-query-sports-venue);
