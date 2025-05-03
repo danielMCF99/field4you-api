@@ -17,6 +17,10 @@ export function validateBookingStatusTransition(
       console.log(`Booking status transition from done to ${nextStatus}`);
       return false;
 
+    case BookingStatus.confirmed:
+      console.log(`Booking status transition from confirmed to ${nextStatus}`);
+      return true;
+
     default:
       return false;
   }

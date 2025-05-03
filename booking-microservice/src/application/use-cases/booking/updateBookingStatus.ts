@@ -33,6 +33,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     BookingStatus.active,
     BookingStatus.cancelled,
     BookingStatus.done,
+    BookingStatus.confirmed,
   ];
   if (!newStatus || !validStatus.includes(newStatus)) {
     throw new BadRequestException('Invalid status update request');
