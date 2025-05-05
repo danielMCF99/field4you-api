@@ -5,7 +5,7 @@ import {
   subscribeSportsVenueEvents,
   subscribeUserEvents,
 } from './infrastructure/rabbitmq/rabbitmq.subscriber';
-import { startLoggingJob } from './utils/job';
+import { startLoggingJob } from './infrastructure/utils/job';
 
 const startServer = async () => {
   try {

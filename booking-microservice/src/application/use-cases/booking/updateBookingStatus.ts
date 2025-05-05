@@ -1,6 +1,10 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingInviteRepository, bookingRepository } from '../../../app';
+import {
+  bookingInviteRepository,
+  bookingRepository,
+  sportsVenueRepository,
+} from '../../../app';
 import { Booking, BookingStatus } from '../../../domain/entities/Booking';
 import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
@@ -11,6 +15,7 @@ import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedEx
 import { publishFinishedBooking } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 import { validateBookingStatusTransition } from '../../../infrastructure/utils/bookingUtils';
 import { checkBookingConflicts } from './checkBookingConflicts';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 
 export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -35,12 +40,37 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     BookingStatus.done,
     BookingStatus.confirmed,
   ];
+
   if (!newStatus || !validStatus.includes(newStatus)) {
     throw new BadRequestException('Invalid status update request');
   }
 
   const ownerId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
+  if (ownerId) {
+  }
+
+  if (newStatus === BookingStatus.confirmed) {
+    const booking = await bookingRepository.findById(id);
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    const sportsVenue = await sportsVenueRepository.findById(
+      booking.sportsVenueId
+    );
+    if (!sportsVenue) {
+      throw new NotFoundException('Sports venue not found');
+    }
+    if (!sportsVenue.ownerId) {
+      throw new NotFoundException('Sports venue owner not found');
+    }
+    if (sportsVenue.ownerId.toString() !== ownerId?.toString()) {
+      throw new UnauthorizedException(
+        'Only the owner of the sports venue can confirm this booking'
+      );
+    }
+  }
 
   if (!ownerId || !userType) {
     throw new InternalServerErrorException(

@@ -1,7 +1,7 @@
-import { bookingInviteRepository, bookingRepository } from '../app';
-import { BookingStatus } from '../domain/entities/Booking';
-import { BookingInviteStatus } from '../domain/entities/BookingInvite';
-import { publishFinishedBooking } from '../infrastructure/rabbitmq/rabbitmq.publisher';
+import { bookingInviteRepository, bookingRepository } from '../../app';
+import { BookingStatus } from '../../domain/entities/Booking';
+import { BookingInviteStatus } from '../../domain/entities/BookingInvite';
+import { publishFinishedBooking } from '../rabbitmq/rabbitmq.publisher';
 
 export const autoUpdateBookingsToDone = async (): Promise<void> => {
   const now = new Date();
