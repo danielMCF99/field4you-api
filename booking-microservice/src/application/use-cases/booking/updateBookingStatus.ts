@@ -15,7 +15,6 @@ import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedEx
 import { publishFinishedBooking } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 import { validateBookingStatusTransition } from '../../../infrastructure/utils/bookingUtils';
 import { checkBookingConflicts } from './checkBookingConflicts';
-import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 
 export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -105,6 +104,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
     booking.status,
     newStatus
   );
+  console.log('Valid', isValidStatusTransition);
   if (!isValidStatusTransition) {
     throw new BadRequestException('Invalid status transition');
   }

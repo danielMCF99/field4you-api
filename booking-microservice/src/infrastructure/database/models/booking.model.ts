@@ -30,7 +30,12 @@ const bookingSchema = new Schema<IBookingDocument>(
       type: String,
       required: true,
       default: BookingStatus.active,
-      enum: [BookingStatus.active, BookingStatus.cancelled, BookingStatus.done],
+      enum: [
+        BookingStatus.active,
+        BookingStatus.cancelled,
+        BookingStatus.done,
+        BookingStatus.confirmed,
+      ],
     },
     title: { type: String, minlength: 3, maxlength: 100, required: true },
     bookingStartDate: { type: Date, required: true },
