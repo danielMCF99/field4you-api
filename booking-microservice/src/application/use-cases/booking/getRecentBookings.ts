@@ -1,4 +1,4 @@
-import { subDays } from 'date-fns';
+import { eachDayOfInterval, formatISO, subDays } from 'date-fns';
 import { Request } from 'express';
 import { sportsVenueRepository } from '../../../app';
 import { RecentBookingsResponseDTO } from '../../../domain/dtos/recent-bookings.dto';
@@ -29,7 +29,7 @@ export const getRecentBookings = async (
     }
 
     console.time('bookings-stats');
-    const [currentMonthBookings, lastMonthBookings, dailyRaw] =
+    const [currentMonthBookings, lastMonthBookings, dailyBookings] =
       await Promise.all([
         BookingModel.countDocuments({
           status: { $in: ALLOWED_STATUS },
@@ -43,36 +43,9 @@ export const getRecentBookings = async (
             sportsVenueIds.length > 0 ? { $in: sportsVenueIds } : undefined,
           bookingStartDate: { $gte: sixtyDaysAgo, $lte: thirtyDaysAgo },
         }),
-        BookingModel.aggregate([
-          {
-            $match: {
-              ...(sportsVenueIds.length > 0 && {
-                sportsVenueId: { $in: sportsVenueIds },
-              }),
-              status: { $in: ALLOWED_STATUS },
-              bookingStartDate: { $gte: thirtyDaysAgo, $lte: now },
-            },
-          },
-          {
-            $group: {
-              _id: {
-                $dateToString: {
-                  format: '%Y-%m-%d',
-                  date: '$bookingStartDate',
-                },
-              },
-              count: { $sum: 1 },
-            },
-          },
-          { $sort: { _id: 1 } },
-        ]),
+        getDailyActivity(thirtyDaysAgo, now),
       ]);
     console.timeEnd('bookings-stats');
-    const dailyBookings = dailyRaw.map((d) => ({
-      date: d._id,
-      count: d.count,
-    }));
-
     const percentageDifference =
       lastMonthBookings === 0
         ? currentMonthBookings > 0
@@ -94,4 +67,39 @@ export const getRecentBookings = async (
       'Internal server error fetching recent bookings'
     );
   }
+};
+
+const getDailyActivity = async (start: Date, end: Date) => {
+  const bookings = await BookingModel.aggregate([
+    {
+      $match: {
+        lastAccessDate: {
+          $gte: start,
+          $lte: end,
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: '%Y-%m-%d', date: '$bookingStartDate' },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+  ]);
+
+  const daysInMonth = eachDayOfInterval({ start, end }).map((day) => ({
+    date: formatISO(day, { representation: 'date' }),
+    count: 0,
+  }));
+
+  const countsMap = new Map(bookings.map((u) => [u._id, u.count]));
+  return daysInMonth.map((day) => ({
+    date: day.date,
+    count: countsMap.get(day.date) || 0,
+  }));
 };
