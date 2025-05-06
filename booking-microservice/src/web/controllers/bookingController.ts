@@ -3,6 +3,7 @@ import { createBooking } from '../../application/use-cases/booking/createBooking
 import { deleteBooking } from '../../application/use-cases/booking/deleteBooking';
 import { getAllBookings } from '../../application/use-cases/booking/getAllBookings';
 import { getBookingById } from '../../application/use-cases/booking/getBookingById';
+import { getRecentBookings } from '../../application/use-cases/booking/getRecentBookings';
 import { updateBooking } from '../../application/use-cases/booking/updateBooking';
 import { updateBookingStatus } from '../../application/use-cases/booking/updateBookingStatus';
 
@@ -72,6 +73,19 @@ export const deleteBookingController = async (req: Request, res: Response) => {
   try {
     await deleteBooking(req);
     res.status(204).json({});
+    return;
+  } catch (error: any) {
+    return res.status(error.statusCode).json({ message: error.message });
+  }
+};
+
+export const getRecentBookingsController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const response = await getRecentBookings(req);
+    res.status(200).json(response);
     return;
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });

@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Document, Schema, Types, model } from 'mongoose';
 import { BookingStatus, BookingType } from '../../../domain/entities/Booking';
 
 interface IBookingDocument extends Document {
@@ -20,7 +20,7 @@ interface IBookingDocument extends Document {
 const bookingSchema = new Schema<IBookingDocument>(
   {
     ownerId: { type: String, required: true },
-    sportsVenueId: { type: String, required: true },
+    sportsVenueId: { type: String, required: true, index: true },
     bookingType: {
       type: String,
       required: true,
@@ -31,10 +31,11 @@ const bookingSchema = new Schema<IBookingDocument>(
       required: true,
       default: BookingStatus.active,
       enum: [BookingStatus.active, BookingStatus.cancelled, BookingStatus.done],
+      index: true,
     },
     title: { type: String, minlength: 3, maxlength: 100, required: true },
-    bookingStartDate: { type: Date, required: true },
-    bookingEndDate: { type: Date, required: true },
+    bookingStartDate: { type: Date, required: true, index: true },
+    bookingEndDate: { type: Date, required: true, index: true },
     bookingPrice: {
       type: Number,
       required: true,
