@@ -7,6 +7,7 @@ export enum BookingStatus {
   active = 'active',
   cancelled = 'cancelled',
   done = 'done',
+  confirmed = 'confirmed',
 }
 
 export class Booking {
