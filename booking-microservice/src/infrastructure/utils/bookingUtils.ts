@@ -3,18 +3,24 @@ import { BookingStatus } from '../../domain/entities/Booking';
 export function validateBookingStatusTransition(
   currentStatus: BookingStatus,
   nextStatus: BookingStatus
-): Boolean {
+): boolean {
   switch (currentStatus) {
     case BookingStatus.active:
-      console.log(`Booking status transition from active to ${nextStatus}`);
-      return true;
+      return (
+        nextStatus === BookingStatus.confirmed ||
+        nextStatus === BookingStatus.cancelled
+      );
+
+    case BookingStatus.confirmed:
+      return (
+        nextStatus === BookingStatus.done ||
+        nextStatus === BookingStatus.cancelled
+      );
 
     case BookingStatus.cancelled:
-      console.log(`Booking status transition from cancelled to ${nextStatus}`);
-      return true;
+      return false;
 
     case BookingStatus.done:
-      console.log(`Booking status transition from done to ${nextStatus}`);
       return false;
 
     default:
