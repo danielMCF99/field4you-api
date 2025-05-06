@@ -1,17 +1,24 @@
-FROM node:20.18-alpine
+FROM node:20-18-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json /app/
+COPY package*.json ./
+COPY tsconfig*.json ./
 
-RUN npm ci
+RUN npm install
 
-COPY . /app/
+COPY . .
 
-RUN mkdir -p /app/dist && chown -R node:node /app
+RUN npm run build
 
-EXPOSE 3005
+FROM node:20-18-alpine
 
-USER node
+WORKDIR /app
 
-CMD [ "npm", "start" ]
+COPY package*.json ./
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["node", "dist/main"]
