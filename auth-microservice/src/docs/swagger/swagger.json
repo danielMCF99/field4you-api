@@ -438,7 +438,7 @@
       "get": {
         "summary": "Get active users statistics",
         "description": "Returns statistics about user activity in the last 30 days, including comparison with the previous 30-day period and a daily breakdown.",
-        "tags": ["Users"],
+        "tags": ["Auth"],
         "security": [
           {
             "bearerAuth": []

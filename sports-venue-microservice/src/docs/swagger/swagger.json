@@ -9,6 +9,7 @@
     "/api/sports-venues/create": {
       "post": {
         "summary": "Create a new sports venue",
+        "tags": ["Sports Venues"],
         "description": "Creates a new sports venue, including details like name, type, schedule, and facilities",
         "requestBody": {
           "required": true,
@@ -738,6 +739,7 @@
     "/api/sports-venues/{id}/image": {
       "patch": {
         "summary": "Update images of a sports venue",
+        "tags": ["Sports Venues"],
         "description": "Allows the owner or admin to upload images for a sports venue",
         "parameters": [
           {
@@ -882,6 +884,7 @@
     "/api/sports-venues/{id}/image/{imageId}": {
       "delete": {
         "summary": "Delete an image of a sports venue",
+        "tags": ["Sports Venues"],
         "description": "Allows the owner or admin to delete an image from a sports venue",
         "parameters": [
           {
@@ -1024,6 +1027,7 @@
     "/api/sports-venues/{id}/schedule": {
       "patch": {
         "summary": "Update the weekly schedule of a sports venue",
+        "tags": ["Sports Venues"],
         "description": "Allows the owner or admin to update the weekly schedule for a sports venue",
         "parameters": [
           {
@@ -1282,6 +1286,7 @@
       },
       "get": {
         "summary": "Get the weekly schedule of a sports venue",
+        "tags": ["Sports Venues"],
         "description": "Retrieves the weekly schedule for a specific sports venue",
         "parameters": [
           {
