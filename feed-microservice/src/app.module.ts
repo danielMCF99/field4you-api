@@ -4,12 +4,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostModule } from './post/post.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      cache: true,
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -19,6 +21,7 @@ import { PostModule } from './post/post.module';
       }),
     }),
     PostModule,
+    FirebaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

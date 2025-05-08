@@ -15,7 +15,7 @@ export class Post {
   comments?: string;
 
   @Prop({ required: true })
-  imageName: string;
+  fileName: string;
 
   @Prop({ required: true })
   imageUrl: string;

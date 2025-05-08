@@ -5,11 +5,4 @@ export class CreatePostDto {
   @IsString()
   @MaxLength(250)
   comments?: string;
-
-  @IsString()
-  @MaxLength(250)
-  imageName: string;
-
-  @IsString()
-  imageUrl: string;
 }
