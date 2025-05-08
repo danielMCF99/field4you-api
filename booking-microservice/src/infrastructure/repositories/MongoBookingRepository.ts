@@ -43,7 +43,10 @@ export class MongoBookingRepository implements IBookingRepository {
     return Booking.fromMongooseDocument(booking);
   }
 
-  async findAll(params?: BookingFilterParams): Promise<Booking[]> {
+  async findAll(
+    params?: BookingFilterParams,
+    allowedStatuses?: BookingStatus[]
+  ): Promise<Booking[]> {
     const {
       title = '',
       status = '',
@@ -63,9 +66,13 @@ export class MongoBookingRepository implements IBookingRepository {
 
     if (status) {
       query.status = status;
+    } else if (allowedStatuses) {
+      query.status = { $in: allowedStatuses };
     }
 
-    if (sportsVenueId) {
+    if (Array.isArray(sportsVenueId)) {
+      query.sportsVenueId = { $in: sportsVenueId };
+    } else if (sportsVenueId) {
       query.sportsVenueId = sportsVenueId;
     }
 

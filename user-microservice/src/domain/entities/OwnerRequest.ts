@@ -10,7 +10,8 @@ export class OwnerRequest {
   public message?: string;
   public status: Status;
   public response?: string;
-  public submittedAt: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
   public reviewedAt?: Date;
   public reviewedBy?: string;
 
@@ -20,7 +21,8 @@ export class OwnerRequest {
     message?: string;
     status: Status;
     response?: string;
-    submittedAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
     reviewedAt?: Date;
     reviewedBy?: string;
   }) {
@@ -29,7 +31,8 @@ export class OwnerRequest {
     this.message = ownerRequest.message;
     this.status = ownerRequest.status;
     this.response = ownerRequest.response;
-    this.submittedAt = ownerRequest.submittedAt;
+    this.createdAt = ownerRequest.createdAt;
+    this.updatedAt = ownerRequest.updatedAt;
     this.reviewedAt = ownerRequest.reviewedAt;
     this.reviewedBy = ownerRequest.reviewedBy;
   }
@@ -47,7 +50,8 @@ export class OwnerRequest {
       userId: doc.userId.toString(),
       message: doc.message,
       status: doc.status,
-      submittedAt: doc.submittedAt,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
       reviewedAt: doc.reviewedAt,
       reviewedBy: doc.reviewedBy,
     });

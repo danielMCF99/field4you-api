@@ -2,6 +2,7 @@ import amqp, { Connection } from 'amqplib';
 import { deleteUser } from '../../application/use-cases/deleteUser';
 import config from '../../config/env';
 import { updateUser } from '../../application/use-cases/updateUser';
+import { updateUserType } from '../../application/use-cases/updateUserType';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -38,6 +39,7 @@ export async function subscribeUserDeletion() {
     const queue = 'auth_user_events';
     await channel.assertQueue(queue, { durable: true });
     await channel.bindQueue(queue, 'user.events', 'user.deleted');
+    await channel.bindQueue(queue, 'user.events', 'user.updated');
     await channel.bindQueue(queue, 'user.events', 'user.status.updated');
 
     console.log(`[*] Waiting for User events...`);
@@ -56,6 +58,11 @@ export async function subscribeUserDeletion() {
           case 'user.deleted':
             console.log('Received User deleted');
             await deleteUser(data.userId);
+            break;
+          case 'user.updated':
+            console.log('Received User updated');
+            console.log(data);
+            await updateUserType(data.userId, data.updatedData.userType);
             break;
           default:
             console.warn(`Unknown routing key: ${routingKey}`);

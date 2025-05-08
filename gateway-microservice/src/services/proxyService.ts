@@ -69,7 +69,7 @@ class ProxyService {
       throw new Error(`Service '${serviceName}' is not configured.`);
     }
 
-    if (Array.isArray(files)) {
+    if (Array.isArray(files) && files.length > 0) {
       const formData = new FormData();
       files.forEach((f: any) => {
         formData.append(f.fieldname, f.buffer, f.originalname);
