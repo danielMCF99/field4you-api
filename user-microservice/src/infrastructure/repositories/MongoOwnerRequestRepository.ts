@@ -21,7 +21,8 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
       userId: new Types.ObjectId(ownerRequest.userId),
       message: ownerRequest.message,
       status: ownerRequest.status,
-      submittedAt: ownerRequest.submittedAt,
+      createdAt: ownerRequest.createdAt,
+      updatedAt: ownerRequest.updatedAt,
       reviewedAt: ownerRequest.reviewedAt,
       reviewedBy: ownerRequest.reviewedBy,
     });

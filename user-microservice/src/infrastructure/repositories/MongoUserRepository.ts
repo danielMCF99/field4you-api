@@ -91,7 +91,7 @@ export class MongoUserRepository implements IUserRepository {
   ): Promise<User | undefined> {
     const updatedUser = await UserModel.findByIdAndUpdate(
       id,
-      { type },
+      { userType: type },
       {
         new: true,
         runValidators: true,
