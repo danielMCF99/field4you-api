@@ -35,8 +35,10 @@ export const createOwnerRequest = async (req: Request) => {
     userId,
     message,
     status: Status.pending,
-    submittedAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
+
   try {
     const newOwnerRequest = await ownerRequestRepository.create(ownerRequest);
     if (!newOwnerRequest) {

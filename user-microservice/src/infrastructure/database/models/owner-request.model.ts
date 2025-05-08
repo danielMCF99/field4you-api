@@ -25,7 +25,6 @@ const ownerRequestSchema = new Schema<IOwnerRequest>(
       default: 'pending',
     },
     response: { type: String },
-    submittedAt: { type: Date, default: Date.now },
     reviewedAt: { type: Date },
     reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },

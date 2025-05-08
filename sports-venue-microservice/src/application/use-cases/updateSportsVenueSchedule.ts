@@ -7,6 +7,7 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { SportsVenue, WeeklySchedule } from '../../domain/entities/SportsVenue';
+import { publishSportsVenueUpdate } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const updateSportsVenueSchedule = async (
   req: Request
@@ -60,7 +61,13 @@ export const updateSportsVenueSchedule = async (
         'Failed to update sports venue schedule'
       );
     }
-
+    await publishSportsVenueUpdate({
+      sportsVenueId: updatedSportsVenue.getId(),
+      ownerId: updatedSportsVenue.ownerId,
+      updatedData: {
+        weeklySchedule: updatedSportsVenue.weeklySchedule,
+      },
+    });
     return updatedSportsVenue;
   } catch (error) {
     throw new InternalServerErrorException(
