@@ -79,8 +79,9 @@ export class PostService {
 
   async remove(headers: Record<string, string>, id: string) {
     const creatorEmail = headers['x-user-email'];
+    const userType = headers['x-user-type'];
 
-    if (!creatorEmail) {
+    if (!creatorEmail || !userType) {
       throw new UnauthorizedException('Missing user identification in headers');
     }
 
@@ -90,13 +91,18 @@ export class PostService {
       throw new NotFoundException('Post not found');
     }
 
-    if (creatorEmail != post.creatorEmail) {
-      throw new UnauthorizedException('User is not allowed to delete post');
+    if (userType != 'admin') {
+      if (creatorEmail != post.creatorEmail) {
+        throw new UnauthorizedException('User is not allowed to delete post');
+      }
     }
 
-    await this.firebaseRepository.deletePost(id);
+    await this.firebaseRepository.deletePost(post.fileName);
     await this.postModel.findByIdAndDelete(id);
 
-    return post._id;
+    return {
+      deletedPostId: post._id,
+      message: 'Post was successfully deleted',
+    };
   }
 }

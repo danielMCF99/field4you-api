@@ -47,15 +47,7 @@ export class FirebaseRepository {
     });
   }
 
-  async deletePost(postId: string): Promise<void> {
-    const doc = await this.#collection.doc(postId).get();
-
-    if (!doc.exists) {
-      throw new NotFoundException('Post não encontrado');
-    }
-
-    const { fileName } = doc.data() as { fileName: string };
-
+  async deletePost(fileName: string): Promise<void> {
     // Apagar imagem no Storage
     await this.#bucket
       .file(fileName)
@@ -64,8 +56,7 @@ export class FirebaseRepository {
         console.warn(`Não foi possível apagar a imagem: ${fileName}`);
       });
 
-    // Apagar documento no Firestore
-    await this.#collection.doc(postId).delete();
+    // await this.#collection.doc(postId).delete();
   }
 
   async listPostsPaginated(

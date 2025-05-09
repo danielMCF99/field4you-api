@@ -8,14 +8,17 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseFilters,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AllExceptionsFilter } from 'src/utils/exception.filter';
 import { CreatePostDto } from './dto/create-post.dto';
-import { PostService } from './post.service';
 import { GetAllPostsDtoSchema } from './dto/get-all-posts.dto';
+import { PostService } from './post.service';
 
 @Controller('posts')
+@UseFilters(AllExceptionsFilter)
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
