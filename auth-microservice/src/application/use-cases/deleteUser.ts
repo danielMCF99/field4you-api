@@ -1,10 +1,10 @@
-import { userRepository } from '../../app';
+import { authRepository } from '../../app';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export const deleteUser = async (id: string): Promise<Boolean> => {
   try {
     // Delete User from Database
-    await userRepository.delete(id);
+    await authRepository.delete(id);
 
     return true;
   } catch (error: any) {

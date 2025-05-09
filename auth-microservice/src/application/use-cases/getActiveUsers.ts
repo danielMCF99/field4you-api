@@ -1,7 +1,7 @@
 import { eachDayOfInterval, formatISO, subDays } from 'date-fns';
 import { Request } from 'express';
 import { ActiveUsersResponseDTO } from '../../domain/dtos/active-users.dto';
-import { UserModel } from '../../infrastructure/database/models/user.model';
+import { LoginHistoryModel } from '../../infrastructure/database/models/login-history.model';
 
 export const getActiveUsers = async (
   req: Request
@@ -13,14 +13,14 @@ export const getActiveUsers = async (
 
   const [currentActiveUsers, previousActiveUsers, dailyBreakdown] =
     await Promise.all([
-      UserModel.countDocuments({
-        lastAccessDate: {
+      LoginHistoryModel.countDocuments({
+        loginDate: {
           $gte: currentPeriodStart,
           $lte: now,
         },
       }),
-      UserModel.countDocuments({
-        lastAccessDate: {
+      LoginHistoryModel.countDocuments({
+        loginDate: {
           $gte: previousPeriodStart,
           $lte: previousPeriodEnd,
         },
@@ -43,10 +43,10 @@ export const getActiveUsers = async (
 };
 
 const getDailyActivity = async (start: Date, end: Date) => {
-  const users = await UserModel.aggregate([
+  const users = await LoginHistoryModel.aggregate([
     {
       $match: {
-        lastAccessDate: {
+        loginDate: {
           $gte: start,
           $lte: end,
         },
@@ -55,7 +55,7 @@ const getDailyActivity = async (start: Date, end: Date) => {
     {
       $group: {
         _id: {
-          $dateToString: { format: '%Y-%m-%d', date: '$lastAccessDate' },
+          $dateToString: { format: '%Y-%m-%d', date: '$loginDate' },
         },
         count: { $sum: 1 },
       },

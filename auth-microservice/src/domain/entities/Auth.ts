@@ -8,7 +8,7 @@ export enum UserStatus {
   inactive = 'inactive',
 }
 
-export class User {
+export class Auth {
   private id?: string;
   public userType: UserType;
   public email: string;
@@ -21,7 +21,7 @@ export class User {
   public createdAt?: Date;
   public updatedAt?: Date;
 
-  constructor(user: {
+  constructor(auth: {
     id?: string;
     userType: UserType;
     email: string;
@@ -34,25 +34,25 @@ export class User {
     createdAt?: Date;
     updatedAt?: Date;
   }) {
-    this.id = user.id;
-    this.userType = user.userType;
-    this.email = user.email;
-    this.password = user.password;
-    this.status = user.status;
-    this.registerDate = user.registerDate;
-    this.lastAccessDate = user.lastAccessDate;
-    this.resetPasswordToken = user.resetPasswordToken;
-    this.resetPasswordExpires = user.resetPasswordExpires;
-    this.createdAt = user.createdAt;
-    this.updatedAt = user.updatedAt;
+    this.id = auth.id;
+    this.userType = auth.userType;
+    this.email = auth.email;
+    this.password = auth.password;
+    this.status = auth.status;
+    this.registerDate = auth.registerDate;
+    this.lastAccessDate = auth.lastAccessDate;
+    this.resetPasswordToken = auth.resetPasswordToken;
+    this.resetPasswordExpires = auth.resetPasswordExpires;
+    this.createdAt = auth.createdAt;
+    this.updatedAt = auth.updatedAt;
   }
 
   getId(): string {
     return this.id ? this.id : 'N/A';
   }
 
-  static fromMongooseDocument(doc: any): User {
-    return new User({
+  static fromMongooseDocument(doc: any): Auth {
+    return new Auth({
       id: doc._id.toString(), // Convert ObjectId to string
       userType: doc.userType,
       email: doc.email,

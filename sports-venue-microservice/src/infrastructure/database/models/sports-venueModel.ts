@@ -119,5 +119,6 @@ const SportsVenueSchema = new Schema<ISportsVenue>(
 
 export const SportsVenueModel = model<ISportsVenue>(
   'SportsVenue',
-  SportsVenueSchema
+  SportsVenueSchema,
+  'SportsVenues'
 );

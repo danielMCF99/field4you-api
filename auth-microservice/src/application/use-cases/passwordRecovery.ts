@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { jwtHelper, mailer, userRepository } from '../../app';
+import { authRepository, jwtHelper, mailer } from '../../app';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 
@@ -13,25 +13,25 @@ export const passwordRecovery = async (req: Request): Promise<string> => {
   }
 
   // Find user by email
-  const user = await userRepository.findByEmail(email);
+  const auth = await authRepository.findByEmail(email);
 
   // If user not found return 404 status with customized message
-  if (!user) {
+  if (!auth) {
     throw new NotFoundException('User with given email not found.');
   }
 
   // Generate token for the password recovery
   const token = await jwtHelper.generateToken(
-    user.getId(),
-    user.email,
-    user.userType.toString()
+    auth.getId(),
+    auth.email,
+    auth.userType.toString()
   );
 
   const newResetPasswordToken = token;
   const newResetPasswordExpires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
 
   // Updated given user fields related to password recovery
-  await userRepository.update(user.getId(), {
+  await authRepository.update(auth.getId(), {
     password: 'shouldBeRandomString',
     resetPasswordToken: newResetPasswordToken,
     resetPasswordExpires: newResetPasswordExpires,

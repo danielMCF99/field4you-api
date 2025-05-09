@@ -22,5 +22,6 @@ const bookingInviteSchema = new Schema<IBookingInviteDocument>(
 
 export const BookingInviteModel = model<IBookingInviteDocument>(
   'BookingInvite',
-  bookingInviteSchema
+  bookingInviteSchema,
+  'BookingInvites'
 );

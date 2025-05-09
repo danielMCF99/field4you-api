@@ -3,11 +3,13 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { JwtHelperImplementation } from './infrastructure/jwt/jwtHelper';
 import { MailerImplementation } from './infrastructure/mailer/mailer';
-import { MongoUserRepository } from './infrastructure/repositories/MongoUserRepository';
+import { MongoAuthRepository } from './infrastructure/repositories/MongoAuthRepository';
+import { MongoLoginHistoryRepository } from './infrastructure/repositories/MongoLoginHistoryRepository';
 import authRoutes from './web/routes/authRoutes';
 
 const app: Application = express();
-export const userRepository = MongoUserRepository.getInstance();
+export const authRepository = MongoAuthRepository.getInstance();
+export const loginHistoryRepository = MongoLoginHistoryRepository.getInstance();
 export const jwtHelper = JwtHelperImplementation.getInstance();
 export const mailer = MailerImplementation.getInstance();
 
