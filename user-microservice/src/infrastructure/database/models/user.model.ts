@@ -57,4 +57,4 @@ const userSchema = new Schema<IUserDocument>(
   }
 );
 
-export const UserModel = model<IUserDocument>('User', userSchema);
+export const UserModel = model<IUserDocument>('User', userSchema, 'Users');

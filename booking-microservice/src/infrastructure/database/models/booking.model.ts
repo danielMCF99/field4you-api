@@ -56,4 +56,8 @@ const bookingSchema = new Schema<IBookingDocument>(
   }
 );
 
-export const BookingModel = model<IBookingDocument>('Booking', bookingSchema);
+export const BookingModel = model<IBookingDocument>(
+  'Booking',
+  bookingSchema,
+  'Bookings'
+);

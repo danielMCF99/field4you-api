@@ -16,7 +16,6 @@ export async function publishUserCreation(userPayload: {
   };
   userType: string;
   birthDate: string;
-  registerDate: string;
 }) {
   try {
     const connection = await amqp.connect(config.rabbitmqURL);

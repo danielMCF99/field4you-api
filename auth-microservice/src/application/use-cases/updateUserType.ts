@@ -1,5 +1,5 @@
-import { userRepository } from '../../app';
-import { UserType } from '../../domain/entities/User';
+import { authRepository } from '../../app';
+import { UserType } from '../../domain/entities/Auth';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export const updateUserType = async (
@@ -8,10 +8,10 @@ export const updateUserType = async (
 ): Promise<any> => {
   try {
     console.log(userId, UserType);
-    const updatedUser = await userRepository.update(userId, {
+    const updatedAuth = await authRepository.update(userId, {
       userType: UserType,
     });
-    return updatedUser;
+    return updatedAuth;
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);
   }

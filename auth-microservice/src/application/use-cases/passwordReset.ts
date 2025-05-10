@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { Request } from 'express';
-import { userRepository } from '../../app';
+import { authRepository } from '../../app';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
@@ -24,14 +24,14 @@ export const passwordReset = async (req: Request): Promise<string> => {
   }
 
   // Find user by email
-  const user = await userRepository.findByEmail(email);
+  const auth = await authRepository.findByEmail(email);
 
-  if (!user) {
+  if (!auth) {
     throw new NotFoundException('User with given email not found.');
   }
 
   // If user not found return 404 status with customized message
-  const userResetPasswordToken = user.resetPasswordToken;
+  const userResetPasswordToken = auth.resetPasswordToken;
 
   // Check if user is able to perform password recovery
   if (!userResetPasswordToken || userResetPasswordToken != passwordResetToken) {
@@ -41,8 +41,8 @@ export const passwordReset = async (req: Request): Promise<string> => {
   }
 
   if (
-    !user.resetPasswordExpires ||
-    Date.now() > user.resetPasswordExpires.getTime()
+    !auth.resetPasswordExpires ||
+    Date.now() > auth.resetPasswordExpires.getTime()
   ) {
     throw new UnauthorizedException(
       'Token validation for password recovery has expired'
@@ -50,7 +50,7 @@ export const passwordReset = async (req: Request): Promise<string> => {
   }
 
   // Update user with new password
-  await userRepository.update(user.getId(), {
+  await authRepository.update(auth.getId(), {
     password: await bcrypt.hash(password, 10),
   });
 
