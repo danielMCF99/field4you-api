@@ -8,8 +8,9 @@
   "paths": {
     "/api/sports-venues/create": {
       "post": {
-        "summary": "Create a new Sports Venue",
+        "summary": "Create a new sports venue",
         "tags": ["Sports Venues"],
+        "description": "Creates a new sports venue, including details like name, type, schedule, and facilities",
         "requestBody": {
           "required": true,
           "content": {
@@ -17,39 +18,38 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "location": {
-                    "type": "string",
-                    "example": "Barcelos, Braga, Portugal"
-                  },
                   "sportsVenueType": {
                     "type": "string",
-                    "example": "11x11",
-                    "enum": ["5x5", "7x7", "9x9", "11x11"]
-                  },
-                  "status": {
-                    "type": "string",
-                    "example": "active",
-                    "enum": ["active", "inactive"]
+                    "example": "Football"
                   },
                   "sportsVenueName": {
                     "type": "string",
-                    "example": "City sports Arena",
-                    "format": "string"
+                    "example": "Futebol Club"
                   },
                   "bookingMinDuration": {
-                    "type": "number",
-                    "example": 60,
-                    "format": "int32"
+                    "type": "integer",
+                    "example": 30
                   },
                   "bookingMinPrice": {
                     "type": "number",
-                    "format": "int32",
-                    "example": 25
+                    "format": "float",
+                    "example": 50.0
                   },
-                  "sportsVenuePicture": {
-                    "type": "string",
-                    "format": "binary",
-                    "example": "https://example.com/image.jpg"
+                  "sportsVenuePictures": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fileName": {
+                          "type": "string",
+                          "example": "image1.jpg"
+                        },
+                        "imageURL": {
+                          "type": "string",
+                          "example": "https://firebase.com/images/image1.jpg"
+                        }
+                      }
+                    }
                   },
                   "hasParking": {
                     "type": "boolean",
@@ -62,59 +62,154 @@
                   "hasBar": {
                     "type": "boolean",
                     "example": true
+                  },
+                  "district": {
+                    "type": "string",
+                    "example": "Downtown"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Barcelona"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "1234 Main St"
+                  },
+                  "weeklySchedule": {
+                    "type": "object",
+                    "properties": {
+                      "Monday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "18:00"
+                            }
+                          }
+                        }
+                      },
+                      "Tuesday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "18:00"
+                            }
+                          }
+                        }
+                      },
+                      "Wednesday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "18:00"
+                            }
+                          }
+                        }
+                      },
+                      "Thursday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "18:00"
+                            }
+                          }
+                        }
+                      },
+                      "Friday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "18:00"
+                            }
+                          }
+                        }
+                      },
+                      "Saturday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "18:00"
+                            }
+                          }
+                        }
+                      },
+                      "Sunday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "18:00"
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
-                },
-                "required": [
-                  "location",
-                  "sportsVenueType",
-                  "status",
-                  "sportsVenueName",
-                  "bookingMinDuration",
-                  "bookingMinPrice",
-                  "sportsVenuePicture",
-                  "hasParking",
-                  "hasShower",
-                  "hasBar"
-                ]
+                }
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Sports Venue created successfully",
+            "description": "Sports venue created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Sports Venue created successfully"
-                    }
-                  }
+                  "$ref": "#/components/schemas/SportsVenue"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid input or missing required fields",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "example": "Missing required fields"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Bearer token required",
+            "description": "Bad request due to missing or invalid fields",
             "content": {
               "application/json": {
                 "schema": {
@@ -122,7 +217,30 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Bearer token required"
+                      "example": "Missing or invalid required fields"
+                    },
+                    "missingFields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["sportsVenueName", "weeklySchedule"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Only owners can create a sports venue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Regular users are not able to create a sports venue"
                     }
                   }
                 }
@@ -130,15 +248,15 @@
             }
           },
           "500": {
-            "description": "Internal server error",
+            "description": "Internal server error while creating sports venue",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
+                    "message": {
                       "type": "string",
-                      "example": "Error creating sports venue"
+                      "example": "Internal server error creating sports venue"
                     }
                   }
                 }
@@ -476,6 +594,892 @@
           }
         }
       }
+    },
+    "/api/sports-venues/{id}/status": {
+      "patch": {
+        "summary": "Update Sports Venue Status",
+        "description": "Updates the status of a sports venue (active or inactive). Only the venue owner can perform this action.",
+        "tags": ["Sports Venues"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "The ID of the sports venue to update."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive"],
+                    "example": "inactive",
+                    "description": "New status for the sports venue."
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sports venue status successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SportsVenue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g., invalid ID or status)."
+          },
+          "401": {
+            "description": "Unauthorized access – the user does not own this venue."
+          },
+          "404": {
+            "description": "Sports venue not found."
+          },
+          "500": {
+            "description": "Internal server error while updating the status."
+          }
+        }
+      }
+    },
+    "/api/sports-venues/{id}/rating": {
+      "patch": {
+        "summary": "Update Sports Venue Rating",
+        "description": "Allows a user who participated in a booking to rate the sports venue.",
+        "tags": ["Sports Venues"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            },
+            "description": "The ID of the sports venue to rate."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookingId": {
+                    "type": "string",
+                    "example": "644c9e1a12345abc12345678",
+                    "description": "ID of the booking associated with this rating."
+                  },
+                  "rating": {
+                    "type": "number",
+                    "format": "float",
+                    "minimum": 0,
+                    "maximum": 5,
+                    "example": 4.5,
+                    "description": "Rating value (0 to 5)."
+                  }
+                },
+                "required": ["bookingId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sports venue rating successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SportsVenue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to invalid rating or booking ID."
+          },
+          "401": {
+            "description": "Unauthorized – missing or invalid user headers."
+          },
+          "404": {
+            "description": "Sports venue not found or user not invited for booking."
+          },
+          "500": {
+            "description": "Internal server error while updating the rating."
+          }
+        }
+      }
+    },
+    "/api/sports-venues/{id}/image": {
+      "patch": {
+        "summary": "Update images of a sports venue",
+        "tags": ["Sports Venues"],
+        "description": "Allows the owner or admin to upload images for a sports venue",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the sports venue",
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "description": "The ID of the authenticated user",
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            }
+          },
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "description": "The type of user (owner/admin)",
+            "schema": {
+              "type": "string",
+              "enum": ["owner", "admin"],
+              "example": "owner"
+            }
+          },
+          {
+            "name": "image",
+            "in": "formData",
+            "required": true,
+            "description": "Images to be uploaded",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the sports venue with new images",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SportsVenue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, missing required images or invalid user ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "At least one image is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user attempting to update sports venue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User is not authorized to update this venue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden for regular users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Regular User is not allowed to delete this venue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sports venue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error during image updates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unexpected error during images updates"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sports-venues/{id}/image/{imageId}": {
+      "delete": {
+        "summary": "Delete an image of a sports venue",
+        "tags": ["Sports Venues"],
+        "description": "Allows the owner or admin to delete an image from a sports venue",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the sports venue",
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            }
+          },
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the image to delete",
+            "schema": {
+              "type": "string",
+              "example": "image12345abcd6789fgh"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "description": "The ID of the authenticated user",
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            }
+          },
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "description": "The type of user (owner/admin)",
+            "schema": {
+              "type": "string",
+              "enum": ["owner", "admin"],
+              "example": "owner"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the sports venue image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user attempting to delete image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User is not authorized to update this venue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden for regular users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Regular User is not allowed to delete this venue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sports venue or image not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue with given ID not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error deleting sports venue image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error deleting sports venue"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sports-venues/{id}/schedule": {
+      "patch": {
+        "summary": "Update the weekly schedule of a sports venue",
+        "tags": ["Sports Venues"],
+        "description": "Allows the owner or admin to update the weekly schedule for a sports venue",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the sports venue",
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "description": "The ID of the authenticated user",
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            }
+          },
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "description": "The type of user (owner/admin)",
+            "schema": {
+              "type": "string",
+              "enum": ["owner", "admin"],
+              "example": "owner"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "weeklySchedule": {
+                    "type": "object",
+                    "properties": {
+                      "Monday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "17:00"
+                            }
+                          }
+                        }
+                      },
+                      "Tuesday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "17:00"
+                            }
+                          }
+                        }
+                      },
+                      "Wednesday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "17:00"
+                            }
+                          }
+                        }
+                      },
+                      "Thursday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "17:00"
+                            }
+                          }
+                        }
+                      },
+                      "Friday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "17:00"
+                            }
+                          }
+                        }
+                      },
+                      "Saturday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "17:00"
+                            }
+                          }
+                        }
+                      },
+                      "Sunday": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "startTime": {
+                              "type": "string",
+                              "example": "09:00"
+                            },
+                            "endTime": {
+                              "type": "string",
+                              "example": "17:00"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated the sports venue schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SportsVenue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format or missing required schedule fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid sports venue ID format or missing required schedule fields"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user attempting to update the schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "You are not authorized to update this sports venue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden for regular users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "You are not allowed to update a sports venue schedule"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sports venue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error updating sports venue schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unexpected error during schedule update"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get the weekly schedule of a sports venue",
+        "tags": ["Sports Venues"],
+        "description": "Retrieves the weekly schedule for a specific sports venue",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the sports venue",
+            "schema": {
+              "type": "string",
+              "example": "643c9c5a12345abcd6789fgh"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the sports venue weekly schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "weeklySchedule": {
+                      "type": "object",
+                      "properties": {
+                        "Monday": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "string",
+                                "example": "09:00"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "example": "17:00"
+                              }
+                            }
+                          }
+                        },
+                        "Tuesday": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "string",
+                                "example": "09:00"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "example": "17:00"
+                              }
+                            }
+                          }
+                        },
+                        "Wednesday": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "string",
+                                "example": "09:00"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "example": "17:00"
+                              }
+                            }
+                          }
+                        },
+                        "Thursday": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "string",
+                                "example": "09:00"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "example": "17:00"
+                              }
+                            }
+                          }
+                        },
+                        "Friday": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "string",
+                                "example": "09:00"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "example": "17:00"
+                              }
+                            }
+                          }
+                        },
+                        "Saturday": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "string",
+                                "example": "09:00"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "example": "17:00"
+                              }
+                            }
+                          }
+                        },
+                        "Sunday": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "startTime": {
+                                "type": "string",
+                                "example": "09:00"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "example": "17:00"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid sports venue ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sports venue not found or missing schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sports Venue not found or this venue does not have a weekly schedule"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error retrieving sports venue schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unexpected error during schedule retrieval"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -483,43 +1487,43 @@
       "SportsVenue": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "example": "643c9c5a12345abcd6789fgh" },
+          "id": {
+            "type": "string",
+            "example": "643c9c5a12345abcd6789fgh"
+          },
           "ownerId": {
             "type": "string",
             "example": "643c9c5a12345abcd6789fgh"
           },
-          "location": {
-            "type": "string",
-            "example": "Barcelos, Braga, Portugal"
-          },
           "sportsVenueType": {
             "type": "string",
-            "example": "11x11",
-            "enum": ["5x5", "7x7", "9x9", "11x11"]
+            "enum": ["5x5", "7x7", "9x9", "11x11"],
+            "example": "11x11"
           },
           "status": {
             "type": "string",
-            "example": "active",
-            "enum": ["active", "inactive"]
+            "enum": ["active", "inactive"],
+            "example": "active"
           },
           "sportsVenueName": {
             "type": "string",
             "example": "City Sports Arena"
           },
           "bookingMinDuration": {
-            "type": "number",
+            "type": "integer",
             "format": "int32",
             "example": 60
           },
           "bookingMinPrice": {
             "type": "number",
-            "format": "int32",
-            "example": 25
+            "format": "float",
+            "example": 25.0
           },
-          "sportsVenuePicture": {
-            "type": "string",
-            "format": "binary",
-            "example": "https://example.com/image.jpg"
+          "sportsVenuePictures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SportsVenueImage"
+            }
           },
           "hasParking": {
             "type": "boolean",
@@ -532,6 +1536,115 @@
           "hasBar": {
             "type": "boolean",
             "example": true
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "weeklySchedule": {
+            "$ref": "#/components/schemas/WeeklySchedule"
+          },
+          "rating": {
+            "type": "number",
+            "format": "float",
+            "example": 4.3
+          },
+          "numberOfRatings": {
+            "type": "integer",
+            "example": 27
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-05-01T10:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-05-05T14:30:00Z"
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "Rua Principal, 123"
+          },
+          "city": {
+            "type": "string",
+            "example": "Barcelos"
+          },
+          "district": {
+            "type": "string",
+            "example": "Braga"
+          },
+          "latitude": {
+            "type": "number",
+            "example": 41.5381
+          },
+          "longitude": {
+            "type": "number",
+            "example": -8.6151
+          }
+        }
+      },
+      "SportsVenueImage": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "example": "arena_photo.jpg"
+          },
+          "imageURL": {
+            "type": "string",
+            "example": "https://example.com/images/arena_photo.jpg"
+          }
+        }
+      },
+      "TimeSlot": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "string",
+            "example": "09:00"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "11:00"
+          }
+        }
+      },
+      "WeeklySchedule": {
+        "type": "object",
+        "properties": {
+          "Monday": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimeSlot" }
+          },
+          "Tuesday": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimeSlot" }
+          },
+          "Wednesday": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimeSlot" }
+          },
+          "Thursday": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimeSlot" }
+          },
+          "Friday": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimeSlot" }
+          },
+          "Saturday": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimeSlot" }
+          },
+          "Sunday": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimeSlot" }
           }
         }
       }

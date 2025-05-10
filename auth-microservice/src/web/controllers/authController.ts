@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { getActiveUsers } from '../../application/use-cases/getActiveUsers';
 import { loginUser } from '../../application/use-cases/loginUser';
 import { passwordRecovery } from '../../application/use-cases/passwordRecovery';
 import { passwordReset } from '../../application/use-cases/passwordReset';
@@ -60,6 +61,19 @@ export const passwordResetController = async (req: Request, res: Response) => {
   try {
     const message = await passwordReset(req);
     res.status(200).json({ message: message });
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({
+      message: error.message,
+    });
+    return;
+  }
+};
+
+export const activeUsersController = async (req: Request, res: Response) => {
+  try {
+    const response = await getActiveUsers(req);
+    res.status(200).json(response);
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({

@@ -1,15 +1,15 @@
 import bcrypt from 'bcryptjs';
 import { Request } from 'express';
-import { jwtHelper, mailer, userRepository } from '../../app';
-import { User, UserStatus } from '../../domain/entities/User';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
+import { ZodError } from 'zod';
+import { authRepository, jwtHelper, mailer } from '../../app';
 import {
   RegisterUserDTO,
   registerUserSchema,
 } from '../../domain/dtos/register-user.dto';
-import { ZodError } from 'zod';
+import { Auth, UserStatus } from '../../domain/entities/Auth';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
+import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const registerUser = async (req: Request): Promise<String> => {
   // Validate request sent for any necessary fields missing
@@ -43,9 +43,9 @@ export const registerUser = async (req: Request): Promise<String> => {
   } = parsed;
 
   // Check if given email already exists
-  const user = await userRepository.findByEmail(email);
+  const auth = await authRepository.findByEmail(email);
 
-  if (user) {
+  if (auth) {
     throw new BadRequestException('Given email is already being used.');
   }
 
@@ -55,8 +55,8 @@ export const registerUser = async (req: Request): Promise<String> => {
   const lastAccessDate = new Date();
 
   // Create new User in database
-  const newUser = await userRepository.create(
-    new User({
+  const newAuth = await authRepository.create(
+    new Auth({
       userType,
       email,
       password,
@@ -68,22 +68,22 @@ export const registerUser = async (req: Request): Promise<String> => {
 
   // Generate JWT Token
   const token = await jwtHelper.generateToken(
-    newUser.getId(),
-    newUser.userType.toString(),
-    newUser.email
+    newAuth.getId(),
+    newAuth.userType.toString(),
+    newAuth.email
   );
 
   // Send greeting email
   mailer.sendMail(
-    newUser.email,
+    newAuth.email,
     'Welcome to Field4You',
     'Welcome! Thank you for registering!'
   );
 
   // Publish event to RabbitMQ
   publishUserCreation({
-    userId: newUser.getId(),
-    email: newUser.email,
+    userId: newAuth.getId(),
+    email: newAuth.email,
     firstName: firstName,
     lastName: lastName,
     location: {
@@ -91,9 +91,8 @@ export const registerUser = async (req: Request): Promise<String> => {
       city: city,
       district: district,
     },
-    userType: newUser.userType.toString(),
+    userType: newAuth.userType.toString(),
     birthDate: birthDate,
-    registerDate: registerDate.toString(),
   });
 
   return token;

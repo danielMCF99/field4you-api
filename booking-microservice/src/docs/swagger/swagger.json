@@ -751,6 +751,157 @@
           }
         }
       }
+    },
+    "/api/bookings/recent": {
+      "get": {
+        "summary": "Get recent bookings statistics",
+        "description": "Returns booking statistics for the last 30 days, optionally filtered by sports venue owner.",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-user-id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the sports venue owner (optional). If provided, only bookings from the owner's venues are considered."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved recent booking statistics.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currentMonthBookings": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "example": 45,
+                      "description": "Total number of bookings in the last 30 days."
+                    },
+                    "previousMonthBookings": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "example": 30,
+                      "description": "Total number of bookings from 30 to 60 days ago."
+                    },
+                    "percentageDifference": {
+                      "type": "number",
+                      "example": 50.0,
+                      "description": "Percentage change in bookings compared to the previous 30-day period."
+                    },
+                    "dailyBookings": {
+                      "type": "array",
+                      "description": "Array of daily booking counts within the last 30 days.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-05-01",
+                            "description": "Date of the booking (YYYY-MM-DD)."
+                          },
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "example": 5,
+                            "description": "Number of bookings on that date."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error while fetching recent bookings."
+          }
+        }
+      }
+    },
+    "/api/bookings/recent-profit": {
+      "get": {
+        "summary": "Get recent profit statistics",
+        "description": "Returns profit statistics for the last 30 days based on completed or active bookings for venues owned by the user.",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-user-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the sports venue owner. Required to filter bookings and calculate profits."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved recent profit statistics.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currentMonthProfit": {
+                      "type": "number",
+                      "minimum": 0,
+                      "example": 1200.5,
+                      "description": "Total profit in the last 30 days from active or completed bookings."
+                    },
+                    "previousMonthProfit": {
+                      "type": "number",
+                      "minimum": 0,
+                      "example": 900.0,
+                      "description": "Total profit from bookings between 30 and 60 days ago."
+                    },
+                    "percentageDifference": {
+                      "type": "number",
+                      "example": 33.33,
+                      "description": "Percentage difference in profit compared to the previous 30-day period."
+                    },
+                    "dailyProfits": {
+                      "type": "array",
+                      "description": "List of daily profits for each day in the last 30 days.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-05-01",
+                            "description": "Date in YYYY-MM-DD format."
+                          },
+                          "dailyProfit": {
+                            "type": "number",
+                            "minimum": 0,
+                            "example": 85.0,
+                            "description": "Total profit from bookings on that specific day."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error while fetching recent profit data."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -870,6 +1021,14 @@
             "format": "date-time",
             "description": "The last update date of the booking invite"
           }
+        }
+      },
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "description": "Enter your JWT token in the format **Bearer &lt;token>**"
         }
       }
     }

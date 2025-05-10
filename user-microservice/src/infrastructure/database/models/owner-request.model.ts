@@ -34,6 +34,7 @@ const ownerRequestSchema = new Schema<IOwnerRequest>(
 );
 
 export const OwnerRequestModel = model<IOwnerRequest>(
-  'ownerrequest',
-  ownerRequestSchema
+  'OwnerRequests',
+  ownerRequestSchema,
+  'OwnerRequests'
 );

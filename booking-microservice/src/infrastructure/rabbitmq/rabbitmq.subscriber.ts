@@ -1,4 +1,4 @@
-import amqp, { Connection } from 'amqplib';
+import amqp from 'amqplib';
 import { createSportsVenue } from '../../application/use-cases/sportsVenue/createSportsVenue';
 import { deleteSportsVenue } from '../../application/use-cases/sportsVenue/deleteSportsVenue';
 import { updateSportsVenue } from '../../application/use-cases/sportsVenue/updateSportsVenue';
@@ -10,7 +10,7 @@ import config from '../../config/env';
 async function connectWithRetry(
   retries: number = 5,
   delay: number = 30000
-): Promise<Connection> {
+): Promise<any> {
   for (let i = 0; i < retries; i++) {
     try {
       console.log(
@@ -56,7 +56,7 @@ export async function subscribeUserEvents() {
     await channel.bindQueue(queue.queue, 'user.events', 'user.deleted');
 
     console.log(`[*] Waiting for User events...`);
-    channel.consume(queue.queue, async (msg) => {
+    channel.consume(queue.queue, async (msg: any) => {
       if (!msg?.content) return;
 
       const routingKey = msg.fields.routingKey;
@@ -133,7 +133,7 @@ export async function subscribeSportsVenueEvents() {
     );
 
     console.log(`[*] Waiting for Sport Venue events...`);
-    channel.consume(queue.queue, async (msg) => {
+    channel.consume(queue.queue, async (msg: any) => {
       if (!msg?.content) return;
 
       const routingKey = msg.fields.routingKey;

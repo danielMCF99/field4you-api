@@ -6,7 +6,7 @@ export interface BookingFilterParams {
   bookingType?: string;
   bookingStartDate?: Date;
   bookingEndDate?: Date;
-  sportsVenueId?: string;
+  sportsVenueId?: string | string[];
   page?: number;
   limit?: number;
 }

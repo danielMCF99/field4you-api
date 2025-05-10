@@ -17,7 +17,6 @@ interface IUserDocument extends Document {
     longitude: number;
   };
   birthDate: string;
-  registerDate: Date;
   fileName?: string;
   imageURL?: string;
   createdAt?: Date;
@@ -50,7 +49,6 @@ const userSchema = new Schema<IUserDocument>(
       district: { type: String },
     },
     birthDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
-    registerDate: { type: Date, required: true },
     fileName: { type: String, required: false },
     imageURL: { type: String, required: false },
   },
@@ -59,4 +57,4 @@ const userSchema = new Schema<IUserDocument>(
   }
 );
 
-export const UserModel = model<IUserDocument>('User', userSchema);
+export const UserModel = model<IUserDocument>('User', userSchema, 'Users');

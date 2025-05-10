@@ -5,6 +5,8 @@ import {
   deleteBookingController,
   getAllBookingsController,
   getBookingByIdController,
+  getRecentBookingsController,
+  getRecentBookingsProfitController,
   updateBookingController,
   updateBookingStatusController,
 } from '../controllers/bookingController';
@@ -27,6 +29,8 @@ router.patch(
 
 router.post('/bookings/create', createBookingController);
 router.get('/bookings', getAllBookingsController);
+router.get('/bookings/recent', getRecentBookingsController);
+router.get('/bookings/recent-profit', getRecentBookingsProfitController);
 router.patch('/bookings/:id/status', updateBookingStatusController);
 router.put('/bookings/:id', updateBookingController);
 router.get('/bookings/:id', getBookingByIdController);

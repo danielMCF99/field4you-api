@@ -26,7 +26,6 @@ export class User {
   public lastName: string;
   public location: Location;
   public birthDate: string;
-  public registerDate: Date;
   public fileName?: string;
   public imageURL?: string;
   public createdAt?: Date;
@@ -42,7 +41,6 @@ export class User {
     lastName: string;
     location: Location;
     birthDate: string;
-    registerDate: Date;
     fileName?: string;
     imageURL?: string;
     createdAt?: Date;
@@ -57,7 +55,6 @@ export class User {
     this.lastName = user.lastName;
     this.location = user.location;
     this.birthDate = user.birthDate;
-    this.registerDate = user.registerDate;
     this.fileName = user.fileName;
     this.imageURL = user.imageURL;
     this.createdAt = user.createdAt;
@@ -83,7 +80,6 @@ export class User {
       lastName: doc.lastName,
       location: doc.location,
       birthDate: doc.birthDate,
-      registerDate: doc.registerDate,
       fileName: doc.fileName,
       imageURL: doc.imageURL,
       createdAt: doc.createdAt,

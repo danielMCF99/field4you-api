@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserType } from '../entities/User';
+import { UserType } from '../entities/Auth';
 
 export const registerUserSchema = z.object({
   userType: z.nativeEnum(UserType),
