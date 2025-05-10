@@ -14,8 +14,9 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AllExceptionsFilter } from 'src/utils/exception.filter';
 import { CreatePostDto } from './dto/create-post.dto';
-import { GetAllPostsDtoSchema } from './dto/get-all-posts.dto';
 import { PostService } from './post.service';
+import { PostsStatsDto } from './dto/get-statistics.dto';
+import { GetAllPostsDto } from './dto/get-all-posts.dto';
 
 @Controller('posts')
 @UseFilters(AllExceptionsFilter)
@@ -38,12 +39,12 @@ export class PostController {
   }
 
   @Get('all')
-  async listPosts(@Query() query: any) {
-    const parsedQueryParams = GetAllPostsDtoSchema.safeParse(query);
-    if (!parsedQueryParams.success) {
-      throw new Error('Invalid query parameters');
-    }
+  async listPosts(@Query() query: GetAllPostsDto) {
+    return this.postService.listPosts(query);
+  }
 
-    return this.postService.listPosts(parsedQueryParams.data);
+  @Get('statistics')
+  getStats(): Promise<PostsStatsDto> {
+    return this.postService.getStatistics();
   }
 }

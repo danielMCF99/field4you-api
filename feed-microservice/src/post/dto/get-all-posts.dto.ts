@@ -1,11 +1,36 @@
-import { z } from 'zod';
+import { Type } from 'class-transformer';
+import {
+  IsEmail,
+  IsOptional,
+  IsDateString,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 
-export const GetAllPostsDtoSchema = z.object({
-  creatorEmail: z.string().email().optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10),
-});
+export class GetAllPostsDto {
+  @IsOptional()
+  @IsEmail()
+  creatorEmail?: string;
 
-export type GetAllPostsDto = z.infer<typeof GetAllPostsDtoSchema>;
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page: number = 1;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit: number = 10;
+}

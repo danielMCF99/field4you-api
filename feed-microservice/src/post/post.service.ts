@@ -7,8 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { FirebaseRepository } from 'src/firebase/firebase.repository';
 import { CreatePostDto } from './dto/create-post.dto';
-import { Post } from './schemas/post.schema';
 import { GetAllPostsDto } from './dto/get-all-posts.dto';
+import { Post } from './schemas/post.schema';
 
 @Injectable()
 export class PostService {
@@ -103,6 +103,59 @@ export class PostService {
     return {
       deletedPostId: post._id,
       message: 'Post was successfully deleted',
+    };
+  }
+
+  async getStatistics() {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now).setDate(now.getDate() - 30);
+    const sixtyDaysAgo = new Date(now).setDate(now.getDate() - 60);
+
+    const [last30DaysCount, previous30DaysCount] = await Promise.all([
+      this.postModel.countDocuments({
+        createdAt: { $gte: thirtyDaysAgo },
+      }),
+      this.postModel.countDocuments({
+        createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
+      }),
+    ]);
+
+    const differencePercentage =
+      previous30DaysCount === 0
+        ? last30DaysCount > 0
+          ? 100
+          : 0
+        : ((last30DaysCount - previous30DaysCount) / previous30DaysCount) * 100;
+
+    const postsPerDay: Record<string, number> = {};
+    const countPromises = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(now.getDate() - i);
+
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+
+      const key = start.toISOString().split('T')[0]; // YYYY-MM-DD
+
+      return this.postModel
+        .countDocuments({ createdAt: { $gte: start, $lte: end } })
+        .then((count) => ({ key, count }));
+    });
+
+    const results = await Promise.all(countPromises);
+
+    for (const { key, count } of results) {
+      postsPerDay[key] = count;
+    }
+
+    return {
+      last30DaysCount,
+      previous30DaysCount,
+      differencePercentage: Number(differencePercentage.toFixed(2)),
+      postsPerDay,
     };
   }
 }
