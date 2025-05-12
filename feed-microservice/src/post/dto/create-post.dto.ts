@@ -4,5 +4,5 @@ export class CreatePostDto {
   @IsOptional()
   @IsString()
   @MaxLength(250)
-  comments?: string;
+  comment?: string;
 }

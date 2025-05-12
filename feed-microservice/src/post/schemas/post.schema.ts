@@ -12,7 +12,7 @@ export class Post {
   creatorEmail: string;
 
   @Prop()
-  comments?: string;
+  comment?: string;
 
   @Prop({ required: true })
   fileName: string;
