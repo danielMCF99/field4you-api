@@ -795,11 +795,6 @@
             "type": "string",
             "example": "Congratulations! You are now an owner."
           },
-          "submittedAt": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2025-04-25T12:04:29.156Z"
-          },
           "reviewedAt": {
             "type": "string",
             "format": "date-time",
