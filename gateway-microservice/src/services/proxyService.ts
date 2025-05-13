@@ -74,6 +74,11 @@ class ProxyService {
       files.forEach((f: any) => {
         formData.append(f.fieldname, f.buffer, f.originalname);
       });
+
+      for (const [key, value] of Object.entries(data)) {
+        formData.append(key, value);
+      }
+
       data = formData;
       headers = {
         ...headers,

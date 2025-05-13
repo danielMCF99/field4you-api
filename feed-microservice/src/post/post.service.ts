@@ -22,6 +22,9 @@ export class PostService {
     file: Express.Multer.File,
     createPostDto: CreatePostDto,
   ): Promise<Post> {
+    console.log('Ficheiro:', file?.originalname);
+    console.log('Comentário recebido:', createPostDto.comment);
+
     const creatorId = headers['x-user-id'];
     const creatorEmail = headers['x-user-email'];
 
@@ -33,13 +36,14 @@ export class PostService {
       await this.firebaseRepository.uploadImageToStorageOnly(file);
 
     const post = await this.postModel.create({
-      creatorId,
-      creatorEmail,
-      imageUrl,
-      fileName,
-      comments: createPostDto.comments,
+      creatorId: creatorId,
+      creatorEmail: creatorEmail,
+      imageUrl: imageUrl,
+      fileName: fileName,
+      comment: createPostDto.comment,
     });
 
+    console.log(post);
     return post;
   }
 
