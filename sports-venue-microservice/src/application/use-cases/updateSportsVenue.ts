@@ -13,6 +13,7 @@ import { InternalServerErrorException } from '../../domain/exceptions/InternalSe
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { publishSportsVenueUpdate } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
+import { getCoordinatesFromAddress } from '../../infrastructure/utils/getCoordinatesFromAddress';
 
 export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const id = req.params.id.toString();
@@ -62,6 +63,34 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   }
 
   const updatedData = { ...parsed };
+
+  const updatedLocation = {
+    district: updatedData.district ?? sportsVenue.location.district,
+    city: updatedData.city ?? sportsVenue.location.city,
+    address: updatedData.address ?? sportsVenue.location.address,
+  };
+
+  let locationCoords;
+
+  if (updatedData.district || updatedData.city || updatedData.address) {
+    try {
+      locationCoords = await getCoordinatesFromAddress(
+        updatedLocation.address,
+        updatedLocation.city,
+        updatedLocation.district
+      );
+    } catch (err) {
+      console.log('Could not update coordinates:', err);
+    }
+  }
+
+  if (locationCoords) {
+    updatedData.location = {
+      ...updatedLocation,
+      latitude: locationCoords.latitude,
+      longitude: locationCoords.longitude,
+    };
+  }
 
   try {
     const updatedSportsVenue = await sportsVenueRepository.update(id, {

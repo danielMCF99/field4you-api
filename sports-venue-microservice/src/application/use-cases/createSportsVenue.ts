@@ -14,6 +14,7 @@ import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { publishSportsVenueCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 import { mapToWeeklySchedule } from '../../utils/mapToWeeklySchedule';
+import { getCoordinatesFromAddress } from '../../infrastructure/utils/getCoordinatesFromAddress';
 
 export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const ownerId = req.headers['x-user-id'] as string | undefined;
@@ -65,8 +66,18 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const formattedWeeklySchedule = weeklySchedule
     ? mapToWeeklySchedule(weeklySchedule)
     : undefined;
-  console.log(parsed);
-  console.log(weeklySchedule);
+
+  const sportsVenueLocation = { district, city, address };
+  let locationCoords;
+
+  if (district || city || address) {
+    try {
+      locationCoords = await getCoordinatesFromAddress(address, city, district);
+    } catch (err) {
+      console.log('Could not fetch coordinates:', err);
+    }
+  }
+
   const sportsVenue = new SportsVenue({
     ownerId,
     sportsVenueType,
@@ -79,14 +90,13 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     hasShower,
     hasBar,
     location: {
-      district,
-      city,
-      address,
+      ...sportsVenueLocation,
+      latitude: locationCoords?.latitude,
+      longitude: locationCoords?.longitude,
     },
     weeklySchedule: formattedWeeklySchedule,
   });
-  console.log(weeklySchedule);
-  console.log(sportsVenue);
+
   try {
     const newSportsVenue = await sportsVenueRepository.create(sportsVenue);
     if (!newSportsVenue) {
