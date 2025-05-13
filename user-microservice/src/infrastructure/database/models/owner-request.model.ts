@@ -5,7 +5,6 @@ interface IOwnerRequest extends Document {
   message?: string;
   status: string;
   response?: string;
-  submittedAt: Date;
   reviewedAt?: Date;
   reviewedBy?: Types.ObjectId;
 }

@@ -2,16 +2,15 @@ FROM node:20.18-alpine
 
 WORKDIR /app
 
-COPY package*.json /app/
+COPY package*.json ./
+COPY tsconfig*.json ./
 
-RUN npm ci
+RUN npm install
 
-COPY . /app/
+COPY . .
 
-RUN mkdir -p /app/dist && chown -R node:node /app
+RUN npm run build
 
 EXPOSE 3005
 
-USER node
-
-CMD [ "npm", "start" ]
+CMD ["npm", "run", "start"]
