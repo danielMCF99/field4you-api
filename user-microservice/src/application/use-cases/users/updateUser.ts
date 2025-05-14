@@ -53,7 +53,6 @@ export const updateUser = async (req: Request): Promise<User> => {
     }
   });
 
-  // Se houve alteração de cidade, distrito ou morada, tenta obter coordenadas
   const locationToUse = {
     address: updatedLocation.address ?? user.location.address,
     city: updatedLocation.city ?? user.location.city,
