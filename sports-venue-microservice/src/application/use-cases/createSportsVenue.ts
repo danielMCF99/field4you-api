@@ -74,7 +74,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     try {
       locationCoords = await getCoordinatesFromAddress(address, city, district);
     } catch (err) {
-      console.log('Could not fetch coordinates:', err);
+      throw err;
     }
   }
 
