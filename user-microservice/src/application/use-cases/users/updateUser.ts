@@ -7,6 +7,7 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { publishUserUpdate } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
+import { getCoordinatesFromAddress } from '../../../infrastructure/utils/getCoordinatesFromAddress';
 
 export const updateUser = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();
@@ -51,6 +52,30 @@ export const updateUser = async (req: Request): Promise<User> => {
       updatedData[key] = value;
     }
   });
+
+  const locationToUse = {
+    address: updatedLocation.address ?? user.location.address,
+    city: updatedLocation.city ?? user.location.city,
+    district: updatedLocation.district ?? user.location.district,
+  };
+
+  const addressChanged =
+    updatedLocation.address || updatedLocation.city || updatedLocation.district;
+
+  if (addressChanged) {
+    try {
+      const coords = await getCoordinatesFromAddress(
+        locationToUse.address,
+        locationToUse.city,
+        locationToUse.district
+      );
+      updatedLocation.latitude = coords.latitude;
+      updatedLocation.longitude = coords.longitude;
+    } catch (err) {
+      const error = err as Error;
+      console.log('Could not update coordinates:', error.message);
+    }
+  }
 
   if (Object.keys(updatedLocation).length > 0) {
     updatedData.location = {
