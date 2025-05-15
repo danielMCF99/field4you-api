@@ -130,3 +130,5 @@ out
 .pnp.*
 
 **/docs/apidoc
+**/mongo-keyfile
+**/registerUsers.ps1

@@ -1,12 +1,43 @@
 services:
-  # mongodb:
-  #   image: mongo:latest
-  #   container_name: mongodb
-  #   restart: always
-  #   ports:
-  #     - '27017:27017'
-  #   volumes:
-  #     - mongodb_data:/data/db
+  mongodb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo_data:/data/db
+    command:
+      [
+        'mongod',
+        '--replSet',
+        'rs0',
+        '--auth',
+        '--keyFile',
+        '/etc/mongo-keyfile',
+      ]
+
+  mongo-init-replica:
+    image: mongo:latest
+    depends_on:
+      - mongodb
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo "A aguardar que o MongoDB esteja pronto..."
+        for i in {1..30}; do
+          mongosh --host mongodb --username admin --password password --authenticationDatabase admin --eval "db.adminCommand('ping')" && break
+          echo "Tentativa $i: Mongo ainda não está pronto"
+          sleep 2
+        done
+        echo "Iniciando replica set..."
+        mongosh --host mongodb --username admin --password password --authenticationDatabase admin --eval "rs.initiate()"
+    restart: 'no'
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -18,8 +49,8 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
-    # depends_on:
-    #   - mongodb
+    depends_on:
+      - mongo-init-replica
 
   gateway-microservice:
     build:
@@ -80,4 +111,6 @@ services:
       - ./feed-microservice/.env
 
 volumes:
-  mongodb_data:
+  mongo_data:
+  # mongo_data_2:
+  # mongo_data_3:
