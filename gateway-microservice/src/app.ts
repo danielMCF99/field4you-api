@@ -6,6 +6,7 @@ import { logger } from './logging/logger';
 import { authenticate } from './middlewares/auth.middleware';
 import routes from './routes/routes';
 import { generateSwaggerDocument } from './services/swagger';
+import cors from 'cors';
 
 export const jwtHelper = JwtHelperImplementation.getInstance();
 
@@ -15,6 +16,13 @@ const startServer = async () => {
   try {
     // Middleware
     app.use(express.json());
+
+    app.use(
+      cors({
+        origin: 'http://localhost:5173',
+        credentials: true,
+      })
+    );
 
     app.use(
       '/swagger',
