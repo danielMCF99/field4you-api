@@ -3,6 +3,7 @@ import { SportsVenue, WeeklySchedule } from '../../domain/entities/SportsVenue';
 
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venueModel';
+import { haversineDistance } from '../utils/haversineDistance';
 
 export class MongoSportsVenueRepository implements ISportsVenueRepository {
   private static instance: MongoSportsVenueRepository;
@@ -87,6 +88,9 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       limit,
       status,
       sportsVenueType,
+      distance,
+      latitude,
+      longitude,
     } = params || {};
 
     const query: any = {};
@@ -119,8 +123,30 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
 
     const results = await queryBuilder.lean();
 
-    return results.map(SportsVenue.fromMongooseDocument);
+    let venues = results.map(SportsVenue.fromMongooseDocument);
+
+  if (typeof distance === 'number' && typeof latitude === 'number' &&typeof longitude === 'number') {
+    venues = venues.filter((venue: { location: { latitude: number | undefined; longitude: number | undefined; }; }) => {
+      if (
+        venue.location.latitude === undefined ||
+        venue.location.longitude === undefined
+      ) {
+        return false;
+      }
+
+      const dist = haversineDistance(
+        latitude,
+        longitude,
+        venue.location.latitude,
+        venue.location.longitude
+      );
+
+      return dist <= distance;
+    });
   }
+
+  return venues;
+}
 
   async deleteManyByOwnerId(ownerId: string): Promise<number> {
     const result = await SportsVenueModel.deleteMany({ ownerId: ownerId });
