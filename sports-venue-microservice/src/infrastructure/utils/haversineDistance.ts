@@ -3,7 +3,7 @@ export const haversineDistance = (
     lon1: number,
     lat2: number,
     lon2: number
-  ): number {
+  ): number => {
     const toRad = (x: number) => (x * Math.PI) / 180;
 
     const R = 6371; // raio da Terra em km
