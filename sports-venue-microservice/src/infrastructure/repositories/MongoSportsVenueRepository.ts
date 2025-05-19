@@ -1,8 +1,9 @@
 import { SportsVenueFilterParams } from '../../domain/dtos/sports-venue-filter.dto';
 import { SportsVenue, WeeklySchedule } from '../../domain/entities/SportsVenue';
-
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venueModel';
+import { haversineDistance } from '../utils/haversineDistance';
 
 export class MongoSportsVenueRepository implements ISportsVenueRepository {
   private static instance: MongoSportsVenueRepository;
@@ -87,7 +88,19 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       limit,
       status,
       sportsVenueType,
+      distance,
+      latitude,
+      longitude,
     } = params || {};
+
+    if (
+      typeof distance === 'number' &&
+      (latitude == null || longitude == null)
+    ) {
+      throw new BadRequestException(
+        'Unable to obtain current location: latitude and longitude are mandatory when distance is provided.'
+      );
+    }
 
     const query: any = {};
 
@@ -119,8 +132,24 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
 
     const results = await queryBuilder.lean();
 
-    return results.map(SportsVenue.fromMongooseDocument);
+    let venues = results.map(SportsVenue.fromMongooseDocument);
+
+  if (typeof distance === 'number' && typeof latitude === 'number' && typeof longitude === 'number') {
+    venues = venues.filter((venue) => {
+      const lat = venue.location?.latitude;
+      const lon = venue.location?.longitude;
+    
+      if (lat == null || lon == null) {
+        return false;
+      }
+    
+      const dist = haversineDistance(latitude, longitude, lat, lon);
+      return dist <= distance;
+    });    
   }
+
+  return venues;
+}
 
   async deleteManyByOwnerId(ownerId: string): Promise<number> {
     const result = await SportsVenueModel.deleteMany({ ownerId: ownerId });
