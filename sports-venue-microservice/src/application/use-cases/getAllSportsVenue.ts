@@ -10,6 +10,9 @@ export const getAllSportsVenue = async (query: any): Promise<SportsVenue[]> => {
     sportsVenueType: query.sportsVenueType?.toString(),
     page: query.page ? parseInt(query.page.toString(), 10) : 1,
     limit: query.limit ? parseInt(query.limit.toString(), 10) : 10,
+    latitude: query.latitude ? parseFloat(query.latitude) : undefined,
+    longitude: query.longitude ? parseFloat(query.longitude) : undefined,
+    distance: query.distance ? parseInt(query.distance, 10) : undefined,
   };
 
   return await sportsVenueRepository.findAll(filters);

@@ -7,4 +7,7 @@ export interface SportsVenueFilterParams {
   sportsVenueType?: SportsVenueType;
   page?: number;
   limit?: number;
+  latitude?: number;
+  longitude?: number;
+  distance?: number;
 }
