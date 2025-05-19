@@ -21,11 +21,7 @@ export const passwordRecovery = async (req: Request): Promise<string> => {
   }
 
   // Generate token for the password recovery
-  const token = await jwtHelper.generateToken(
-    auth.getId(),
-    auth.email,
-    auth.userType.toString()
-  );
+  const token = await jwtHelper.generatePasswordResetCode();
 
   const newResetPasswordToken = token;
   const newResetPasswordExpires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
@@ -37,12 +33,12 @@ export const passwordRecovery = async (req: Request): Promise<string> => {
     resetPasswordExpires: newResetPasswordExpires,
   });
 
-  const resetURL = `http://localhost:3000/api/auth/reset-password/${token}`;
-
   await mailer.sendMail(
     email,
     'Password recovery for Field4You App',
-    `You requested a password reset. Click the link to reset your password: ${resetURL}`
+    `You requested a password reset. 
+    Please paste the following code: ${token}
+    Do not share this code!`
   );
 
   return 'Successfully sent email for password recovery to user';

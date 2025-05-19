@@ -7,17 +7,16 @@ import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const passwordReset = async (req: Request): Promise<string> => {
-  let { email, password } = req.body;
+  let { email, password, token } = req.body;
 
+  console.log(req.body);
   if (!email || !password) {
     throw new BadRequestException(
       'Missing fields for user password reset. Please try again.'
     );
   }
 
-  // Extract passwordResetToken from URL
-  const passwordResetToken = req.url.split('/').pop();
-  if (!passwordResetToken) {
+  if (!token) {
     throw new InternalServerErrorException(
       'Unable to retrieve password reset token.'
     );
@@ -30,14 +29,8 @@ export const passwordReset = async (req: Request): Promise<string> => {
     throw new NotFoundException('User with given email not found.');
   }
 
-  // If user not found return 404 status with customized message
-  const userResetPasswordToken = auth.resetPasswordToken;
-
-  // Check if user is able to perform password recovery
-  if (!userResetPasswordToken || userResetPasswordToken != passwordResetToken) {
-    throw new UnauthorizedException(
-      'Invalid information sent for given user to reset password'
-    );
+  if (token != auth.resetPasswordToken) {
+    throw new BadRequestException('Invalid password reset code');
   }
 
   if (

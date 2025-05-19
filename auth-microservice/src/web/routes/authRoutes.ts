@@ -16,7 +16,7 @@ userRoutes.get('/auth/swagger', async (req: Request, res: Response) => {
 userRoutes.post('/auth/register', registerUserController);
 userRoutes.post('/auth/login', loginUserController);
 userRoutes.post('/auth/password-recovery', passwordRecoveryController);
-userRoutes.put('/auth/reset-password/*', passwordResetController);
+userRoutes.put('/auth/reset-password', passwordResetController);
 userRoutes.get('/auth/active-users', activeUsersController);
 
 export default userRoutes;

@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import config from '../../config/env';
@@ -50,5 +51,17 @@ export class JwtHelperImplementation implements JwtHelper {
       console.log(error);
       return undefined;
     }
+  }
+
+  async generatePasswordResetCode(length: number = 6): Promise<string> {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const bytes = randomBytes(length);
+    let result = '';
+
+    for (let i = 0; i < length; i++) {
+      result += characters[bytes[i] % characters.length];
+    }
+
+    return result;
   }
 }
