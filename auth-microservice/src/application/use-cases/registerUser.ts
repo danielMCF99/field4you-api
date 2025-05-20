@@ -14,7 +14,6 @@ import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publ
 export const registerUser = async (req: Request): Promise<String> => {
   // Validate request sent for any necessary fields missing
   let parsed: RegisterUserDTO;
-
   try {
     parsed = registerUserSchema.parse(req.body);
   } catch (error) {
@@ -29,7 +28,6 @@ export const registerUser = async (req: Request): Promise<String> => {
       'Unexpected error parsing request data'
     );
   }
-
   const {
     userType,
     email,
@@ -48,7 +46,6 @@ export const registerUser = async (req: Request): Promise<String> => {
   if (auth) {
     throw new BadRequestException('Given email is already being used.');
   }
-
   // Encrypt password
   const password = await bcrypt.hash(rawPassword, 10);
   const registerDate = new Date();
@@ -65,7 +62,6 @@ export const registerUser = async (req: Request): Promise<String> => {
       lastAccessDate,
     })
   );
-
   // Generate JWT Token
   const token = await jwtHelper.generateToken(
     newAuth.getId(),

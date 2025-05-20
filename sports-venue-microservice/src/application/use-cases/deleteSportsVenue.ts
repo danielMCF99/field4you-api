@@ -7,7 +7,6 @@ import { InternalServerErrorException } from '../../domain/exceptions/InternalSe
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { publishSportsVenueDeletion } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
-import { UserType } from '../../../../booking-microservice/src/domain/entities/User';
 
 export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
   const id = req.params.id.toString();
@@ -23,7 +22,7 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
     );
   }
 
-  if (userType != UserType.admin) {
+  if (userType != 'Admin') {
     throw new ForbiddenException(
       'Only admin users are allowed to delete sports venues'
     );

@@ -1,4 +1,5 @@
 import { Document, Schema, Types, model } from 'mongoose';
+import { Status } from '../../../domain/entities/OwnerRequest';
 
 interface IOwnerRequest extends Document {
   userId: Types.ObjectId;
@@ -20,8 +21,8 @@ const ownerRequestSchema = new Schema<IOwnerRequest>(
     message: { type: String },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
+      enum: [Status.pending, Status.approved, Status.rejected],
+      default: Status.pending,
     },
     response: { type: String },
     reviewedAt: { type: Date },

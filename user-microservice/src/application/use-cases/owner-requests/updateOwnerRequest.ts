@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { ownerRequestRepository, userRepository } from '../../../app';
+import { Status } from '../../../domain/entities/OwnerRequest';
 import { UserType } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
@@ -27,7 +28,7 @@ export const updateOwnerRequest = async (req: Request) => {
     throw new BadRequestException('Status is required');
   }
 
-  const validStatuses = ['approved', 'rejected'];
+  const validStatuses = [Status.approved, Status.rejected];
   if (!validStatuses.includes(status)) {
     throw new BadRequestException(
       'Status must be either "approved" or "rejected"'
@@ -39,11 +40,11 @@ export const updateOwnerRequest = async (req: Request) => {
     throw new NotFoundException('Owner Request not found');
   }
 
-  if (ownerRequest.status !== 'pending') {
+  if (ownerRequest.status !== Status.pending) {
     throw new BadRequestException('Only pending owner requests can be updated');
   }
 
-  if (userType !== 'admin') {
+  if (userType !== UserType.admin) {
     throw new ForbiddenException(
       'Only admins can update the status of owner requests'
     );
@@ -58,8 +59,12 @@ export const updateOwnerRequest = async (req: Request) => {
       session
     );
 
-    if (status === 'approved') {
-      await userRepository.updateType(ownerRequest.userId, 'owner', session);
+    if (status === Status.approved) {
+      await userRepository.updateType(
+        ownerRequest.userId,
+        UserType.owner,
+        session
+      );
       await publishUserUpdate({
         userId: ownerRequest.userId.toString(),
         updatedData: { userType: UserType.owner },

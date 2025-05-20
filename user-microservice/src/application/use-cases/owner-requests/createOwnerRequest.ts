@@ -1,8 +1,9 @@
 import { Request } from 'express';
-import { OwnerRequest, Status } from '../../../domain/entities/OwnerRequest';
-import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
-import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ownerRequestRepository, userRepository } from '../../../app';
+import { OwnerRequest, Status } from '../../../domain/entities/OwnerRequest';
+import { UserType } from '../../../domain/entities/User';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
 export const createOwnerRequest = async (req: Request) => {
   const userId = req.headers['x-user-id'] as string | undefined;
@@ -18,7 +19,7 @@ export const createOwnerRequest = async (req: Request) => {
   if (!existingUser) {
     throw new BadRequestException('User does not exist');
   }
-  if (existingUser.userType === 'owner') {
+  if (existingUser.userType === UserType.owner) {
     throw new BadRequestException('User is already an owner');
   }
   const existingRequests = await ownerRequestRepository.getByUserId(userId);
