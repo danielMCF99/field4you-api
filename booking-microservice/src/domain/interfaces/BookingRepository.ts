@@ -35,4 +35,6 @@ export interface IBookingRepository {
     userId: string,
     session?: ClientSession
   ): Promise<{ modifiedCount: number }>;
+
+  countBookings(): Promise<number>;
 }

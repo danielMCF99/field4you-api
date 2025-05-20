@@ -1,13 +1,13 @@
 export enum BookingType {
-  regular = 'regular',
-  event = 'event',
+  regular = 'Regular',
+  event = 'Event',
 }
 
 export enum BookingStatus {
-  active = 'active',
-  cancelled = 'cancelled',
-  done = 'done',
-  confirmed = 'confirmed',
+  active = 'Active',
+  cancelled = 'Cancelled',
+  done = 'Done',
+  confirmed = 'Confirmed',
 }
 
 export class Booking {

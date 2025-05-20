@@ -1,4 +1,4 @@
-import { User } from '../../domain/entities/User';
+import { User, UserType } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { UserModel } from '../database/models/user.model';
 
@@ -54,5 +54,13 @@ export class MongoUserRepository implements IUserRepository {
     } catch (error) {
       return false;
     }
+  }
+
+  async countUsersByTypeUser(): Promise<number> {
+    return UserModel.countDocuments({ userType: UserType.user });
+  }
+
+  async countUsersByTypeOwner(): Promise<number> {
+    return UserModel.countDocuments({ userType: UserType.owner });
   }
 }

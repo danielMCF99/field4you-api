@@ -1,5 +1,8 @@
 import mongoose, { ClientSession, Types } from 'mongoose';
-import { SportsVenue } from '../../domain/entities/SportsVenue';
+import {
+  SportsVenue,
+  SportsVenueStatus,
+} from '../../domain/entities/SportsVenue';
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venue.model';
 
@@ -85,5 +88,11 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       },
       { session: session }
     ).exec();
+  }
+
+  async countSportsVenues(): Promise<number> {
+    return SportsVenueModel.countDocuments({
+      status: SportsVenueStatus.active,
+    });
   }
 }

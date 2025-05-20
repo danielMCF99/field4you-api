@@ -222,4 +222,8 @@ export class MongoBookingRepository implements IBookingRepository {
       }
     ).exec();
   }
+
+  async countBookings(): Promise<number> {
+    return BookingModel.countDocuments({ status: BookingStatus.done });
+  }
 }

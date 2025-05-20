@@ -7,6 +7,7 @@ import {
   getBookingByIdController,
   getRecentBookingsController,
   getRecentBookingsProfitController,
+  getWebGraphicsController,
   updateBookingController,
   updateBookingStatusController,
 } from '../controllers/bookingController';
@@ -35,5 +36,6 @@ router.patch('/bookings/:id/status', updateBookingStatusController);
 router.put('/bookings/:id', updateBookingController);
 router.get('/bookings/:id', getBookingByIdController);
 router.delete('/bookings/:id', deleteBookingController);
+router.get('/bookings/web-graphics', getWebGraphicsController);
 
 export default router;

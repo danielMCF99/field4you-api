@@ -1,7 +1,7 @@
 export enum BookingInviteStatus {
-  accepted = 'accepted',
-  rejected = 'rejected',
-  pending = 'pending',
+  accepted = 'Accepted',
+  rejected = 'Rejected',
+  pending = 'Pending',
 }
 
 export class BookingInvite {

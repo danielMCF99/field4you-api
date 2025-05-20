@@ -1,7 +1,7 @@
 export enum Status {
-  pending = 'pending',
-  approved = 'approved',
-  rejected = 'rejected',
+  pending = 'Pending',
+  approved = 'Approved',
+  rejected = 'Rejected',
 }
 
 export class OwnerRequest {
