@@ -6,7 +6,7 @@ import {
   RegisterUserDTO,
   registerUserSchema,
 } from '../../domain/dtos/register-user.dto';
-import { Auth, UserStatus } from '../../domain/entities/Auth';
+import { Auth, UserStatus, UserType } from '../../domain/entities/Auth';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
@@ -28,8 +28,8 @@ export const registerUser = async (req: Request): Promise<String> => {
       'Unexpected error parsing request data'
     );
   }
+
   const {
-    userType,
     email,
     password: rawPassword,
     firstName,
@@ -54,7 +54,7 @@ export const registerUser = async (req: Request): Promise<String> => {
   // Create new User in database
   const newAuth = await authRepository.create(
     new Auth({
-      userType,
+      userType: UserType.user,
       email,
       password,
       status: UserStatus.active,
