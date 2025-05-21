@@ -1,6 +1,10 @@
 import mongoose, { ClientSession, Types } from 'mongoose';
 import { BookingFilterParams } from '../../domain/dtos/booking-filter.dto';
-import { Booking, BookingStatus } from '../../domain/entities/Booking';
+import {
+  Booking,
+  BookingStatus,
+  BookingType,
+} from '../../domain/entities/Booking';
 import { IBookingRepository } from '../../domain/interfaces/BookingRepository';
 import { BookingModel } from '../database/models/booking.model';
 
@@ -221,5 +225,82 @@ export class MongoBookingRepository implements IBookingRepository {
         session: session,
       }
     ).exec();
+  }
+
+  async countBookings(): Promise<number> {
+    return BookingModel.countDocuments({
+      status: { $in: [BookingStatus.confirmed, BookingStatus.done] },
+    });
+  }
+
+  async countBookingsByMonthAndType(): Promise<
+    { month: string; regular: number; event: number }[]
+  > {
+    const currentYear = new Date().getFullYear();
+    const results = await BookingModel.aggregate([
+      {
+        $match: {
+          status: { $in: [BookingStatus.confirmed, BookingStatus.done] },
+          bookingStartDate: {
+            $gte: new Date(`${currentYear}-01-01`),
+            $lte: new Date(`${currentYear}-12-31`),
+          },
+        },
+      },
+      {
+        $project: {
+          month: { $month: '$bookingStartDate' },
+          bookingType: 1,
+        },
+      },
+      {
+        $group: {
+          _id: { month: '$month', type: '$bookingType' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Inicializar com todos os meses
+    const monthNames = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    const initialData: Record<number, { regular: number; event: number }> = {};
+    for (let i = 1; i <= 12; i++) {
+      initialData[i] = { regular: 0, event: 0 };
+    }
+
+    // Preencher com os dados reais
+    for (const item of results) {
+      const month = item._id.month;
+      const type = item._id.type;
+      const count = item.count;
+
+      if (type === BookingType.regular) {
+        initialData[month].regular = count;
+      } else if (type === BookingType.event) {
+        initialData[month].event = count;
+      }
+    }
+
+    // Mapear para o formato de resposta esperado
+    return Object.entries(initialData).map(([monthNumber, data]) => ({
+      month: monthNames[parseInt(monthNumber)],
+      regular: data.regular,
+      event: data.event,
+    }));
   }
 }

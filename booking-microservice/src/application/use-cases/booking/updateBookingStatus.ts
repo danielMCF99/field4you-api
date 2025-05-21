@@ -15,6 +15,7 @@ import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedEx
 import { publishFinishedBooking } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 import { validateBookingStatusTransition } from '../../../infrastructure/utils/bookingUtils';
 import { checkBookingConflicts } from './checkBookingConflicts';
+import { UserType } from '../../../domain/entities/User';
 
 export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -78,7 +79,7 @@ export const updateBookingStatus = async (req: Request): Promise<Booking> => {
   }
 
   let booking;
-  if (userType != 'admin') {
+  if (userType != UserType.admin) {
     // Check if booking belongs to the user
     booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
     if (!booking) {

@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { userRepository } from '../../../app';
-import { User, UserStatus } from '../../../domain/entities/User';
+import { User, UserStatus, UserType } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
@@ -23,7 +23,7 @@ export const updateUserStatus = async (req: Request): Promise<User> => {
 
   let user;
   if (userId) {
-    if (userType != 'admin') {
+    if (userType != UserType.admin) {
       throw new UnauthorizedException(
         'Regular user can only update its own status'
       );

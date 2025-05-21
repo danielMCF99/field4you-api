@@ -1,11 +1,12 @@
 export enum UserType {
-  user = 'user',
-  owner = 'owner',
+  user = 'User',
+  owner = 'Owner',
+  admin = 'Admin',
 }
 
 export enum UserStatus {
-  active = 'active',
-  inactive = 'inactive',
+  active = 'Active',
+  inactive = 'Inactive',
 }
 
 export class Location {

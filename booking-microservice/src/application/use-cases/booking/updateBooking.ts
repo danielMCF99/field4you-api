@@ -7,13 +7,14 @@ import {
   updateBookingSchema,
 } from '../../../domain/dtos/update-booking.dto';
 import { Booking } from '../../../domain/entities/Booking';
+import { UserType } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ConflictException } from '../../../domain/exceptions/ConflictException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
-import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -32,7 +33,7 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
   }
 
   let booking;
-  if (userType != 'admin') {
+  if (userType != UserType.admin) {
     // Check if booking belongs to the user
     booking = await bookingRepository.findByIdAndOwnerId(id, ownerId);
     if (!booking) {

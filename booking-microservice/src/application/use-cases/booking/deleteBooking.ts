@@ -1,11 +1,12 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { bookingInviteRepository, bookingRepository } from '../../../app';
+import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
+import { UserType } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
-import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 
 export const deleteBooking = async (req: Request): Promise<Boolean> => {
   const id = req.params.id.toString();
@@ -21,7 +22,7 @@ export const deleteBooking = async (req: Request): Promise<Boolean> => {
     );
   }
 
-  if (userType != 'admin') {
+  if (userType != UserType.admin) {
     throw new ForbiddenException(
       'Only admin users are allowed to delete bookings'
     );

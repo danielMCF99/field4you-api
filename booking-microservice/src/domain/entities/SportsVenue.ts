@@ -6,8 +6,8 @@ export enum SportsVenueType {
 }
 
 export enum SportsVenueStatus {
-  active = 'active',
-  inactive = 'inactive',
+  active = 'Active',
+  inactive = 'Inactive',
 }
 
 export type TimeSlot = {

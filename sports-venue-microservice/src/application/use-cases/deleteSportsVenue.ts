@@ -22,7 +22,7 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
     );
   }
 
-  if (userType != 'admin') {
+  if (userType != 'Admin') {
     throw new ForbiddenException(
       'Only admin users are allowed to delete sports venues'
     );

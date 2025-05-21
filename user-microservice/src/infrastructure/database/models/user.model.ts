@@ -1,5 +1,5 @@
 import { Document, Schema, Types, model } from 'mongoose';
-import { UserStatus } from '../../../domain/entities/User';
+import { UserStatus, UserType } from '../../../domain/entities/User';
 
 interface IUserDocument extends Document {
   _id: Types.ObjectId;
@@ -25,7 +25,11 @@ interface IUserDocument extends Document {
 
 const userSchema = new Schema<IUserDocument>(
   {
-    userType: { type: String, required: true, enum: ['user', 'owner'] },
+    userType: {
+      type: String,
+      required: true,
+      enum: [UserType.user, UserType.owner],
+    },
     email: {
       type: String,
       required: true,

@@ -6,7 +6,7 @@ import {
   RegisterUserDTO,
   registerUserSchema,
 } from '../../domain/dtos/register-user.dto';
-import { Auth, UserStatus } from '../../domain/entities/Auth';
+import { Auth, UserStatus, UserType } from '../../domain/entities/Auth';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
@@ -14,7 +14,6 @@ import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publ
 export const registerUser = async (req: Request): Promise<String> => {
   // Validate request sent for any necessary fields missing
   let parsed: RegisterUserDTO;
-
   try {
     parsed = registerUserSchema.parse(req.body);
   } catch (error) {
@@ -31,7 +30,6 @@ export const registerUser = async (req: Request): Promise<String> => {
   }
 
   const {
-    userType,
     email,
     password: rawPassword,
     firstName,
@@ -48,7 +46,6 @@ export const registerUser = async (req: Request): Promise<String> => {
   if (auth) {
     throw new BadRequestException('Given email is already being used.');
   }
-
   // Encrypt password
   const password = await bcrypt.hash(rawPassword, 10);
   const registerDate = new Date();
@@ -57,7 +54,7 @@ export const registerUser = async (req: Request): Promise<String> => {
   // Create new User in database
   const newAuth = await authRepository.create(
     new Auth({
-      userType,
+      userType: UserType.user,
       email,
       password,
       status: UserStatus.active,
@@ -65,7 +62,6 @@ export const registerUser = async (req: Request): Promise<String> => {
       lastAccessDate,
     })
   );
-
   // Generate JWT Token
   const token = await jwtHelper.generateToken(
     newAuth.getId(),

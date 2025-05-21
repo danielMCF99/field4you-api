@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { UserType } from '../entities/Auth';
 
 export const registerUserSchema = z.object({
-  userType: z.nativeEnum(UserType),
   email: z.string().email(),
   password: z.string().min(6),
   firstName: z.string(),

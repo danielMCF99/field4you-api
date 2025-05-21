@@ -4,7 +4,7 @@ import { userRepository, firebase } from '../../app';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { User } from '../../domain/entities/User';
+import { User, UserType } from '../../domain/entities/User';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const updateUserImage = async (req: Request): Promise<User> => {
@@ -21,7 +21,7 @@ export const updateUserImage = async (req: Request): Promise<User> => {
   }
 
   let user;
-  if (userType != 'admin') {
+  if (userType != UserType.admin) {
     if (id != requestUserId) {
       throw new UnauthorizedException(
         'User is only able to update its own image'

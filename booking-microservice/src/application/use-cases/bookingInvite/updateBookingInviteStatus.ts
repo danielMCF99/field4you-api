@@ -11,6 +11,7 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { validateBookingInviteStatusTransition } from '../../../infrastructure/utils/bookingInviteUtils';
+import { UserType } from '../../../domain/entities/User';
 
 export const updateBookingInviteStatus = async (
   req: Request
@@ -56,7 +57,7 @@ export const updateBookingInviteStatus = async (
     );
   }
 
-  if (userType != 'admin') {
+  if (userType != UserType.admin) {
     // Check if booking invite belongs to the user
     if (bookingInvite.getUserId() != ownerId) {
       throw new UnauthorizedException(

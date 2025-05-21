@@ -1,5 +1,5 @@
 import { Document, Schema, Types, model } from 'mongoose';
-import { UserStatus } from '../../../domain/entities/Auth';
+import { UserStatus, UserType } from '../../../domain/entities/Auth';
 
 interface IAuthDocument extends Document {
   _id: Types.ObjectId;
@@ -17,7 +17,11 @@ interface IAuthDocument extends Document {
 
 const authSchema = new Schema<IAuthDocument>(
   {
-    userType: { type: String, required: true, enum: ['user', 'owner'] },
+    userType: {
+      type: String,
+      required: true,
+      enum: [UserType.user, UserType.owner],
+    },
     email: {
       type: String,
       required: true,

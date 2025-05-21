@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { formatISO } from 'date-fns';
 import { Request } from 'express';
 import { authRepository, jwtHelper, loginHistoryRepository } from '../../app';
 import { Auth, UserStatus } from '../../domain/entities/Auth';
@@ -50,11 +51,22 @@ export const loginUser = async (req: Request): Promise<string> => {
   });
 
   // Create new LoginHistory entry
+  const today = formatISO(new Date(), { representation: 'date' });
   const newLoginHistory: LoginHistory = new LoginHistory({
     userId: auth.getId(),
     loginDate: lastAccessDate,
+    loginDay: today,
   });
-  loginHistoryRepository.create(newLoginHistory);
+  try {
+    await loginHistoryRepository.create(newLoginHistory);
+  } catch (error: any) {
+    if (error.code === 11000) {
+      // Duplicate key (login já registrado hoje), ignora
+    } else {
+      console.log(error.message);
+      throw error;
+    }
+  }
 
   return token;
 };

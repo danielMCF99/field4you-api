@@ -21,4 +21,6 @@ export interface ISportsVenueRepository {
     venueIds: string[],
     session?: ClientSession
   ): Promise<{ deletedCount?: number }>;
+
+  countSportsVenues(): Promise<number>;
 }
