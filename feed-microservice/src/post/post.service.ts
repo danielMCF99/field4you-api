@@ -48,6 +48,7 @@ export class PostService {
   }
 
   async listPosts(filters: GetAllPostsDto) {
+    console.log('Entered get all posts service');
     const { creatorEmail, startDate, endDate, page, limit } = filters;
 
     const query: any = {};
@@ -65,7 +66,7 @@ export class PostService {
     const [postsList, totalPosts] = await Promise.all([
       this.postModel
         .find(query)
-        .select('_id creatorEmail comments fileName imageUrl createdAt')
+        .select('_id creatorEmail comment fileName imageUrl createdAt')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -131,7 +132,8 @@ export class PostService {
           : 0
         : ((last30DaysCount - previous30DaysCount) / previous30DaysCount) * 100;
 
-    const postsPerDay: Record<string, number> = {};
+    const postsPerDay: { date: string; count: number }[] = [];
+
     const countPromises = Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
       date.setDate(now.getDate() - i);
@@ -142,19 +144,21 @@ export class PostService {
       const end = new Date(date);
       end.setHours(23, 59, 59, 999);
 
-      const key = start.toISOString().split('T')[0]; // YYYY-MM-DD
+      const key = start.toISOString().split('T')[0];
 
       return this.postModel
         .countDocuments({ createdAt: { $gte: start, $lte: end } })
-        .then((count) => ({ key, count }));
+        .then((count) => ({ date: key, count }));
     });
 
     const results = await Promise.all(countPromises);
 
-    for (const { key, count } of results) {
-      postsPerDay[key] = count;
-    }
-
+    // Ordenar por data ascendente
+    postsPerDay.push(
+      ...results.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      ),
+    );
     return {
       last30DaysCount,
       previous30DaysCount,

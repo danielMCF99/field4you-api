@@ -13,5 +13,13 @@ export class PostsStatsDto {
   differencePercentage: number;
 
   @IsObject()
-  postsPerDay: Record<string, number>;
+  postsPerDay: PostsPerDay[];
+}
+
+class PostsPerDay {
+  date: string;
+
+  @IsInt()
+  @Min(0)
+  count: number;
 }
