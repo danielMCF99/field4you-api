@@ -6,6 +6,7 @@ export const registerUserSchema = z.object({
   password: z.string().min(6),
   firstName: z.string(),
   lastName: z.string(),
+  phoneNumber: z.string(),
   birthDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: 'Invalid birthDate format',
   }),
