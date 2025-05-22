@@ -54,13 +54,8 @@ services:
       - |
         echo "Instalar dependências..."
         pip install --no-cache-dir -r /requirements.txt
-        echo "A aguardar 30 seg que BD fique pronta..."
-        sleep 30
-        for i in {1..30}; do
-          python /scriptdata.py && break
-          echo "Tentativa $i falhou, a tentar de novo..."
-          sleep 2
-        done
+        echo "Executar script Python..."
+        python /scriptdata.py
     restart: 'no'
 
   rabbitmq:

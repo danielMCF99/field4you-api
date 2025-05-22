@@ -42,6 +42,9 @@ export class MongoUserRepository implements IUserRepository {
   async getAll(params?: UserFilterParams): Promise<User[]> {
     const { firstName, userType, email, page, limit } = params || {};
 
+    console.log(`Page= ${page}`);
+    console.log(`Limit= ${limit}`);
+
     const query: any = {};
 
     if (firstName) {
@@ -55,9 +58,10 @@ export class MongoUserRepository implements IUserRepository {
     if (email) {
       query.email = { $regex: this.escapeRegex(email), $options: 'i' };
     }
-    
+
     const skip = page && limit ? (page - 1) * limit : 0;
 
+    console.log(query);
     const queryBuilder = UserModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip);

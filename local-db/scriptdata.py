@@ -1,17 +1,32 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 from faker import Faker
 from bson import ObjectId
 import random
 import datetime
 import bcrypt
+import time
 
 fake = Faker('pt_PT')
-client = MongoClient("mongodb://admin:password@localhost:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
+client = MongoClient("mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
+
+def wait_for_replica_set_ready(client, retries=30, delay=10):
+    for attempt in range(retries):
+        try:
+            status = client.admin.command("replSetGetStatus")
+            if status["ok"] == 1:
+                print("Replica set está pronto.")
+                return
+        except errors.PyMongoError as e:
+            print(f"Tentativa {attempt + 1}: Replica set não está pronto. Erro: {e}")
+        time.sleep(delay)
+    raise Exception("Timeout à espera do replica set estar pronto.")
+
+wait_for_replica_set_ready(client)
 
 auth_db = client["auth-microservice"]
 user_db = client["user-microservice"]
 sports_venue_db = client["sports-venue-microservice"]
-booking_db = client["booking-service"]
+booking_db = client["booking-microservice"]
 feed_db = client["feed-microservice"]
 
 auth_col = auth_db["Auth"]
@@ -179,7 +194,6 @@ for _ in range(1500):
     try:
         login_history_col.insert_one(login)
     except Exception as e:
-        print(f"Erro login: {e}")
         continue
 
 statuses = ['approved'] * 10 + ['pending'] * 15 + ['rejected'] * 15
@@ -193,7 +207,11 @@ for status in statuses:
         "updatedAt": now,
         "__v": 0
     }
-    owner_request_col.insert_one(request)
+    try:
+        owner_request_col.insert_one(request)
+    except Exception as e:
+        print(f"Erro owner requests: {e}")
+        continue
 
 for _ in range(100):
     uid = str(random.choice(users_ids))
