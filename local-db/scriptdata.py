@@ -1,17 +1,32 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 from faker import Faker
 from bson import ObjectId
 import random
 import datetime
 import bcrypt
+import time
 
 fake = Faker('pt_PT')
-client = MongoClient("mongodb://admin:password@localhost:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
+client = MongoClient("mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
+
+def wait_for_replica_set_ready(client, retries=30, delay=10):
+    for attempt in range(retries):
+        try:
+            status = client.admin.command("replSetGetStatus")
+            if status["ok"] == 1:
+                print("Replica set está pronto.")
+                return
+        except errors.PyMongoError as e:
+            print(f"Tentativa {attempt + 1}: Replica set não está pronto. Erro: {e}")
+        time.sleep(delay)
+    raise Exception("Timeout à espera do replica set estar pronto.")
+
+wait_for_replica_set_ready(client)
 
 auth_db = client["auth-microservice"]
 user_db = client["user-microservice"]
 sports_venue_db = client["sports-venue-microservice"]
-booking_db = client["booking-service"]
+booking_db = client["booking-microservice"]
 feed_db = client["feed-microservice"]
 
 auth_col = auth_db["Auth"]
@@ -43,6 +58,27 @@ admin = {
     "__v": 0
 }
 admin_id = auth_col.insert_one(admin).inserted_id
+
+admin_doc = {
+    "_id": admin_id,
+    "userType": "Admin",
+    "email": "admin123@alunos.ipca.pt",
+    "status": "Active",
+    "firstName": fake.first_name(),
+    "lastName": fake.last_name(),
+    "location": {
+        "address": fake.street_address(),
+        "latitude": float(fake.latitude()),
+        "longitude": float(fake.longitude()),
+        "city": fake.city(),
+        "district": fake.distrito()
+    },
+    "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=30, maximum_age=60), datetime.datetime.min.time()),
+    "createdAt": now,
+    "updatedAt": now,
+    "__v": 0
+}
+user_col.insert_one(admin_doc)
 
 users_ids = []
 for i in range(190):
@@ -85,6 +121,8 @@ for i in range(190):
 owners_ids = []
 for i in range(10):
     email = f"owner{i}@alunos.ipca.pt"
+
+    # Inserir na coleção de autenticação (auth_col)
     owner = {
         "userType": "Owner",
         "email": email,
@@ -97,6 +135,28 @@ for i in range(10):
         "__v": 0
     }
     auth_id = auth_col.insert_one(owner).inserted_id
+
+    owner_doc = {
+        "_id": auth_id,
+        "userType": "Owner",
+        "email": email,
+        "status": "Active",
+        "firstName": fake.first_name(),
+        "lastName": fake.last_name(),
+        "location": {
+            "address": fake.street_address(),
+            "latitude": float(fake.latitude()),
+            "longitude": float(fake.longitude()),
+            "city": fake.city(),
+            "district": fake.distrito()
+        },
+        "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+        "createdAt": now,
+        "updatedAt": now,
+        "__v": 0
+    }
+    user_col.insert_one(owner_doc)
+
     owners_ids.append(auth_id)
 
 sports_venues_ids = []
@@ -179,12 +239,12 @@ for _ in range(1500):
     try:
         login_history_col.insert_one(login)
     except Exception as e:
-        print(f"Erro login: {e}")
         continue
 
 statuses = ['approved'] * 10 + ['pending'] * 15 + ['rejected'] * 15
-for status in statuses:
-    uid = random.choice(users_ids)
+selected_user_ids = random.sample(users_ids, len(statuses))
+
+for uid, status in zip(selected_user_ids, statuses):
     request = {
         "userId": uid,
         "message": "Quero ser owner!",
@@ -193,7 +253,11 @@ for status in statuses:
         "updatedAt": now,
         "__v": 0
     }
-    owner_request_col.insert_one(request)
+    try:
+        owner_request_col.insert_one(request)
+    except Exception as e:
+        print(f"Erro owner requests: {e}")
+        continue
 
 for _ in range(100):
     uid = str(random.choice(users_ids))
