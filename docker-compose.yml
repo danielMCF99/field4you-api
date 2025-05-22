@@ -39,6 +39,30 @@ services:
         mongosh --host mongodb --username admin --password password --authenticationDatabase admin --eval "rs.initiate()"
     restart: 'no'
 
+  mongo-seed-python:
+    image: python:3.11-slim
+    depends_on:
+      - mongodb
+      - mongo-init-replica
+    volumes:
+      - ./local-db/scriptdata.py:/scriptdata.py
+      - ./local-db/requirements.txt:/requirements.txt
+    working_dir: /
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo "Instalar dependências..."
+        pip install --no-cache-dir -r /requirements.txt
+        echo "A aguardar 30 seg que BD fique pronta..."
+        sleep 30
+        for i in {1..30}; do
+          python /scriptdata.py && break
+          echo "Tentativa $i falhou, a tentar de novo..."
+          sleep 2
+        done
+    restart: 'no'
+
   rabbitmq:
     image: rabbitmq:3-management
     restart: always
@@ -50,7 +74,9 @@ services:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
     depends_on:
+      - mongodb
       - mongo-init-replica
+      - mongo-seed-python
 
   gateway-microservice:
     build:
