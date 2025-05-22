@@ -59,7 +59,7 @@ admin = {
 }
 admin_id = auth_col.insert_one(admin).inserted_id
 
-dmin_doc = {
+admin_doc = {
     "_id": admin_id,
     "userType": "Admin",
     "email": "admin123@alunos.ipca.pt",
