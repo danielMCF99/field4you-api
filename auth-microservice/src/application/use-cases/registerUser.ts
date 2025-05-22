@@ -35,6 +35,7 @@ export const registerUser = async (req: Request): Promise<String> => {
     firstName,
     lastName,
     birthDate,
+    phoneNumber,
     district,
     city,
     address,
@@ -89,6 +90,7 @@ export const registerUser = async (req: Request): Promise<String> => {
     },
     userType: newAuth.userType.toString(),
     birthDate: birthDate,
+    phoneNumber: phoneNumber,
   });
 
   return token;
