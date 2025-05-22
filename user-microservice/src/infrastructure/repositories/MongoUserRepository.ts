@@ -18,6 +18,10 @@ export class MongoUserRepository implements IUserRepository {
     return MongoUserRepository.instance;
   }
 
+  private escapeRegex(text: string): string {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+  }
+
   async create(user: User): Promise<User> {
     const newUser = await UserModel.create(user);
     return User.fromMongooseDocument(newUser);
@@ -36,7 +40,7 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   async getAll(params?: UserFilterParams): Promise<User[]> {
-    const { firstName, userType, page, limit } = params || {};
+    const { firstName, userType, email, page, limit } = params || {};
 
     const query: any = {};
 
@@ -48,6 +52,10 @@ export class MongoUserRepository implements IUserRepository {
       query.userType = userType;
     }
 
+    if (email) {
+      query.email = { $regex: this.escapeRegex(email), $options: 'i' };
+    }
+    
     const skip = page && limit ? (page - 1) * limit : 0;
 
     const queryBuilder = UserModel.find(query)
