@@ -85,7 +85,7 @@ export const getRecentBookings = async (
     };
   } catch (error: any) {
     console.log(error);
-
+    console.timeEnd('getRecentBookings');
     throw new InternalServerErrorException(
       'Internal server error fetching recent bookings'
     );
