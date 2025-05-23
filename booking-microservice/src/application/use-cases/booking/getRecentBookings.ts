@@ -48,21 +48,22 @@ export const getRecentBookings = async (
       console.timeEnd('fetch-venues');
       sportsVenueIds = venues.map((venue) => venue.getId());
     }
-    console.log(sportsVenueIds);
 
+    const venueFilter =
+      sportsVenueIds.length > 0
+        ? { sportsVenueId: { $in: sportsVenueIds } }
+        : {};
     console.time('bookings-stats');
     const [currentMonthBookings, lastMonthBookings, dailyBookings] =
       await Promise.all([
         BookingModel.countDocuments({
+          ...venueFilter,
           status: { $in: ALLOWED_STATUS },
-          sportsVenueId:
-            sportsVenueIds.length > 0 ? { $in: sportsVenueIds } : undefined,
           bookingStartDate: { $gte: thirtyDaysAgo, $lte: now },
         }),
         BookingModel.countDocuments({
+          ...venueFilter,
           status: { $in: ALLOWED_STATUS },
-          sportsVenueId:
-            sportsVenueIds.length > 0 ? { $in: sportsVenueIds } : undefined,
           bookingStartDate: { $gte: sixtyDaysAgo, $lte: thirtyDaysAgo },
         }),
         getDailyActivity(thirtyDaysAgo, now),
