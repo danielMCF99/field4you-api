@@ -3,30 +3,52 @@ import { Request } from 'express';
 import { sportsVenueRepository } from '../../../app';
 import { RecentBookingsResponseDTO } from '../../../domain/dtos/recent-bookings.dto';
 import { BookingStatus } from '../../../domain/entities/Booking';
+import { UserType } from '../../../domain/entities/User';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { BookingModel } from '../../../infrastructure/database/models/booking.model';
 
-const ALLOWED_STATUS = [BookingStatus.active, BookingStatus.done];
+const ALLOWED_STATUS = [BookingStatus.confirmed, BookingStatus.done];
 
 export const getRecentBookings = async (
   req: Request
 ): Promise<RecentBookingsResponseDTO> => {
   console.time('getRecentBookings');
   const sportsVenueOwnerId = req.headers['x-user-id'] as string | undefined;
+  const userType = req.headers['x-user-type'] as string | undefined;
+
   const now = new Date();
   const thirtyDaysAgo = subDays(now, 30);
   const sixtyDaysAgo = subDays(now, 60);
 
+  console.log(thirtyDaysAgo);
+  console.log(sixtyDaysAgo);
+
+  if (!userType) {
+    throw new ForbiddenException('User is not allowed to perform this request');
+  }
+
+  if (userType != UserType.admin && userType != UserType.owner) {
+    throw new ForbiddenException('User is not allowed to perform this request');
+  }
+
   try {
     let sportsVenueIds: string[] = [];
 
-    if (sportsVenueOwnerId) {
+    if (userType === UserType.owner) {
       console.log('Getting bookings for sports venue of specific owner');
       console.time('fetch-venues');
       const venues = await sportsVenueRepository.findAll(sportsVenueOwnerId);
       console.timeEnd('fetch-venues');
       sportsVenueIds = venues.map((venue) => venue.getId());
+    } else {
+      console.log('Getting all bookings for all sports venue');
+      console.time('fetch-venues');
+      const venues = await sportsVenueRepository.findAll();
+      console.timeEnd('fetch-venues');
+      sportsVenueIds = venues.map((venue) => venue.getId());
     }
+    console.log(sportsVenueIds);
 
     console.time('bookings-stats');
     const [currentMonthBookings, lastMonthBookings, dailyBookings] =
@@ -73,7 +95,7 @@ const getDailyActivity = async (start: Date, end: Date) => {
   const bookings = await BookingModel.aggregate([
     {
       $match: {
-        lastAccessDate: {
+        bookingStartDate: {
           $gte: start,
           $lte: end,
         },
