@@ -39,25 +39,6 @@ services:
         mongosh --host mongodb --username admin --password password --authenticationDatabase admin --eval "rs.initiate()"
     restart: 'no'
 
-  mongo-seed-python:
-    image: python:3.11-slim
-    depends_on:
-      - mongodb
-      - mongo-init-replica
-    volumes:
-      - ./local-db/scriptdata.py:/scriptdata.py
-      - ./local-db/requirements.txt:/requirements.txt
-    working_dir: /
-    entrypoint:
-      - bash
-      - -c
-      - |
-        echo "Instalar dependências..."
-        pip install --no-cache-dir -r /requirements.txt
-        echo "Executar script Python..."
-        python /scriptdata.py
-    restart: 'no'
-
   rabbitmq:
     image: rabbitmq:3-management
     restart: always
@@ -71,7 +52,6 @@ services:
     depends_on:
       - mongodb
       - mongo-init-replica
-      - mongo-seed-python
 
   gateway-microservice:
     build:
@@ -131,7 +111,30 @@ services:
     env_file:
       - ./feed-microservice/.env
 
+  mongo-seed-python:
+    image: python:3.11-slim
+    depends_on:
+      - mongodb
+      - mongo-init-replica
+      - gateway-microservice
+      - auth-microservice
+      - user-microservice
+      - booking-microservice
+      - sports-venue-microservice
+      - feed-microservice
+    volumes:
+      - ./local-db/scriptdata.py:/scriptdata.py
+      - ./local-db/requirements.txt:/requirements.txt
+    working_dir: /
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo "Instalar dependências..."
+        pip install --no-cache-dir -r /requirements.txt
+        echo "Executar script Python..."
+        python /scriptdata.py
+    restart: 'no'
+
 volumes:
   mongo_data:
-  # mongo_data_2:
-  # mongo_data_3:

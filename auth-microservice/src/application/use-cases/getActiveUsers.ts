@@ -1,11 +1,19 @@
 import { eachDayOfInterval, formatISO, subDays } from 'date-fns';
 import { Request } from 'express';
 import { ActiveUsersResponseDTO } from '../../domain/dtos/active-users.dto';
+import { UserType } from '../../domain/entities/Auth';
+import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { LoginHistoryModel } from '../../infrastructure/database/models/login-history.model';
 
 export const getActiveUsers = async (
   req: Request
 ): Promise<ActiveUsersResponseDTO> => {
+  const userType = req.headers['x-user-type'];
+
+  if (!userType || userType != UserType.admin) {
+    throw new ForbiddenException('User is not allowed to perform this request');
+  }
+
   const now = new Date();
   const currentPeriodStart = subDays(now, 30);
   const previousPeriodStart = subDays(currentPeriodStart, 30);

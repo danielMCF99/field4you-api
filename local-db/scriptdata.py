@@ -202,7 +202,7 @@ for i in range(500):
         "ownerId": owner_id,
         "sportsVenueId": venue_id,
         "bookingType": "Regular",
-        "status": random.choice(["Active", "Cancelled", "Completed"]),
+        "status": random.choice(["Active", "Cancelled", "Done", "Confirmed"]),
         "title": f"Reserva {i}",
         "bookingStartDate": start_time,
         "bookingEndDate": end_time,
@@ -241,7 +241,7 @@ for _ in range(1500):
     except Exception as e:
         continue
 
-statuses = ['approved'] * 10 + ['pending'] * 15 + ['rejected'] * 15
+statuses = ['Approved'] * 10 + ['Pending'] * 15 + ['Rejected'] * 15
 selected_user_ids = random.sample(users_ids, len(statuses))
 
 for uid, status in zip(selected_user_ids, statuses):
