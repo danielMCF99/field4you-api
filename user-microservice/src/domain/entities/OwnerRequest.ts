@@ -10,10 +10,11 @@ export class OwnerRequest {
   public message?: string;
   public status: Status;
   public response?: string;
-  public createdAt: Date;
-  public updatedAt: Date;
   public reviewedAt?: Date;
   public reviewedBy?: string;
+  public requestNumber: string;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(ownerRequest: {
     id?: string;
@@ -21,10 +22,11 @@ export class OwnerRequest {
     message?: string;
     status: Status;
     response?: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
     reviewedAt?: Date;
     reviewedBy?: string;
+    requestNumber: string;
   }) {
     this.id = ownerRequest.id;
     this.userId = ownerRequest.userId;
@@ -35,6 +37,7 @@ export class OwnerRequest {
     this.updatedAt = ownerRequest.updatedAt;
     this.reviewedAt = ownerRequest.reviewedAt;
     this.reviewedBy = ownerRequest.reviewedBy;
+    this.requestNumber = ownerRequest.requestNumber;
   }
 
   getId(): string {
@@ -54,6 +57,7 @@ export class OwnerRequest {
       updatedAt: doc.updatedAt,
       reviewedAt: doc.reviewedAt,
       reviewedBy: doc.reviewedBy,
+      requestNumber: doc.requestNumber,
     });
   }
 }

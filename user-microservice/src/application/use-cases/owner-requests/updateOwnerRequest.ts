@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { ownerRequestRepository, userRepository } from '../../../app';
-import { Status } from '../../../domain/entities/OwnerRequest';
+import { OwnerRequest, Status } from '../../../domain/entities/OwnerRequest';
 import { UserType } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
@@ -10,7 +10,9 @@ import { NotFoundException } from '../../../domain/exceptions/NotFoundException'
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { publishUserUpdate } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 
-export const updateOwnerRequest = async (req: Request) => {
+export const updateOwnerRequest = async (
+  req: Request
+): Promise<OwnerRequest> => {
   const session = await mongoose.startSession();
   session.startTransaction();
 

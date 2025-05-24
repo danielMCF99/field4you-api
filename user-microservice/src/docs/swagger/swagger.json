@@ -489,9 +489,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/OwnerRequest"
+                  "type": "object",
+                  "properties": {
+                    "ownerRequests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OwnerRequest"
+                      }
+                    }
                   }
                 }
               }
@@ -545,8 +550,80 @@
           }
         ],
         "responses": {
-          "200": { "description": "Owner request details." },
-          "404": { "description": "Owner request not found." }
+          "200": {
+            "description": "Owner request details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request – Missing or invalid ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Missing or invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden – You can only view your own requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "You can only view your own requests"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found – Owner request not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Owner request not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error – Missing headers or unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Missing headers or unexpected error."
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "patch": {
@@ -706,9 +783,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/OwnerRequest"
+                  "type": "object",
+                  "properties": {
+                    "ownerRequests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OwnerRequest"
+                      }
+                    }
                   }
                 }
               }
@@ -803,6 +885,20 @@
           "reviewedBy": {
             "type": "string",
             "example": "admin_user_id"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-04-28T10:15:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-04-28T10:15:00.000Z"
+          },
+          "requestNumber": {
+            "type": "string",
+            "example": "000000001"
           }
         }
       }

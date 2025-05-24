@@ -1,5 +1,6 @@
 export interface OwnerRequestFilterParams {
   status?: string;
+  requestNumber?: string;
   startDate?: Date;
   endDate?: Date;
   sortBy?: 'createdAt' | 'status';

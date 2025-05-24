@@ -5,7 +5,9 @@ import { UserType } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
-export const createOwnerRequest = async (req: Request) => {
+export const createOwnerRequest = async (
+  req: Request
+): Promise<OwnerRequest> => {
   const userId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
   const { message } = req.body;
@@ -36,8 +38,6 @@ export const createOwnerRequest = async (req: Request) => {
     userId,
     message,
     status: Status.pending,
-    createdAt: new Date(),
-    updatedAt: new Date(),
   });
 
   try {

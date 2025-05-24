@@ -1,8 +1,8 @@
-import { Types, ClientSession } from 'mongoose';
-import { OwnerRequestModel } from '../database/models/owner-request.model';
-import { IOwnerRequestRepository } from '../../domain/interfaces/OwnerRequestRepository';
-import { OwnerRequest } from '../../domain/entities/OwnerRequest';
+import { ClientSession, Types } from 'mongoose';
 import { OwnerRequestFilterParams } from '../../domain/dto/ownerRequest-filter.dto';
+import { OwnerRequest } from '../../domain/entities/OwnerRequest';
+import { IOwnerRequestRepository } from '../../domain/interfaces/OwnerRequestRepository';
+import { OwnerRequestModel } from '../database/models/owner-request.model';
 
 export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
   private static instance: MongoOwnerRequestRepository;
@@ -33,6 +33,7 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
   async getAll(params: OwnerRequestFilterParams): Promise<OwnerRequest[]> {
     const {
       status,
+      requestNumber,
       startDate,
       endDate,
       sortBy = 'createdAt',
@@ -45,6 +46,12 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
 
     if (status) {
       query.status = status;
+    }
+
+    if (requestNumber) {
+      query.requestNumber = {
+        $regex: requestNumber,
+      };
     }
 
     if (startDate && endDate) {

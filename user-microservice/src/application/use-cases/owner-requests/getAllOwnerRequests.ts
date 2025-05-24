@@ -1,10 +1,13 @@
-import { Request } from 'express';
-import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
-import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { request, Request } from 'express';
 import { ownerRequestRepository } from '../../../app';
+import { AllOwnerRequestsResponse } from '../../../domain/dto/all-ownerRequest.dto';
+import { UserType } from '../../../domain/entities/User';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
-export const getAllOwnerRequests = async (req: Request) => {
+export const getAllOwnerRequests = async (
+  req: Request
+): Promise<AllOwnerRequestsResponse> => {
   const userId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
 
@@ -12,13 +15,21 @@ export const getAllOwnerRequests = async (req: Request) => {
     throw new InternalServerErrorException('Internal Server Error');
   }
 
-  if (userType !== 'admin') {
+  if (userType !== UserType.admin) {
     throw new ForbiddenException('Only admins can access all owner requests');
   }
 
   try {
-    const { status, startDate, endDate, sortBy, order, page, limit } =
-      req.query;
+    const {
+      status,
+      requestNumber,
+      startDate,
+      endDate,
+      sortBy,
+      order,
+      page,
+      limit,
+    } = req.query;
 
     const toDateEndOfDayIfNoTime = (dateStr?: string): Date | undefined => {
       if (!dateStr) return undefined;
@@ -39,6 +50,7 @@ export const getAllOwnerRequests = async (req: Request) => {
 
     const filters = {
       status: status?.toString(),
+      requestNumber: requestNumber?.toString(),
       startDate: startDate ? new Date(startDate.toString()) : undefined,
       endDate: toDateEndOfDayIfNoTime(endDate?.toString()),
       sortBy: (sortBy?.toString() as 'createdAt' | 'status') ?? 'createdAt',
@@ -48,7 +60,9 @@ export const getAllOwnerRequests = async (req: Request) => {
     };
 
     const ownerRequests = await ownerRequestRepository.getAll(filters);
-    return ownerRequests;
+    return {
+      ownerRequests: ownerRequests,
+    };
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);
   }

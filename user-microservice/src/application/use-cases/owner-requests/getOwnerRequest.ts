@@ -4,8 +4,10 @@ import { ownerRequestRepository } from '../../../app';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { OwnerRequest } from '../../../domain/entities/OwnerRequest';
+import { UserType } from '../../../domain/entities/User';
 
-export const getOwnerRequest = async (req: Request) => {
+export const getOwnerRequest = async (req: Request): Promise<OwnerRequest> => {
   const userId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
   if (!userId || !userType) {
@@ -21,7 +23,10 @@ export const getOwnerRequest = async (req: Request) => {
     if (!ownerRequest) {
       throw new NotFoundException('Owner Request not found');
     }
-    if (userType !== 'admin' && userId !== ownerRequest.userId.toString()) {
+    if (
+      userType !== UserType.admin &&
+      userId !== ownerRequest.userId.toString()
+    ) {
       throw new ForbiddenException('You can only view your own requests');
     }
 
