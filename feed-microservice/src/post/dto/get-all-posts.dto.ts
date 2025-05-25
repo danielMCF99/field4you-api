@@ -14,6 +14,9 @@ export class GetAllPostsDto {
   creatorEmail?: string;
 
   @IsOptional()
+  userType?: string;
+
+  @IsOptional()
   @IsDateString()
   startDate?: string;
 

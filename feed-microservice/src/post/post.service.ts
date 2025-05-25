@@ -27,6 +27,7 @@ export class PostService {
 
     const creatorId = headers['x-user-id'];
     const creatorEmail = headers['x-user-email'];
+    const userType = headers['x-user-type'];
 
     if (!creatorId || !creatorEmail) {
       throw new UnauthorizedException('Missing user identification in headers');
@@ -38,6 +39,7 @@ export class PostService {
     const post = await this.postModel.create({
       creatorId: creatorId,
       creatorEmail: creatorEmail,
+      userType: userType,
       imageUrl: imageUrl,
       fileName: fileName,
       comment: createPostDto.comment,
@@ -49,13 +51,15 @@ export class PostService {
 
   async listPosts(filters: GetAllPostsDto) {
     console.log('Entered get all posts service');
-    const { creatorEmail, startDate, endDate, page, limit } = filters;
+    const { creatorEmail, startDate, endDate, page, limit, userType } = filters;
 
     const query: any = {};
     if (creatorEmail) {
       query.creatorEmail = creatorEmail;
     }
-
+    if (userType) {
+      query.userType = userType;
+    }
     if (startDate || filters?.endDate) {
       query.createdAt = {};
       if (startDate) query.createdAt.$gte = new Date(startDate);

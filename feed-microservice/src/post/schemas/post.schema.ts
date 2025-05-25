@@ -11,6 +11,9 @@ export class Post {
   @Prop({ required: true })
   creatorEmail: string;
 
+  @Prop({ required: true })
+  userType: string;
+
   @Prop()
   comment?: string;
 
