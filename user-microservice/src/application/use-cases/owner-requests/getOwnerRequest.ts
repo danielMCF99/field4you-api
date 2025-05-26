@@ -1,13 +1,15 @@
 import { Request } from 'express';
-import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
-import { ownerRequestRepository } from '../../../app';
-import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
-import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
-import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
-import { OwnerRequest } from '../../../domain/entities/OwnerRequest';
+import { ownerRequestRepository, userRepository } from '../../../app';
+import { OwnerRequestDetailResponse } from '../../../domain/dto/ownerRequest-detail.dto';
 import { UserType } from '../../../domain/entities/User';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 
-export const getOwnerRequest = async (req: Request): Promise<OwnerRequest> => {
+export const getOwnerRequest = async (
+  req: Request
+): Promise<OwnerRequestDetailResponse> => {
   const userId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
   if (!userId || !userType) {
@@ -30,7 +32,22 @@ export const getOwnerRequest = async (req: Request): Promise<OwnerRequest> => {
       throw new ForbiddenException('You can only view your own requests');
     }
 
-    return ownerRequest;
+    const user = await userRepository.getById(ownerRequest.getOwnerId());
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      ownerRequest: ownerRequest,
+      userDetails: {
+        name: user.firstName + ' ' + user.lastName,
+        profilePicture: user.imageURL,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        birthDate: new Date(user.birthDate).toISOString().split('T')[0],
+        location: user.getLocation(),
+      },
+    };
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);
   }

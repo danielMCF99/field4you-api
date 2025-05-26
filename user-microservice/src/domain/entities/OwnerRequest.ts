@@ -12,7 +12,7 @@ export class OwnerRequest {
   public response?: string;
   public reviewedAt?: Date;
   public reviewedBy?: string;
-  public requestNumber: string;
+  public requestNumber?: string;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -26,7 +26,7 @@ export class OwnerRequest {
     updatedAt?: Date;
     reviewedAt?: Date;
     reviewedBy?: string;
-    requestNumber: string;
+    requestNumber?: string;
   }) {
     this.id = ownerRequest.id;
     this.userId = ownerRequest.userId;

@@ -2,6 +2,7 @@ import { Document, Schema, Types, model } from 'mongoose';
 import { Status } from '../../../domain/entities/OwnerRequest';
 
 interface IOwnerRequest extends Document {
+  _id: Types.ObjectId;
   userId: Types.ObjectId;
   message?: string;
   status: string;

@@ -1,6 +1,9 @@
-import { request, Request } from 'express';
-import { ownerRequestRepository } from '../../../app';
-import { AllOwnerRequestsResponse } from '../../../domain/dto/all-ownerRequest.dto';
+import { Request } from 'express';
+import { ownerRequestRepository, userRepository } from '../../../app';
+import {
+  AllOwnerRequestsResponse,
+  AllOwnerRequestsSummary,
+} from '../../../domain/dto/all-ownerRequest.dto';
 import { UserType } from '../../../domain/entities/User';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
@@ -60,8 +63,30 @@ export const getAllOwnerRequests = async (
     };
 
     const ownerRequests = await ownerRequestRepository.getAll(filters);
+
+    const response: AllOwnerRequestsSummary[] = await Promise.all(
+      ownerRequests.map(async (elem) => {
+        const user = await userRepository.getById(elem.userId);
+
+        if (!user) {
+          console.warn(`User not found for request ${elem.getId()}`);
+        }
+
+        return {
+          id: elem.getId(),
+          userId: elem.userId,
+          userEmail: user?.email ?? '',
+          userPicture: user?.imageURL ?? undefined,
+          status: elem.status,
+          requestNumber: elem.requestNumber,
+          createdAt: elem.createdAt,
+          reviewedAt: elem.reviewedAt,
+        };
+      })
+    );
+
     return {
-      ownerRequests: ownerRequests,
+      ownerRequests: response,
     };
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);

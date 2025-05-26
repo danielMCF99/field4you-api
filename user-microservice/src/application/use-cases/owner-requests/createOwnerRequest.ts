@@ -10,9 +10,10 @@ export const createOwnerRequest = async (
 ): Promise<OwnerRequest> => {
   const userId = req.headers['x-user-id'] as string | undefined;
   const userType = req.headers['x-user-type'] as string | undefined;
+  const userEmail = req.headers['x-user-email'] as string | undefined;
   const { message } = req.body;
 
-  if (!userId || !userType) {
+  if (!userId || !userType || !userEmail) {
     throw new InternalServerErrorException('Internal Server Error');
   }
 
