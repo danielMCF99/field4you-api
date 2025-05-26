@@ -1,4 +1,4 @@
-import { Document, Schema, Types } from 'mongoose';
+import { Document, model, Schema, Types } from 'mongoose';
 import { NotificationStatus } from '../../../domain/entities/Notification';
 
 interface INotificationDocument extends Document {
@@ -24,4 +24,10 @@ const notificationSchema = new Schema<INotificationDocument>(
   {
     timestamps: true,
   }
+);
+
+export const NotificationModel = model<INotificationDocument>(
+  'Notifications',
+  notificationSchema,
+  'Notifications'
 );
