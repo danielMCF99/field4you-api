@@ -1,5 +1,5 @@
-import { UserFilterParams } from '../../domain/dto/user-filter.dto';
 import { ClientSession } from 'mongoose';
+import { UserFilterParams } from '../../domain/dto/user-filter.dto';
 import { User } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { UserModel } from '../database/models/user.model';
@@ -39,7 +39,9 @@ export class MongoUserRepository implements IUserRepository {
     return updatedUser ? User.fromMongooseDocument(updatedUser) : undefined;
   }
 
-  async getAll(params?: UserFilterParams): Promise<User[]> {
+  async getAll(
+    params?: UserFilterParams
+  ): Promise<{ totalPages: number; users: User[] }> {
     const { firstName, userType, email, page, limit } = params || {};
 
     console.log(`Page= ${page}`);
@@ -71,8 +73,12 @@ export class MongoUserRepository implements IUserRepository {
     }
 
     const results = await queryBuilder.lean();
+    const numberOfUsers = await UserModel.countDocuments(query);
 
-    return results.map(User.fromMongooseDocument);
+    return {
+      totalPages: Math.ceil(numberOfUsers / (limit ? limit : 10)),
+      users: results.map(User.fromMongooseDocument),
+    };
   }
 
   async getById(id: string): Promise<User | undefined> {

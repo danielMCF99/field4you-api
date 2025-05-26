@@ -13,6 +13,6 @@ export const getAll = async (
     page: query.page ? parseInt(query.page.toString()) : 1,
   };
 
-  const users = await userRepository.getAll(filters);
-  return { users: users };
+  const response = await userRepository.getAll(filters);
+  return response;
 };

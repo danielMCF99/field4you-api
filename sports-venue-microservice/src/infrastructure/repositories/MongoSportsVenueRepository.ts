@@ -80,7 +80,9 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
   }
 
-  async findAll(params?: SportsVenueFilterParams): Promise<SportsVenue[]> {
+  async findAll(
+    params?: SportsVenueFilterParams
+  ): Promise<{ totalPages: number; sportsVenues: SportsVenue[] }> {
     const {
       ownerId,
       sportsVenueName = '',
@@ -134,22 +136,30 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
 
     let venues = results.map(SportsVenue.fromMongooseDocument);
 
-  if (typeof distance === 'number' && typeof latitude === 'number' && typeof longitude === 'number') {
-    venues = venues.filter((venue) => {
-      const lat = venue.location?.latitude;
-      const lon = venue.location?.longitude;
-    
-      if (lat == null || lon == null) {
-        return false;
-      }
-    
-      const dist = haversineDistance(latitude, longitude, lat, lon);
-      return dist <= distance;
-    });    
-  }
+    if (
+      typeof distance === 'number' &&
+      typeof latitude === 'number' &&
+      typeof longitude === 'number'
+    ) {
+      venues = venues.filter((venue) => {
+        const lat = venue.location?.latitude;
+        const lon = venue.location?.longitude;
 
-  return venues;
-}
+        if (lat == null || lon == null) {
+          return false;
+        }
+
+        const dist = haversineDistance(latitude, longitude, lat, lon);
+        return dist <= distance;
+      });
+    }
+
+    const numberOfSportsVenues = await SportsVenueModel.countDocuments(query);
+    return {
+      totalPages: numberOfSportsVenues,
+      sportsVenues: venues,
+    };
+  }
 
   async deleteManyByOwnerId(ownerId: string): Promise<number> {
     const result = await SportsVenueModel.deleteMany({ ownerId: ownerId });

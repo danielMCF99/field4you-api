@@ -1,6 +1,7 @@
 import { Status } from '../entities/OwnerRequest';
 
 export interface AllOwnerRequestsResponse {
+  totalPages: number;
   ownerRequests: AllOwnerRequestsSummary[];
 }
 
