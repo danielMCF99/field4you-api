@@ -14,7 +14,5 @@ export const getAll = async (
   };
 
   const users = await userRepository.getAll(filters);
-  return {
-    users: users,
-  };
+  return { users: users };
 };
