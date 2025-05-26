@@ -15,7 +15,7 @@ export interface ISportsVenueRepository {
 
   findAll(
     params?: SportsVenueFilterParams
-  ): Promise<{ totalPages: number; sportsVenue: SportsVenue[] }>;
+  ): Promise<{ totalPages: number; sportsVenues: SportsVenue[] }>;
 
   deleteManyByOwnerId(ownerId: string): Promise<number>;
 
