@@ -23,7 +23,7 @@ export class JwtHelperImplementation implements JwtHelper {
     email: string
   ): Promise<string> {
     return jwt.sign({ userId, userType, email }, config.jwtSecret, {
-      expiresIn: '1h',
+      expiresIn: '6h',
     });
   }
 

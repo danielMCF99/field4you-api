@@ -30,7 +30,9 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
     return OwnerRequest.fromMongooseDocument(newOwnerRequest);
   }
 
-  async getAll(params: OwnerRequestFilterParams): Promise<OwnerRequest[]> {
+  async getAll(
+    params: OwnerRequestFilterParams
+  ): Promise<{ totalPages: number; ownerRequests: OwnerRequest[] }> {
     const {
       status,
       requestNumber,
@@ -73,8 +75,12 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
       .skip(skip)
       .limit(limit)
       .lean();
+    const numberOfUsers = await OwnerRequestModel.countDocuments(query);
 
-    return ownerRequests.map(OwnerRequest.fromMongooseDocument);
+    return {
+      totalPages: numberOfUsers,
+      ownerRequests: ownerRequests.map(OwnerRequest.fromMongooseDocument),
+    };
   }
 
   async get(id: string): Promise<OwnerRequest> {

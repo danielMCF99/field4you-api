@@ -48,6 +48,7 @@ export async function getOwnerRequestsByUserId(
     );
 
     return {
+      totalPages: 10,
       ownerRequests: response,
     };
   } catch (error: any) {

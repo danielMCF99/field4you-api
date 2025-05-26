@@ -62,10 +62,10 @@ export const getAllOwnerRequests = async (
       limit: parseInt(limit?.toString() || '10'),
     };
 
-    const ownerRequests = await ownerRequestRepository.getAll(filters);
+    const response = await ownerRequestRepository.getAll(filters);
 
-    const response: AllOwnerRequestsSummary[] = await Promise.all(
-      ownerRequests.map(async (elem) => {
+    const ownerRequestSummary: AllOwnerRequestsSummary[] = await Promise.all(
+      response.ownerRequests.map(async (elem) => {
         const user = await userRepository.getById(elem.userId);
 
         if (!user) {
@@ -86,7 +86,8 @@ export const getAllOwnerRequests = async (
     );
 
     return {
-      ownerRequests: response,
+      totalPages: response.totalPages,
+      ownerRequests: ownerRequestSummary,
     };
   } catch (error: any) {
     throw new InternalServerErrorException(error.message);
