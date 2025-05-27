@@ -46,6 +46,6 @@ export const updateNotificationStatus = async (
     return updatedNotification;
   } catch (error) {
     console.log(error);
-    throw new InternalServerErrorException('Error creating notification');
+    throw new InternalServerErrorException('Error updating notification');
   }
 };

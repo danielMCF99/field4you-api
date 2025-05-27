@@ -17,7 +17,7 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
   }
 
   async create(ownerRequest: OwnerRequest): Promise<OwnerRequest> {
-    const newOwnerRequest = await OwnerRequestModel.create({
+    const newOwnerRequest = new OwnerRequestModel({
       userId: new Types.ObjectId(ownerRequest.userId),
       message: ownerRequest.message,
       status: ownerRequest.status,
@@ -27,6 +27,7 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
       reviewedBy: ownerRequest.reviewedBy,
     });
 
+    await newOwnerRequest.save();
     return OwnerRequest.fromMongooseDocument(newOwnerRequest);
   }
 

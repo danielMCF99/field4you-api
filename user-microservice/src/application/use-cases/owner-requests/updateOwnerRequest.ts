@@ -79,10 +79,15 @@ export const updateOwnerRequest = async (
     session.endSession();
 
     // Create notification
-    const notificationContent =
-      status === Status.approved
-        ? 'Your request to be an owner was approved'
-        : 'Your request to be an owner was not approved';
+    let notificationContent;
+    if (!response) {
+      notificationContent = response;
+    } else {
+      notificationContent =
+        status === Status.approved
+          ? 'Your request to be an owner was approved'
+          : 'Your request to be an owner was not approved';
+    }
     createNotification({
       userId: ownerRequest.getOwnerId(),
       content: notificationContent,

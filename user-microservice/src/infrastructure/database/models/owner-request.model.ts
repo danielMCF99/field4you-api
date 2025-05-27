@@ -38,7 +38,7 @@ const ownerRequestSchema = new Schema<IOwnerRequest>(
   }
 );
 
-ownerRequestSchema.pre('save', async function (next) {
+ownerRequestSchema.pre('validate', async function (next) {
   if (this.isNew) {
     // Tenta gerar um número único de 10 dígitos
     let generated;

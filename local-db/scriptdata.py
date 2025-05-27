@@ -9,7 +9,7 @@ import time
 fake = Faker('pt_PT')
 client = MongoClient("mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
 
-def wait_for_replica_set_ready(client, retries=30, delay=10):
+def wait_for_replica_set_ready(client, retries=30, delay=5):
     for attempt in range(retries):
         try:
             status = client.admin.command("replSetGetStatus")
@@ -39,7 +39,6 @@ booking_col = booking_db["Bookings"]
 booking_invite_col = booking_db["BookingInvites"]
 booking_users_col = booking_db["Users"]
 booking_sports_venues_col = booking_db["SportsVenues"]
-posts_col = feed_db["posts"]
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode()
@@ -267,18 +266,6 @@ for (uid, email), status in zip(selected_user_ids, statuses):
     except Exception as e:
         print(f"Erro owner requests: {e}")
         continue
-for _ in range(100):
-    uid = str(random.choice(users_ids))
-    post = {
-        "creatorId": uid,
-        "creatorEmail": fake.email(),
-        "fileName": fake.file_name(category='image'),
-        "imageUrl": fake.image_url(),
-        "createdAt": now,
-        "updatedAt": now,
-        "__v": 0
-    }
-    posts_col.insert_one(post)
 
 booking_users_col.insert_many([
     {
