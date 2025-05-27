@@ -7,6 +7,7 @@ export const getAll = async (
 ): Promise<AllUsersResponse> => {
   const filters: UserFilterParams = {
     firstName: query.firstName?.toString(),
+    lastName: query.lastName?.toString(),
     userType: query.userType?.toString(),
     email: query.email?.toString(),
     limit: query.limit ? parseInt(query.limit.toString()) : 10,
