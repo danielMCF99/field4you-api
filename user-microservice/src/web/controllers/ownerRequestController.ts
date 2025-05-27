@@ -31,7 +31,7 @@ export const getAllOwnerRequestsController = async (
 ) => {
   try {
     const ownerRequests = await getAllOwnerRequests(req);
-    res.status(200).json({ ownerRequests });
+    res.status(200).json(ownerRequests);
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
@@ -45,7 +45,7 @@ export const getOwnerRequestController = async (
 ) => {
   try {
     const ownerRequest = await getOwnerRequest(req);
-    res.status(200).json({ ownerRequest });
+    res.status(200).json(ownerRequest);
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

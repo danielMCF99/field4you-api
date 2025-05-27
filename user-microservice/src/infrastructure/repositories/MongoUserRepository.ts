@@ -1,5 +1,5 @@
-import { UserFilterParams } from '../../domain/dto/user-filter.dto';
 import { ClientSession } from 'mongoose';
+import { UserFilterParams } from '../../domain/dto/user-filter.dto';
 import { User } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/interfaces/UserRepository';
 import { UserModel } from '../database/models/user.model';
@@ -39,16 +39,19 @@ export class MongoUserRepository implements IUserRepository {
     return updatedUser ? User.fromMongooseDocument(updatedUser) : undefined;
   }
 
-  async getAll(params?: UserFilterParams): Promise<User[]> {
-    const { firstName, userType, email, page, limit } = params || {};
-
-    console.log(`Page= ${page}`);
-    console.log(`Limit= ${limit}`);
+  async getAll(
+    params?: UserFilterParams
+  ): Promise<{ totalPages: number; users: User[] }> {
+    const { firstName, lastName, userType, email, page, limit } = params || {};
 
     const query: any = {};
 
     if (firstName) {
       query.firstName = { $regex: firstName, $options: 'i' };
+    }
+
+    if (lastName) {
+      query.lastName = { $regex: lastName, $options: 'i' };
     }
 
     if (userType) {
@@ -61,9 +64,8 @@ export class MongoUserRepository implements IUserRepository {
 
     const skip = page && limit ? (page - 1) * limit : 0;
 
-    console.log(query);
     const queryBuilder = UserModel.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(skip);
 
     if (typeof limit === 'number') {
@@ -71,8 +73,12 @@ export class MongoUserRepository implements IUserRepository {
     }
 
     const results = await queryBuilder.lean();
+    const numberOfUsers = await UserModel.countDocuments(query);
 
-    return results.map(User.fromMongooseDocument);
+    return {
+      totalPages: Math.ceil(numberOfUsers / (limit ? limit : 10)),
+      users: results.map(User.fromMongooseDocument),
+    };
   }
 
   async getById(id: string): Promise<User | undefined> {

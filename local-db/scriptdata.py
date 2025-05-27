@@ -116,7 +116,7 @@ for i in range(190):
         "__v": 0
     }
     user_col.insert_one(user_doc)
-    users_ids.append(auth_id)
+    users_ids.append((auth_id, email))
 
 owners_ids = []
 for i in range(10):
@@ -196,7 +196,7 @@ for i in range(500):
     end_time = start_time + datetime.timedelta(hours=1)
 
     invited_users = random.sample(users_ids, 10)
-    invited_users_ids_str = [str(user_id) for user_id in invited_users]
+    invited_users_ids_str = [str(user_id[0]) for user_id in invited_users]
 
     booking = {
         "ownerId": owner_id,
@@ -215,7 +215,7 @@ for i in range(500):
     }
     booking_id = booking_col.insert_one(booking).inserted_id
 
-    for user_id in invited_users:
+    for user_id, _ in invited_users:
         invite = {
             "bookingId": str(booking_id),
             "userId": str(user_id),
@@ -244,11 +244,20 @@ for _ in range(1500):
 statuses = ['Approved'] * 10 + ['Pending'] * 15 + ['Rejected'] * 15
 selected_user_ids = random.sample(users_ids, len(statuses))
 
-for uid, status in zip(selected_user_ids, statuses):
+def generate_unique_request_number(collection):
+    while True:
+        number = str(random.randint(10**9, 10**10 - 1))  # Gera 10 dígitos
+        if not collection.find_one({"requestNumber": number}):
+            return number
+
+for (uid, email), status in zip(selected_user_ids, statuses):
+    request_number = generate_unique_request_number(owner_request_col)
     request = {
         "userId": uid,
+        "userEmail": email,
         "message": "Quero ser owner!",
-        "status": status,
+        "requestNumber": request_number,
+        "status": status, 
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
@@ -258,7 +267,6 @@ for uid, status in zip(selected_user_ids, statuses):
     except Exception as e:
         print(f"Erro owner requests: {e}")
         continue
-
 for _ in range(100):
     uid = str(random.choice(users_ids))
     post = {
@@ -274,14 +282,15 @@ for _ in range(100):
 
 booking_users_col.insert_many([
     {
-        "_id": uid,
-        "userType": "User" if uid in users_ids else "Owner",
-        "email": auth_col.find_one({"_id": uid})["email"],
+        "_id": uid if isinstance(uid, ObjectId) else uid[0],
+        "userType": "User" if (uid in [u[0] for u in users_ids]) else "Owner",
+        "email": auth_col.find_one({"_id": uid if isinstance(uid, ObjectId) else uid[0]})["email"],
         "status": "Active",
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
-    } for uid in users_ids + owners_ids
+    }
+    for uid in users_ids + owners_ids
 ])
 
 booking_sports_venues_col.insert_many([
