@@ -9,7 +9,7 @@ import { updateUserStatus } from '../../application/use-cases/users/updateUserSt
 export const getAllController = async (req: Request, res: Response) => {
   try {
     const allUsers = await getAll(req.query);
-    res.status(200).json({ users: allUsers });
+    res.status(200).json(allUsers);
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

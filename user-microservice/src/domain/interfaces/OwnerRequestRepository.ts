@@ -3,7 +3,9 @@ import { OwnerRequest } from '../entities/OwnerRequest';
 
 export interface IOwnerRequestRepository {
   create(ownerRequest: OwnerRequest): Promise<OwnerRequest>;
-  getAll(params: OwnerRequestFilterParams): Promise<OwnerRequest[]>;
+  getAll(
+    params: OwnerRequestFilterParams
+  ): Promise<{ totalPages: number; ownerRequests: OwnerRequest[] }>;
   get(id: string): Promise<OwnerRequest>;
   getByUserId(userId: string): Promise<OwnerRequest[]>;
   update(id: string, ownerRequest: OwnerRequest): Promise<OwnerRequest>;
