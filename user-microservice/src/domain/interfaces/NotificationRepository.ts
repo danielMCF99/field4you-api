@@ -1,7 +1,12 @@
-import { Notification } from '../entities/Notification';
+import { Notification, NotificationStatus } from '../entities/Notification';
 
 export interface INotificationRepository {
-  create(notification: Notification): Promise<Notification>;
+  create(notification: {
+    userId: string;
+    status: NotificationStatus;
+    content: string;
+  }): Promise<Notification>;
+  getById(id: string): Promise<Notification | undefined>;
   getByUserId(
     userId: string,
     page: number,
@@ -9,6 +14,6 @@ export interface INotificationRepository {
   ): Promise<Notification[]>;
   updateStatus(
     id: string,
-    updatedData: Partial<Notification>
+    newStatus: NotificationStatus
   ): Promise<Notification>;
 }

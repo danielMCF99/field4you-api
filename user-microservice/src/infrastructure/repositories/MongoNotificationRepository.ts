@@ -1,7 +1,11 @@
 import { Types } from 'mongoose';
-import { Notification } from '../../domain/entities/Notification';
+import {
+  Notification,
+  NotificationStatus,
+} from '../../domain/entities/Notification';
 import { INotificationRepository } from '../../domain/interfaces/NotificationRepository';
 import { NotificationModel } from '../database/models/notification.model';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export class MongoNotificationRepository implements INotificationRepository {
   private static instance: MongoNotificationRepository;
@@ -14,17 +18,32 @@ export class MongoNotificationRepository implements INotificationRepository {
     return MongoNotificationRepository.instance;
   }
 
-  async create(notification: Notification): Promise<Notification> {
+  async create(notification: {
+    userId: string;
+    status: NotificationStatus;
+    content: string;
+  }): Promise<Notification> {
     const newNotification = await NotificationModel.create({
       userId: new Types.ObjectId(notification.userId),
       status: notification.status,
       content: notification.content,
-      createdAt: notification.createdAt,
-      updatedAt: notification.updatedAt,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     return Notification.fromMongooseDocument(newNotification);
   }
+
+  async getById(id: string): Promise<Notification | undefined> {
+    const notification = await NotificationModel.findById(id);
+
+    if (!notification) {
+      return undefined;
+    }
+
+    return Notification.fromMongooseDocument(notification);
+  }
+
   async getByUserId(
     userId: string,
     page: number,
@@ -47,8 +66,16 @@ export class MongoNotificationRepository implements INotificationRepository {
 
   async updateStatus(
     id: string,
-    updatedData: Partial<Notification>
+    newStatus: NotificationStatus
   ): Promise<Notification> {
-    throw new Error('Method not implemented.');
+    const updatedNotification = await NotificationModel.findByIdAndUpdate(id, {
+      status: newStatus,
+    });
+
+    if (!updatedNotification) {
+      throw new InternalServerErrorException('Internal Error');
+    }
+
+    return Notification.fromMongooseDocument(updatedNotification);
   }
 }

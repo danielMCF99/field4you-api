@@ -3,7 +3,7 @@ import { deleteUser } from '../../application/use-cases/users/deleteUser';
 import { getAll } from '../../application/use-cases/users/getAll';
 import { getById } from '../../application/use-cases/users/getById';
 import { updateUser } from '../../application/use-cases/users/updateUser';
-import { updateUserImage } from '../../application/use-cases/updateUserImage';
+import { updateUserImage } from '../../application/use-cases/users/updateUserImage';
 import { updateUserStatus } from '../../application/use-cases/users/updateUserStatus';
 
 export const getAllController = async (req: Request, res: Response) => {
