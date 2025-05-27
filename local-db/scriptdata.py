@@ -219,6 +219,7 @@ for i in range(500):
             "bookingId": str(booking_id),
             "userId": str(user_id),
             "sportsVenueId": venue_id,
+            "bookingStartDate": start_time,
             "createdAt": now,
             "updatedAt": now
         }
