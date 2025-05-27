@@ -42,12 +42,16 @@ export class MongoUserRepository implements IUserRepository {
   async getAll(
     params?: UserFilterParams
   ): Promise<{ totalPages: number; users: User[] }> {
-    const { firstName, userType, email, page, limit } = params || {};
+    const { firstName, lastName, userType, email, page, limit } = params || {};
 
     const query: any = {};
 
     if (firstName) {
       query.firstName = { $regex: firstName, $options: 'i' };
+    }
+
+    if (lastName) {
+      query.lastName = { $regex: lastName, $options: 'i' };
     }
 
     if (userType) {
