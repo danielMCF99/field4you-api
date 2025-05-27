@@ -10,7 +10,6 @@ import {
 
 export class GetAllPostsDto {
   @IsOptional()
-  @IsEmail()
   creatorEmail?: string;
 
   @IsOptional()
