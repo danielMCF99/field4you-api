@@ -52,7 +52,6 @@ export class PostService {
   async listPosts(filters: GetAllPostsDto) {
     console.log('Entered get all posts service');
     const { creatorEmail, startDate, endDate, page, limit, userType } = filters;
-    console.log('Filters: ', filters);
     const query: any = {};
     if (creatorEmail) {
       query.creatorEmail = creatorEmail;
@@ -65,7 +64,6 @@ export class PostService {
       if (startDate) query.createdAt.$gte = new Date(startDate);
       if (endDate) query.createdAt.$lte = new Date(endDate);
     }
-    console.log('limit: ', limit);
     const skip = (page - 1) * limit;
     const [postsList, totalPosts] = await Promise.all([
       this.postModel

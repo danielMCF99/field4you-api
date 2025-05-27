@@ -43,7 +43,6 @@ export class PostController {
 
   @Get('all')
   async listPosts(@Query() query: GetAllPostsDto) {
-    console.log('Query', query);
     return this.postService.listPosts(query);
   }
 
