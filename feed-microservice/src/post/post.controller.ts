@@ -10,7 +10,7 @@ import {
   Res,
   UploadedFile,
   UseFilters,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -43,6 +43,7 @@ export class PostController {
 
   @Get('all')
   async listPosts(@Query() query: GetAllPostsDto) {
+    console.log('Query', query);
     return this.postService.listPosts(query);
   }
 
