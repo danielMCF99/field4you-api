@@ -7,6 +7,7 @@ const whitelist = [
   { method: 'POST', path: '/api/auth/register' },
   { method: 'PUT', path: '/api/auth/reset-password' },
   { method: 'POST', path: '/api/auth/password-recovery' },
+  { method: 'GET', path: '/api/sports-venues' },
 ];
 
 export const authenticate = async (
