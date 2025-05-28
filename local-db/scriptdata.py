@@ -226,7 +226,8 @@ for i in range(500):
         booking_invite_col.insert_one(invite)  
         sports_venue_booking_invites_col.insert_one(invite)  
 
-all_user_ids = users_ids + owners_ids + [admin_id]
+user_ids_only = [id_email[0] for id_email in users_ids]
+all_user_ids = user_ids_only + owners_ids + [admin_id]
 for _ in range(1500):
     login_date = fake.date_time_between(start_date='-30d', end_date='now')
     login_day = login_date.date().isoformat()
@@ -242,7 +243,7 @@ for _ in range(1500):
         continue
 
 statuses = ['Approved'] * 10 + ['Pending'] * 15 + ['Rejected'] * 15
-selected_user_ids = random.sample(users_ids, len(statuses))
+selected_user_ids = random.sample(user_ids_only, len(statuses))
 
 def generate_unique_request_number(collection):
     while True:
@@ -250,7 +251,7 @@ def generate_unique_request_number(collection):
         if not collection.find_one({"requestNumber": number}):
             return number
 
-for (uid, email), status in zip(selected_user_ids, statuses):
+for (uid, email), status in zip(users_ids, statuses):
     request_number = generate_unique_request_number(owner_request_col)
     request = {
         "userId": uid,
@@ -278,7 +279,7 @@ booking_users_col.insert_many([
         "updatedAt": now,
         "__v": 0
     }
-    for uid in users_ids + owners_ids
+    for uid in user_ids_only + owners_ids
 ])
 
 booking_sports_venues_col.insert_many([
