@@ -61,7 +61,9 @@ export const getSportsVenuesTotalPlayers = async (
 
     const percentageDifference =
       previousMonthTotalPlayers === 0
-        ? 100
+        ? currentMonthTotalPlayers === 0
+          ? 0
+          : 100
         : ((currentMonthTotalPlayers - previousMonthTotalPlayers) /
             previousMonthTotalPlayers) *
           100;

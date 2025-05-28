@@ -71,11 +71,12 @@ export const getRecentBookings = async (
     console.timeEnd('bookings-stats');
     const percentageDifference =
       lastMonthBookings === 0
-        ? currentMonthBookings > 0
-          ? 100
-          : 0
+        ? currentMonthBookings === 0
+          ? 0
+          : 100
         : ((currentMonthBookings - lastMonthBookings) / lastMonthBookings) *
           100;
+
     console.timeEnd('getRecentBookings');
     return {
       currentMonthBookings: currentMonthBookings,

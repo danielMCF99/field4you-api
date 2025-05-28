@@ -127,9 +127,9 @@ export class PostService {
 
     const differencePercentage =
       previous30DaysCount === 0
-        ? last30DaysCount > 0
-          ? 100
-          : 0
+        ? last30DaysCount === 0
+          ? 0
+          : 100
         : ((last30DaysCount - previous30DaysCount) / previous30DaysCount) * 100;
 
     const postsPerDay: { date: string; count: number }[] = [];
