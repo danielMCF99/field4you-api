@@ -10,8 +10,10 @@ import {
 
 export class GetAllPostsDto {
   @IsOptional()
-  @IsEmail()
   creatorEmail?: string;
+
+  @IsOptional()
+  userType?: string;
 
   @IsOptional()
   @IsDateString()
