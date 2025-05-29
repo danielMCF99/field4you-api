@@ -1,0 +1,233 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Feed Service API Documentation",
+    "version": "1.0.0",
+    "description": "Endpoints for creating, retrieving, and deleting posts, as well as gathering statistics."
+  },
+  "paths": {
+    "/api/posts": {
+      "post": {
+        "summary": "Create a new post",
+        "description": "Creates a new post with an optional comment and an image file. Requires authentication headers.",
+        "tags": ["Posts"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "type": "string",
+                    "maxLength": 250,
+                    "example": "Nice picture!"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Post created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "userAuth": []
+          }
+        ]
+      }
+    },
+    "/api/posts/{id}": {
+      "delete": {
+        "summary": "Delete a post",
+        "description": "Deletes a post by ID. Admins can delete any post; other users can only delete their own.",
+        "tags": ["Posts"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "userAuth": []
+          }
+        ]
+      }
+    },
+    "/api/posts/all": {
+      "get": {
+        "summary": "List all posts",
+        "description": "Returns a paginated list of posts with optional filters.",
+        "tags": ["Posts"],
+        "parameters": [
+          {
+            "name": "creatorEmail",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          {
+            "name": "userType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "postsList": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Post"
+                      }
+                    },
+                    "totalPosts": { "type": "integer" },
+                    "page": { "type": "integer" },
+                    "totalPages": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/statistics": {
+      "get": {
+        "summary": "Get post statistics",
+        "description": "Returns statistics about posts from the last 30 and previous 30 days, including a per-day breakdown.",
+        "tags": ["Posts"],
+        "responses": {
+          "200": {
+            "description": "Post statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostsStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "creatorEmail": { "type": "string", "format": "email" },
+          "fileName": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "comment": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "PostsStats": {
+        "type": "object",
+        "properties": {
+          "last30DaysCount": { "type": "integer" },
+          "previous30DaysCount": { "type": "integer" },
+          "differencePercentage": { "type": "number", "format": "float" },
+          "postsPerDay": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": { "type": "string", "format": "date" },
+                "count": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "userAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-user-id"
+      }
+    }
+  }
+}
