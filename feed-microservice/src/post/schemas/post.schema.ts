@@ -23,6 +23,9 @@ export class Post {
   @Prop({ required: true })
   imageUrl: string;
 
+  @Prop({ required: true })
+  profileImageUrl: string;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
