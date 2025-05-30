@@ -38,7 +38,9 @@ export const getActiveUsers = async (
 
   const percentageDifference =
     previousActiveUsers === 0
-      ? 100
+      ? currentActiveUsers === 0
+        ? 0
+        : 100
       : ((currentActiveUsers - previousActiveUsers) / previousActiveUsers) *
         100;
 

@@ -1,11 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { userRepository, firebase } from '../../app';
-import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
-import { BadRequestException } from '../../domain/exceptions/BadRequestException';
-import { User, UserType } from '../../domain/entities/User';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { userRepository, firebase } from '../../../app';
+import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
+import { User, UserType } from '../../../domain/entities/User';
+import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 
 export const updateUserImage = async (req: Request): Promise<User> => {
   const id = req.params.id.toString();

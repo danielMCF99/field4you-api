@@ -9,6 +9,7 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { publishUserUpdate } from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
+import { createNotification } from '../notifications/createNotification';
 
 export const updateOwnerRequest = async (
   req: Request
@@ -76,6 +77,21 @@ export const updateOwnerRequest = async (
     // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
+
+    // Create notification
+    let notificationContent;
+    if (!response) {
+      notificationContent = response;
+    } else {
+      notificationContent =
+        status === Status.approved
+          ? 'Your request to be an owner was approved'
+          : 'Your request to be an owner was not approved';
+    }
+    createNotification({
+      userId: ownerRequest.getOwnerId(),
+      content: notificationContent,
+    });
 
     return updatedOwnerRequest;
   } catch (error: any) {

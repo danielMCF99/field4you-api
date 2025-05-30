@@ -1480,6 +1480,93 @@
           }
         }
       }
+    },
+    "/sports-venues/total-players": {
+      "get": {
+        "summary": "Get total players per sports venue (last 30 days)",
+        "description": "Returns the number of players in the owner's sports venues for the current and previous 30-day periods, along with the daily breakdown and percentage difference.",
+        "tags": ["Sports Venues"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the authenticated user (must be an Owner)."
+          },
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["Owner"]
+            },
+            "description": "The role of the authenticated user (must be 'Owner')."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Total players stats returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currentMonthTotalPlayers": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "previousMonthTotalPlayers": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "percentageDifference": {
+                      "type": "number"
+                    },
+                    "dailyTotalUsers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "count": {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["date", "count"]
+                      }
+                    }
+                  },
+                  "required": [
+                    "currentMonthTotalPlayers",
+                    "previousMonthTotalPlayers",
+                    "percentageDifference",
+                    "dailyTotalUsers"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden – user is not an Owner."
+          },
+          "500": {
+            "description": "Internal Server Error – missing headers or server issue."
+          }
+        }
+      }
     }
   },
   "components": {

@@ -9,7 +9,7 @@ import time
 fake = Faker('pt_PT')
 client = MongoClient("mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
 
-def wait_for_replica_set_ready(client, retries=30, delay=10):
+def wait_for_replica_set_ready(client, retries=30, delay=5):
     for attempt in range(retries):
         try:
             status = client.admin.command("replSetGetStatus")
@@ -39,7 +39,6 @@ booking_col = booking_db["Bookings"]
 booking_invite_col = booking_db["BookingInvites"]
 booking_users_col = booking_db["Users"]
 booking_sports_venues_col = booking_db["SportsVenues"]
-posts_col = feed_db["posts"]
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode()
@@ -220,13 +219,15 @@ for i in range(500):
             "bookingId": str(booking_id),
             "userId": str(user_id),
             "sportsVenueId": venue_id,
+            "bookingStartDate": start_time,
             "createdAt": now,
             "updatedAt": now
         }
         booking_invite_col.insert_one(invite)  
         sports_venue_booking_invites_col.insert_one(invite)  
 
-all_user_ids = users_ids + owners_ids + [admin_id]
+user_ids_only = [id_email[0] for id_email in users_ids]
+all_user_ids = user_ids_only + owners_ids + [admin_id]
 for _ in range(1500):
     login_date = fake.date_time_between(start_date='-30d', end_date='now')
     login_day = login_date.date().isoformat()
@@ -242,7 +243,7 @@ for _ in range(1500):
         continue
 
 statuses = ['Approved'] * 10 + ['Pending'] * 15 + ['Rejected'] * 15
-selected_user_ids = random.sample(users_ids, len(statuses))
+selected_user_ids = random.sample(user_ids_only, len(statuses))
 
 def generate_unique_request_number(collection):
     while True:
@@ -250,7 +251,7 @@ def generate_unique_request_number(collection):
         if not collection.find_one({"requestNumber": number}):
             return number
 
-for (uid, email), status in zip(selected_user_ids, statuses):
+for (uid, email), status in zip(users_ids, statuses):
     request_number = generate_unique_request_number(owner_request_col)
     request = {
         "userId": uid,
@@ -267,18 +268,6 @@ for (uid, email), status in zip(selected_user_ids, statuses):
     except Exception as e:
         print(f"Erro owner requests: {e}")
         continue
-for _ in range(100):
-    uid = str(random.choice(users_ids))
-    post = {
-        "creatorId": uid,
-        "creatorEmail": fake.email(),
-        "fileName": fake.file_name(category='image'),
-        "imageUrl": fake.image_url(),
-        "createdAt": now,
-        "updatedAt": now,
-        "__v": 0
-    }
-    posts_col.insert_one(post)
 
 booking_users_col.insert_many([
     {
@@ -290,7 +279,7 @@ booking_users_col.insert_many([
         "updatedAt": now,
         "__v": 0
     }
-    for uid in users_ids + owners_ids
+    for uid in user_ids_only + owners_ids
 ])
 
 booking_sports_venues_col.insert_many([

@@ -48,6 +48,7 @@ export const createOwnerRequest = async (
     }
     return newOwnerRequest;
   } catch (error) {
-    throw new InternalServerErrorException('Failed to create owner request');
+    console.log(error);
+    throw new InternalServerErrorException('Unexpected Error');
   }
 };

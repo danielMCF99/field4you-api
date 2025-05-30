@@ -29,6 +29,7 @@ export const autoUpdateBookingsToDone = async (): Promise<void> => {
         userId: invite.getUserId(),
         bookingId: invite.getBookingId(),
         sportsVenueId: booking.sportsVenueId,
+        bookingStartDate: invite.bookingStartDate,
       }));
 
       await publishFinishedBooking({ invitedUserIds: invitedUsersPayload });

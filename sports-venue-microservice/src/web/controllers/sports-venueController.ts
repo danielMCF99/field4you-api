@@ -4,12 +4,13 @@ import { deleteSportsVenue } from '../../application/use-cases/deleteSportsVenue
 import { deleteSportsVenueImage } from '../../application/use-cases/deleteSportsVenueImage';
 import { getAllSportsVenue } from '../../application/use-cases/getAllSportsVenue';
 import { getSportsVenueById } from '../../application/use-cases/getSportsVenueById';
-import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue';
-import { updateSportsVenueRating } from '../../application/use-cases/updateSportsVenueRating';
-import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
-import { updateSportsVenueImage } from '../../application/use-cases/updateSportsVenueImage';
-import { updateSportsVenueSchedule } from '../../application/use-cases/updateSportsVenueSchedule';
 import { getSportsVenueSchedule } from '../../application/use-cases/getSportsVenueSchedule';
+import { getSportsVenuesTotalPlayers } from '../../application/use-cases/getSportsVenuesTotalPlayers';
+import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue';
+import { updateSportsVenueImage } from '../../application/use-cases/updateSportsVenueImage';
+import { updateSportsVenueRating } from '../../application/use-cases/updateSportsVenueRating';
+import { updateSportsVenueSchedule } from '../../application/use-cases/updateSportsVenueSchedule';
+import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -165,6 +166,20 @@ export const getSportsVenueScheduleController = async (
   try {
     const sportsVenue = await getSportsVenueSchedule(req);
     res.status(200).json(sportsVenue);
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
+export const getSportsVenueTotalPlayersController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const response = await getSportsVenuesTotalPlayers(req);
+    res.status(200).json(response);
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
