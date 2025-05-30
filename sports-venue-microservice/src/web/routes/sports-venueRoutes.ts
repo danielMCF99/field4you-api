@@ -7,12 +7,13 @@ import {
   deleteSportsVenueImageController,
   getAllSportsVenueController,
   getSportsVenueByIdController,
-  updateSportsVenueController,
-  updateSportsVenueRatingController,
-  updateSportsVenueStatusController,
-  updateSportsVenueImageController,
-  updateSportsVenueScheduleController,
   getSportsVenueScheduleController,
+  getSportsVenueTotalPlayersController,
+  updateSportsVenueController,
+  updateSportsVenueImageController,
+  updateSportsVenueRatingController,
+  updateSportsVenueScheduleController,
+  updateSportsVenueStatusController,
 } from '../controllers/sports-venueController';
 
 const storage = multer.memoryStorage();
@@ -29,6 +30,10 @@ router.patch('/sports-venues/:id/status', updateSportsVenueStatusController);
 router.patch('/sports-venues/:id/rating', updateSportsVenueRatingController);
 router.put('/sports-venues/:id', updateSportsVenueController);
 router.get('/sports-venues', getAllSportsVenueController);
+router.get(
+  '/sports-venues/total-players',
+  getSportsVenueTotalPlayersController
+);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
 router.patch(
@@ -45,10 +50,5 @@ router.patch(
   updateSportsVenueScheduleController
 );
 router.get('/sports-venues/:id/schedule', getSportsVenueScheduleController);
-
-//router.post("/sports-venue/query", query-sports-venue);
-//router.post("/sports-venue/:id/schedule", create-query-sports-venue);
-//router.put("/sports-venue/:id/schedule/:id", update-sports-venue-schedule);
-//router.put("/sports-venue/:id/schedule/:id/status", update-sports-venue-schedule-status);
 
 export default router;
