@@ -1,4 +1,4 @@
-name: Auth Service Docker Image
+name: Docker Build and Publish
 
 on:
   release:
@@ -17,12 +17,12 @@ jobs:
     strategy:
       matrix:
         service:
-          - auth-service
-          - booking-service
-          - user-service
-          - gateway-service
-          - sports-venue-service
-          - feed-servicee
+          - auth-microservice
+          - booking-microservice
+          - user-microservice
+          - gateway-microservice
+          - sports-venue-microservice
+          - feed-microservice
     env:
       IMAGE_TAG: ${{ github.event.release.tag_name }}
     steps:
