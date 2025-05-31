@@ -70,9 +70,9 @@ export const getSportsVenueProfit = async (
 
     const percentageDifference =
       previousTotal === 0
-        ? currentTotal > 0
-          ? 100
-          : 0
+        ? currentTotal === 0
+          ? 0
+          : 100
         : ((currentTotal - previousTotal) / previousTotal) * 100;
 
     return {

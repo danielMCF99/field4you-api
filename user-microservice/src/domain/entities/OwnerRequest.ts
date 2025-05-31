@@ -57,6 +57,7 @@ export class OwnerRequest {
       updatedAt: doc.updatedAt,
       reviewedAt: doc.reviewedAt,
       reviewedBy: doc.reviewedBy,
+      response: doc.response,
       requestNumber: doc.requestNumber,
     });
   }

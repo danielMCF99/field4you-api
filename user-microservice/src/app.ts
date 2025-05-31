@@ -6,6 +6,7 @@ import { MongoUserRepository } from './infrastructure/repositories/MongoUserRepo
 import userRoutes from './web/routes/userRoutes';
 import { FirebaseImplementation } from './infrastructure/firebase/firebase';
 import { MongoOwnerRequestRepository } from './infrastructure/repositories/MongoOwnerRequestRepository';
+import { MongoNotificationRepository } from './infrastructure/repositories/MongoNotificationRepository';
 
 const app: Application = express();
 app.disable('x-powered-by');
@@ -19,6 +20,7 @@ export const bucket = user.storage().bucket();
 export const userRepository = MongoUserRepository.getInstance();
 export const firebase = FirebaseImplementation.getInstance();
 export const ownerRequestRepository = MongoOwnerRequestRepository.getInstance();
+export const notificationRepository = MongoNotificationRepository.getInstance();
 
 /* Middlewares */
 app.use(express.json());

@@ -3,6 +3,7 @@ export class BookingInvite {
   public bookingId: string;
   public userId: string;
   public sportsVenueId: string;
+  public bookingStartDate: Date;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -11,6 +12,7 @@ export class BookingInvite {
     bookingId: string;
     userId: string;
     sportsVenueId: string;
+    bookingStartDate: Date;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -18,6 +20,7 @@ export class BookingInvite {
     this.bookingId = bookingInvite.bookingId;
     this.userId = bookingInvite.userId;
     this.sportsVenueId = bookingInvite.sportsVenueId;
+    this.bookingStartDate = bookingInvite.bookingStartDate;
     this.createdAt = bookingInvite.createdAt;
     this.updatedAt = bookingInvite.updatedAt;
   }
@@ -38,6 +41,7 @@ export class BookingInvite {
       bookingId: doc.bookingId,
       userId: doc.userId,
       sportsVenueId: doc.sportsVenueId,
+      bookingStartDate: doc.bookingStartDate,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

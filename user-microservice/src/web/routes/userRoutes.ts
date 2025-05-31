@@ -16,6 +16,11 @@ import {
   getOwnerRequestsByUserIdController,
   updateOwnerRequestController,
 } from '../controllers/ownerRequestController';
+import { getNotificationsByUserId } from '../../application/use-cases/notifications/getNotificationsByUserId';
+import {
+  getAllByUseIdController,
+  updateNotificationStatusController,
+} from '../controllers/notificationController';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -45,5 +50,11 @@ userRoutes.get(
   getOwnerRequestsByUserIdController
 );
 userRoutes.patch('/users/owner-requests/:id', updateOwnerRequestController);
+
+userRoutes.get('/users/notifications', getAllByUseIdController);
+userRoutes.patch(
+  '/users/notifications/:id/status',
+  updateNotificationStatusController
+);
 
 export default userRoutes;

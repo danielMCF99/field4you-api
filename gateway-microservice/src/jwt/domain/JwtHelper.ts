@@ -9,7 +9,6 @@ export interface CustomJwtPayload {
   userId: string;
   userType: string;
   email: string;
-  status: string;
   iat: number;
   exp: number;
 }

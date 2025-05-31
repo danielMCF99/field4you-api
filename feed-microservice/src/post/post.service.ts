@@ -1,10 +1,13 @@
+import { HttpService } from '@nestjs/axios';
 import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { firstValueFrom } from 'rxjs';
 import { FirebaseRepository } from 'src/firebase/firebase.repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetAllPostsDto } from './dto/get-all-posts.dto';
@@ -15,6 +18,8 @@ export class PostService {
   constructor(
     @InjectModel(Post.name) private postModel: Model<Post>,
     private firebaseRepository: FirebaseRepository,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(
@@ -24,9 +29,10 @@ export class PostService {
   ): Promise<Post> {
     console.log('Ficheiro:', file?.originalname);
     console.log('Comentário recebido:', createPostDto.comment);
-
+    const userServiceUrl = this.configService.get<string>('USER_SERVICE_URL');
     const creatorId = headers['x-user-id'];
     const creatorEmail = headers['x-user-email'];
+    const userType = headers['x-user-type'];
 
     if (!creatorId || !creatorEmail) {
       throw new UnauthorizedException('Missing user identification in headers');
@@ -35,12 +41,26 @@ export class PostService {
     const { imageUrl, fileName } =
       await this.firebaseRepository.uploadImageToStorageOnly(file);
 
+    let profileImageUrl = 'DefaultProfileImage';
+    try {
+      const userRes = await firstValueFrom(
+        this.httpService.get(`${userServiceUrl}/${creatorId}`),
+      );
+      profileImageUrl = userRes.data.imageURL || profileImageUrl;
+    } catch (err) {
+      console.warn(
+        'Não foi possível obter o utilizador, a usar imagem default',
+      );
+    }
+    console.log(profileImageUrl);
     const post = await this.postModel.create({
-      creatorId: creatorId,
-      creatorEmail: creatorEmail,
-      imageUrl: imageUrl,
-      fileName: fileName,
+      creatorId,
+      creatorEmail,
+      userType,
+      imageUrl,
+      fileName,
       comment: createPostDto.comment,
+      profileImageUrl,
     });
 
     console.log(post);
@@ -49,20 +69,26 @@ export class PostService {
 
   async listPosts(filters: GetAllPostsDto) {
     console.log('Entered get all posts service');
-    const { creatorEmail, startDate, endDate, page, limit } = filters;
+    const { creatorEmail, startDate, endDate, page, limit, userType } = filters;
 
     const query: any = {};
+
     if (creatorEmail) {
-      query.creatorEmail = creatorEmail;
+      query.creatorEmail = { $regex: creatorEmail, $options: 'i' };
     }
 
-    if (startDate || filters?.endDate) {
+    if (userType) {
+      query.userType = userType;
+    }
+
+    if (startDate || endDate) {
       query.createdAt = {};
       if (startDate) query.createdAt.$gte = new Date(startDate);
       if (endDate) query.createdAt.$lte = new Date(endDate);
     }
 
     const skip = (page - 1) * limit;
+
     const [postsList, totalPosts] = await Promise.all([
       this.postModel
         .find(query)
@@ -127,9 +153,9 @@ export class PostService {
 
     const differencePercentage =
       previous30DaysCount === 0
-        ? last30DaysCount > 0
-          ? 100
-          : 0
+        ? last30DaysCount === 0
+          ? 0
+          : 100
         : ((last30DaysCount - previous30DaysCount) / previous30DaysCount) * 100;
 
     const postsPerDay: { date: string; count: number }[] = [];
