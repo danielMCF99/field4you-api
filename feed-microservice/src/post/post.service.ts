@@ -69,7 +69,7 @@ export class PostService {
 
   async listPosts(filters: GetAllPostsDto) {
     console.log('Entered get all posts service');
-    const { creatorEmail, startDate, endDate, page, limit, userType } = filters;
+    const { creatorEmail, profileImageUrl, startDate, endDate, page, limit, userType } = filters;
 
     const query: any = {};
 
@@ -79,6 +79,10 @@ export class PostService {
 
     if (userType) {
       query.userType = userType;
+    }
+
+    if (profileImageUrl) {
+      query.profileImageUrl = { $regex: profileImageUrl, $options: 'i' };
     }
 
     if (startDate || endDate) {
@@ -92,7 +96,7 @@ export class PostService {
     const [postsList, totalPosts] = await Promise.all([
       this.postModel
         .find(query)
-        .select('_id creatorEmail comment fileName imageUrl createdAt')
+        .select('_id creatorEmail comment profileImageUrl fileName imageUrl createdAt')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
