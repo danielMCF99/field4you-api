@@ -169,7 +169,16 @@ for i in range(25):
         "sportsVenueName": f"Pavilhao {i}",
         "bookingMinDuration": 60,
         "bookingMinPrice": 50,
-        "sportsVenuePictures": [],
+        "sportsVenuePictures": [
+            {
+                "fileName": f"venue_{i}_img1.jpg",
+                "imageURL": f"https://placehold.co/600x400?text=Pavilhao+{i}+1"
+            },
+            {
+                "fileName": f"venue_{i}_img2.jpg",
+                "imageURL": f"https://placehold.co/600x400?text=Pavilhao+{i}+2"
+            }
+        ],
         "hasParking": fake.boolean(),
         "hasShower": fake.boolean(),
         "hasBar": fake.boolean(),
@@ -188,6 +197,7 @@ for i in range(25):
     }
     _id = sports_venue_col.insert_one(venue).inserted_id
     sports_venues_ids.append(_id)
+
 
 for i in range(500):
     venue_id = str(random.choice(sports_venues_ids))
