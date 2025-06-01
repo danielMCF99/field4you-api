@@ -16,6 +16,9 @@ export class GetAllPostsDto {
   userType?: string;
 
   @IsOptional()
+  profileImageUrl?: string;
+
+  @IsOptional()
   @IsDateString()
   startDate?: string;
 

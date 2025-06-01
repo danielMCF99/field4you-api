@@ -44,7 +44,7 @@ export class PostService {
     let profileImageUrl = 'DefaultProfileImage';
     try {
       const userRes = await firstValueFrom(
-        this.httpService.get(`${userServiceUrl}/${creatorId}`),
+        this.httpService.get(`${userServiceUrl}${creatorId}`),
       );
       profileImageUrl = userRes.data.imageURL || profileImageUrl;
     } catch (err) {
@@ -52,7 +52,6 @@ export class PostService {
         'Não foi possível obter o utilizador, a usar imagem default',
       );
     }
-    console.log(profileImageUrl);
     const post = await this.postModel.create({
       creatorId,
       creatorEmail,
@@ -69,7 +68,15 @@ export class PostService {
 
   async listPosts(filters: GetAllPostsDto) {
     console.log('Entered get all posts service');
-    const { creatorEmail, startDate, endDate, page, limit, userType } = filters;
+    const {
+      creatorEmail,
+      profileImageUrl,
+      startDate,
+      endDate,
+      page,
+      limit,
+      userType,
+    } = filters;
 
     const query: any = {};
 
@@ -79,6 +86,10 @@ export class PostService {
 
     if (userType) {
       query.userType = userType;
+    }
+
+    if (profileImageUrl) {
+      query.profileImageUrl = { $regex: profileImageUrl, $options: 'i' };
     }
 
     if (startDate || endDate) {
@@ -92,7 +103,9 @@ export class PostService {
     const [postsList, totalPosts] = await Promise.all([
       this.postModel
         .find(query)
-        .select('_id creatorEmail comment fileName imageUrl createdAt')
+        .select(
+          '_id creatorEmail comment profileImageUrl fileName imageUrl createdAt',
+        )
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
