@@ -68,28 +68,16 @@ export class PostService {
 
   async listPosts(filters: GetAllPostsDto) {
     console.log('Entered get all posts service');
-    const {
-      creatorEmail,
-      profileImageUrl,
-      startDate,
-      endDate,
-      page,
-      limit,
-      userType,
-    } = filters;
+    const { creatorEmail, startDate, endDate, page, limit, userType } = filters;
 
     const query: any = {};
 
     if (creatorEmail) {
-      query.creatorEmail = { $regex: creatorEmail, $options: 'i' };
+      query.creatorEmail = { $regex: `.*${creatorEmail}.*`, $options: 'i' };
     }
 
     if (userType) {
       query.userType = userType;
-    }
-
-    if (profileImageUrl) {
-      query.profileImageUrl = { $regex: profileImageUrl, $options: 'i' };
     }
 
     if (startDate || endDate) {
@@ -104,7 +92,7 @@ export class PostService {
       this.postModel
         .find(query)
         .select(
-          '_id creatorEmail comment profileImageUrl fileName imageUrl createdAt',
+          '_id creatorEmail comment profileImageUrl fileName imageUrl userType createdAt',
         )
         .sort({ createdAt: -1 })
         .skip(skip)
