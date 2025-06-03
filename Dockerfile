@@ -15,9 +15,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copia os ficheiros do script e requisitos
 COPY ./local-db/scriptdata.py /app/scriptdata.py
 COPY ./local-db/requirements.txt /app/requirements.txt
+COPY ./local-db/mongo-keyfile /etc/mongo-keyfile
+RUN chmod 400 /etc/mongo-keyfile && chown mongodb:mongodb /etc/mongo-keyfile
 
 # Instala dependências no venv
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Default CMD para o deployment MongoDB (o Job pode sobrescrever isto)
-CMD ["mongod", "--replSet", "rs0", "--keyFile", "/etc/secrets/mongo-keyfile/mongo-keyfile"]
+CMD ["mongod", "--replSet", "rs0", "--auth", "--keyFile", "/etc/mongo-keyfile/mongo-keyfile"]
