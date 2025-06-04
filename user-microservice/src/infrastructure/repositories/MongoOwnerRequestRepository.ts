@@ -72,14 +72,14 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
     const sortOrder = order === 'asc' ? 1 : -1;
 
     const ownerRequests = await OwnerRequestModel.find(query)
-      .sort({ [sortBy]: sortOrder })
+      .sort({ [sortBy]: sortOrder, _id: 1 })
       .skip(skip)
       .limit(limit)
       .lean();
     const numberOfUsers = await OwnerRequestModel.countDocuments(query);
 
     return {
-      totalPages: numberOfUsers,
+      totalPages: Math.ceil(numberOfUsers / limit),
       ownerRequests: ownerRequests.map(OwnerRequest.fromMongooseDocument),
     };
   }
