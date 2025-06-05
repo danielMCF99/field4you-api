@@ -9,6 +9,7 @@ export const createNotification = async (notification: {
   userId: string;
   ownerRequestId: string;
   userEmail: string;
+  isApprovedRequest?: Boolean;
   phoneNumber?: string;
   content?: string;
   adminOnly: Boolean;
@@ -17,6 +18,7 @@ export const createNotification = async (notification: {
     const newNotification = await notificationRepository.create({
       userId: notification.userId,
       ownerRequestId: notification.ownerRequestId,
+      isApprovedRequest: notification.isApprovedRequest,
       userEmail: notification.userEmail,
       phoneNumber: notification.phoneNumber,
       content: notification.content,

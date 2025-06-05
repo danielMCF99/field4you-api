@@ -7,6 +7,7 @@ export class Notification {
   private readonly id?: string;
   public userId: string;
   public ownerRequestId: string;
+  public isApprovedRequest?: Boolean;
   public userEmail: string;
   public phoneNumber?: string;
   public status: NotificationStatus;
@@ -19,6 +20,7 @@ export class Notification {
     id?: string;
     userId: string;
     ownerRequestId: string;
+    isApprovedRequest?: Boolean;
     userEmail: string;
     phoneNumber?: string;
     status: NotificationStatus;
@@ -30,6 +32,7 @@ export class Notification {
     this.id = notification.id;
     this.userId = notification.userId;
     this.ownerRequestId = notification.ownerRequestId;
+    this.isApprovedRequest = notification.isApprovedRequest;
     this.userEmail = notification.userEmail;
     this.phoneNumber = notification.phoneNumber;
     this.status = notification.status;
@@ -48,6 +51,7 @@ export class Notification {
       id: doc._id.toString(), // Convert ObjectId to string
       userId: doc.userId,
       ownerRequestId: doc.ownerRequestId,
+      isApprovedRequest: doc.isApprovedRequest,
       userEmail: doc.userEmail,
       phoneNumber: doc.phoneNumber,
       status: doc.status,

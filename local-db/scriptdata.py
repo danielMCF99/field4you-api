@@ -295,9 +295,11 @@ for (uid, email), status in zip(users_ids, statuses):
             notification["adminOnly"] = True
         elif status == "Approved":
             notification["adminOnly"] = False
+            notification["isApprovedRequest"] = True
             notification["content"] = "Congratulations! You have been approved as an owner."
         elif status == "Rejected":
             notification["adminOnly"] = False
+            notification["isApprovedRequest"] = False
             notification["content"] = "Unfortunately, your request to become an owner was rejected."
 
         # Só criar notificação se a estrutura estiver completa (evita erro no "Pending")

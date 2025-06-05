@@ -23,6 +23,7 @@ export class MongoNotificationRepository implements INotificationRepository {
     ownerRequestId: string;
     userEmail: string;
     status: NotificationStatus;
+    isApprovedRequest?: Boolean;
     content?: string;
     phoneNumber?: string;
     adminOnly: Boolean;

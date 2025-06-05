@@ -5,6 +5,7 @@ interface INotificationDocument extends Document {
   _id: Types.ObjectId;
   userId: string;
   ownerRequestId: string;
+  isApprovedRequest?: Boolean;
   userEmail: string;
   phoneNumber?: string;
   status: string;
@@ -18,6 +19,7 @@ const notificationSchema = new Schema<INotificationDocument>(
   {
     userId: { type: String, required: true },
     ownerRequestId: { type: String, required: true },
+    isApprovedRequest: { type: Boolean, required: true },
     userEmail: { type: String, required: true },
     phoneNumber: { type: String, required: false },
     status: {

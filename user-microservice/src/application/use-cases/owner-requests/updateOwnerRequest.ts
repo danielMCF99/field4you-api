@@ -98,6 +98,7 @@ export const updateOwnerRequest = async (
     createNotification({
       userId: ownerRequest.getOwnerId(),
       ownerRequestId: id,
+      isApprovedRequest: status === Status.approved ? true : false,
       userEmail: user.email,
       phoneNumber: user.phoneNumber,
       content: notificationContent,
