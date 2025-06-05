@@ -20,6 +20,7 @@ export class MongoNotificationRepository implements INotificationRepository {
 
   async create(notification: {
     userId: string;
+    ownerRequestId: string;
     userEmail: string;
     status: NotificationStatus;
     content?: string;
@@ -28,6 +29,7 @@ export class MongoNotificationRepository implements INotificationRepository {
   }): Promise<Notification> {
     const newNotification = await NotificationModel.create({
       userId: new Types.ObjectId(notification.userId),
+      ownerRequestId: notification.ownerRequestId,
       userEmail: notification.userEmail,
       status: notification.status,
       content: notification.content,

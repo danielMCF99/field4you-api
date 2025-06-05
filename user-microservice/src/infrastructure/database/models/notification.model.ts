@@ -4,6 +4,7 @@ import { NotificationStatus } from '../../../domain/entities/Notification';
 interface INotificationDocument extends Document {
   _id: Types.ObjectId;
   userId: string;
+  ownerRequestId: string;
   userEmail: string;
   phoneNumber?: string;
   status: string;
@@ -16,6 +17,7 @@ interface INotificationDocument extends Document {
 const notificationSchema = new Schema<INotificationDocument>(
   {
     userId: { type: String, required: true },
+    ownerRequestId: { type: String, required: true },
     userEmail: { type: String, required: true },
     phoneNumber: { type: String, required: false },
     status: {

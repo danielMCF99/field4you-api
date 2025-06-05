@@ -6,6 +6,7 @@ export enum NotificationStatus {
 export class Notification {
   private readonly id?: string;
   public userId: string;
+  public ownerRequestId: string;
   public userEmail: string;
   public phoneNumber?: string;
   public status: NotificationStatus;
@@ -17,6 +18,7 @@ export class Notification {
   constructor(notification: {
     id?: string;
     userId: string;
+    ownerRequestId: string;
     userEmail: string;
     phoneNumber?: string;
     status: NotificationStatus;
@@ -27,6 +29,7 @@ export class Notification {
   }) {
     this.id = notification.id;
     this.userId = notification.userId;
+    this.ownerRequestId = notification.ownerRequestId;
     this.userEmail = notification.userEmail;
     this.phoneNumber = notification.phoneNumber;
     this.status = notification.status;
@@ -44,6 +47,7 @@ export class Notification {
     return new Notification({
       id: doc._id.toString(), // Convert ObjectId to string
       userId: doc.userId,
+      ownerRequestId: doc.ownerRequestId,
       userEmail: doc.userEmail,
       phoneNumber: doc.phoneNumber,
       status: doc.status,

@@ -7,6 +7,7 @@ import { InternalServerErrorException } from '../../../domain/exceptions/Interna
 
 export const createNotification = async (notification: {
   userId: string;
+  ownerRequestId: string;
   userEmail: string;
   phoneNumber?: string;
   content?: string;
@@ -15,6 +16,7 @@ export const createNotification = async (notification: {
   try {
     const newNotification = await notificationRepository.create({
       userId: notification.userId,
+      ownerRequestId: notification.ownerRequestId,
       userEmail: notification.userEmail,
       phoneNumber: notification.phoneNumber,
       content: notification.content,

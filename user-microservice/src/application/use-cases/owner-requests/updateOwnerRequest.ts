@@ -97,6 +97,7 @@ export const updateOwnerRequest = async (
 
     createNotification({
       userId: ownerRequest.getOwnerId(),
+      ownerRequestId: id,
       userEmail: user.email,
       phoneNumber: user.phoneNumber,
       content: notificationContent,
