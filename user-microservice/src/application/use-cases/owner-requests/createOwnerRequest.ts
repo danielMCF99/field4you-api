@@ -4,6 +4,7 @@ import { OwnerRequest, Status } from '../../../domain/entities/OwnerRequest';
 import { UserType } from '../../../domain/entities/User';
 import { BadRequestException } from '../../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { createNotification } from '../notifications/createNotification';
 
 export const createOwnerRequest = async (
   req: Request
@@ -43,9 +44,19 @@ export const createOwnerRequest = async (
 
   try {
     const newOwnerRequest = await ownerRequestRepository.create(ownerRequest);
+
     if (!newOwnerRequest) {
       throw new InternalServerErrorException('Failed to create owner request');
     }
+
+    // Create notification
+    createNotification({
+      userId: ownerRequest.getOwnerId(),
+      userEmail: existingUser.email,
+      phoneNumber: existingUser.phoneNumber,
+      adminOnly: true,
+    });
+
     return newOwnerRequest;
   } catch (error) {
     console.log(error);
