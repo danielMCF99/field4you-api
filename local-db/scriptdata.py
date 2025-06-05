@@ -283,7 +283,7 @@ for (uid, email), status in zip(users_ids, statuses):
         
         # Criar notificação dependendo do status
         notification = {
-            "userId": uid,
+            "userId": str(uid),
             "ownerRequestId": str(result.inserted_id),
             "userEmail": email,
             "createdAt": now,
