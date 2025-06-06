@@ -30,7 +30,7 @@ const ownerRequestSchema = new Schema<IOwnerRequest>(
     },
     response: { type: String },
     reviewedAt: { type: Date },
-    reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    reviewedBy: { type: String, match: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/ },
     requestNumber: { type: String, required: true, unique: true },
   },
   {

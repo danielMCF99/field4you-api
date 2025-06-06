@@ -31,6 +31,7 @@ export type WeeklySchedule = {
 export class SportsVenue {
   public id?: string;
   public ownerId?: string;
+  public sportsVenueName: string;
   public sportsVenueType: SportsVenueType;
   public status: SportsVenueStatus;
   public bookingMinDuration: number;
@@ -42,6 +43,7 @@ export class SportsVenue {
   constructor(sportsVenue: {
     id?: string;
     ownerId?: string;
+    sportsVenueName: string;
     sportsVenueType: SportsVenueType;
     status: SportsVenueStatus;
     bookingMinDuration: number;
@@ -52,6 +54,7 @@ export class SportsVenue {
   }) {
     this.id = sportsVenue.id;
     this.ownerId = sportsVenue.ownerId;
+    this.sportsVenueName = sportsVenue.sportsVenueName;
     this.sportsVenueType = sportsVenue.sportsVenueType;
     this.status = sportsVenue.status;
     this.bookingMinDuration = sportsVenue.bookingMinDuration;
@@ -68,6 +71,7 @@ export class SportsVenue {
     return new SportsVenue({
       id: doc._id.toString(),
       ownerId: doc.ownerId.toString(),
+      sportsVenueName: doc.sportsVenueName,
       sportsVenueType: doc.sportsVenueType,
       status: doc.status,
       bookingMinDuration: doc.bookingMinDuration,

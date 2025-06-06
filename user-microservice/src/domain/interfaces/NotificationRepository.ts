@@ -3,14 +3,18 @@ import { Notification, NotificationStatus } from '../entities/Notification';
 export interface INotificationRepository {
   create(notification: {
     userId: string;
+    ownerRequestId: string;
     status: NotificationStatus;
-    content: string;
+    content?: string;
+    phoneNumber?: string;
+    adminOnly: Boolean;
   }): Promise<Notification>;
   getById(id: string): Promise<Notification | undefined>;
   getByUserId(
-    userId: string,
     page: number,
-    limit: number
+    limit: number,
+    userId?: string,
+    adminOnly?: Boolean
   ): Promise<Notification[]>;
   updateStatus(
     id: string,

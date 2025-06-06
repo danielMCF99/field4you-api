@@ -9,12 +9,17 @@ import { BadRequestException } from '../../../domain/exceptions/BadRequestExcept
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { UserType } from '../../../domain/entities/User';
 
 export const updateNotificationStatus = async (
   req: Request
 ): Promise<Notification> => {
   const authenticatedUserId = req.headers['x-user-id'] as string | undefined;
-  if (!authenticatedUserId) {
+  const authenticatedUserType = req.headers['x-user-type'] as
+    | string
+    | undefined;
+
+  if (!authenticatedUserId || !authenticatedUserType) {
     throw new InternalServerErrorException(
       'Internal Server Error. Missing required authentication headers'
     );
@@ -32,12 +37,15 @@ export const updateNotificationStatus = async (
       throw new NotFoundException('Notification not found');
     }
 
-    if (notification.userId != authenticatedUserId) {
-      throw new ForbiddenException(
-        'User is not allowed to update notification status'
-      );
+    if (authenticatedUserType != UserType.admin) {
+      if (notification.userId != authenticatedUserId) {
+        throw new ForbiddenException(
+          'User is not allowed to update notification status'
+        );
+      }
     }
 
+    console.log('Performing notification status update');
     const updatedNotification = notificationRepository.updateStatus(
       id,
       NotificationStatus.read

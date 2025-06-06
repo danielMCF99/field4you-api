@@ -8,6 +8,7 @@ import { updateBooking } from '../../application/use-cases/booking/updateBooking
 import { updateBookingStatus } from '../../application/use-cases/booking/updateBookingStatus';
 import { getWebGraphics } from '../../application/use-cases/graphics/web-graphics';
 import { getSportsVenueProfit } from '../../application/use-cases/sportsVenue/getSportsVenueProfit';
+import { getSimpleBookingsInfo } from '../../application/use-cases/booking/getSimpleBookingInfo';
 
 export const createBookingController = async (req: Request, res: Response) => {
   try {
@@ -111,6 +112,19 @@ export const getWebGraphicsController = async (req: Request, res: Response) => {
   try {
     const response = await getWebGraphics(req);
     res.status(200).json(response);
+    return;
+  } catch (error: any) {
+    return res.status(error.statusCode).json({ message: error.message });
+  }
+};
+
+export const getSimpleBookingsController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const allBookings = await getSimpleBookingsInfo(req, req.query);
+    res.status(200).json({ bookings: allBookings });
     return;
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });
