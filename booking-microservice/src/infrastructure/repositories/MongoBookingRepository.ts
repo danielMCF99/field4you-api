@@ -303,4 +303,26 @@ export class MongoBookingRepository implements IBookingRepository {
       event: data.event,
     }));
   }
+  async getBookedTimeSlotsForDay(
+    sportsVenueId: string,
+    date: Date
+  ): Promise<{ startTime: string; endTime: string }[]> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const bookings = await BookingModel.find({
+      sportsVenueId,
+      bookingStartDate: { $lt: endOfDay },
+      bookingEndDate: { $gt: startOfDay },
+      status: { $ne: 'Cancelled' },
+    }).lean();
+
+    return bookings.map((booking) => ({
+      startTime: booking.bookingStartDate.toISOString(),
+      endTime: booking.bookingEndDate.toISOString(),
+    }));
+  }
 }

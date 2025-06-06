@@ -198,6 +198,10 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return venue?.weeklySchedule || null;
   }
   async getAllDistricts(): Promise<string[]> {
-    return await SportsVenueModel.distinct('district');
+    const districts = await SportsVenueModel.distinct('location.district');
+    return districts
+      .filter((d): d is string => typeof d === 'string')
+      .map((d) => d.trim())
+      .filter(Boolean);
   }
 }
