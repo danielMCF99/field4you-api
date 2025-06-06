@@ -158,6 +158,13 @@ for i in range(10):
 
     owners_ids.append(auth_id)
 
+standard_schedule = {
+    day: [
+        {"startTime": "08:00", "endTime": "12:00"},
+        {"startTime": "14:00", "endTime": "18:00"}
+    ]
+    for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+}
 sports_venues_ids = []
 for i in range(25):
     owner_id = str(random.choice(owners_ids))
@@ -188,7 +195,7 @@ for i in range(25):
             "city": fake.city(),
             "district": fake.distrito()
         },
-        "weeklySchedule": {},
+        "weeklySchedule": standard_schedule,
         "numberOfRatings": 0,
         "createdAt": now,
         "updatedAt": now,

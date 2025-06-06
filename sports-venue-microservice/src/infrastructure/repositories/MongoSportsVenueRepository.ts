@@ -125,7 +125,7 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     const skip = page && limit ? (page - 1) * limit : 0;
 
     const queryBuilder = SportsVenueModel.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(skip);
 
     if (typeof limit === 'number') {
@@ -196,5 +196,8 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     }).lean();
 
     return venue?.weeklySchedule || null;
+  }
+  async getAllDistricts(): Promise<string[]> {
+    return await SportsVenueModel.distinct('district');
   }
 }

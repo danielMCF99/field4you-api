@@ -96,7 +96,7 @@ export class MongoBookingRepository implements IBookingRepository {
     const skip = page && limit ? (page - 1) * limit : 0;
 
     const queryBuilder = BookingModel.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(skip);
 
     if (typeof limit === 'number') {

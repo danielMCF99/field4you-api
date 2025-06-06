@@ -19,7 +19,9 @@ export const getAllBookings = async (queryParams: any): Promise<Booking[]> => {
     const filters: BookingFilterParams = {
       title: title?.toString(),
       status: status?.toString(),
-      sportsVenueId: sportsVenueId?.toString(),
+      sportsVenueId: Array.isArray(sportsVenueId)
+        ? sportsVenueId
+        : sportsVenueId?.toString(),
       bookingType: bookingType?.toString(),
       bookingStartDate: bookingStartDate
         ? new Date(bookingStartDate)
