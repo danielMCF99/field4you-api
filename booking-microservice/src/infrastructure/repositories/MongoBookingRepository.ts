@@ -49,7 +49,9 @@ export class MongoBookingRepository implements IBookingRepository {
 
   async findAll(
     params?: BookingFilterParams,
-    allowedStatuses?: BookingStatus[]
+    allowedStatuses?: BookingStatus[],
+    sortBy: string = 'createdAt',
+    orderBy: string = 'asc'
   ): Promise<Booking[]> {
     const {
       title = '',
@@ -95,8 +97,9 @@ export class MongoBookingRepository implements IBookingRepository {
 
     const skip = page && limit ? (page - 1) * limit : 0;
 
+    const sortOrder = orderBy === 'asc' ? 1 : -1;
     const queryBuilder = BookingModel.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ [sortBy]: sortOrder })
       .skip(skip);
 
     if (typeof limit === 'number') {

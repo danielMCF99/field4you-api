@@ -327,6 +327,7 @@ booking_sports_venues_col.insert_many([
     {
         "_id": venue["_id"],
         "ownerId": venue["ownerId"],
+        "sportsVenueName": venue["sportsVenueName"],
         "sportsVenueType": venue["sportsVenueType"],
         "status": venue["status"],
         "bookingMinDuration": venue["bookingMinDuration"],
