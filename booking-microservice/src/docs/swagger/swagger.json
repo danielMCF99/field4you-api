@@ -902,6 +902,42 @@
           }
         }
       }
+    },
+    "/api/bookings/web-graphics": {
+      "get": {
+        "summary": "Get web dashboard graphics data",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "x-user-type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["admin"]
+            },
+            "description": "User type, must be 'admin' to access"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Web graphics statistics for admin dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebGraphicsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized – only admins can access this route"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1022,6 +1058,62 @@
             "description": "The last update date of the booking invite"
           }
         }
+      },
+      "WebGraphicsResponse": {
+        "type": "object",
+        "properties": {
+          "totalPlayers": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of player users"
+          },
+          "totalManagers": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of owner users"
+          },
+          "totalBookings": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of bookings"
+          },
+          "totalSportsVenues": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of sports venues"
+          },
+          "bookingsByTypePerMonth": {
+            "type": "array",
+            "description": "Monthly breakdown of bookings by type",
+            "items": {
+              "type": "object",
+              "properties": {
+                "month": {
+                  "type": "string",
+                  "description": "Month label (e.g. 'Jan', 'Feb')"
+                },
+                "regular": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of regular bookings"
+                },
+                "event": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of event bookings"
+                }
+              },
+              "required": ["month", "regular", "event"]
+            }
+          }
+        },
+        "required": [
+          "totalPlayers",
+          "totalManagers",
+          "totalBookings",
+          "totalSportsVenues",
+          "bookingsByTypePerMonth"
+        ]
       },
       "securitySchemes": {
         "bearerAuth": {

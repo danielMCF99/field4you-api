@@ -22,4 +22,4 @@ RUN chmod 400 /etc/mongo-keyfile && chown mongodb:mongodb /etc/mongo-keyfile
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Default CMD para o deployment MongoDB (o Job pode sobrescrever isto)
-CMD ["mongod", "--replSet", "rs0", "--auth", "--keyFile", "/etc/mongo-keyfile/mongo-keyfile"]
+CMD ["mongod", "--replSet", "rs0", "--auth", "--keyFile", "/etc/mongo-keyfile"]

@@ -28,6 +28,7 @@ const WeeklyScheduleSchema = new Schema(
 
 interface ISportsVenue extends Document {
   _id: Types.ObjectId;
+  sportsVenueName: string;
   ownerId: string;
   sportsVenueType: SportsVenueType;
   status: SportsVenueStatus;
@@ -41,6 +42,7 @@ interface ISportsVenue extends Document {
 const SportsVenueSchema = new Schema<ISportsVenue>(
   {
     _id: { type: Schema.ObjectId, required: true },
+    sportsVenueName: { type: String, required: true },
     ownerId: { type: String, required: true },
     sportsVenueType: {
       type: String,
