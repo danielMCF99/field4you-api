@@ -27,7 +27,7 @@ export const updateSportsVenueSchedule = async (
     );
   }
 
-  if (userType !== 'owner' && userType !== 'admin') {
+  if (userType !== 'Owner' && userType !== 'Admin') {
     throw new ForbiddenException(
       'You are not allowed to update a sports venue schedule'
     );

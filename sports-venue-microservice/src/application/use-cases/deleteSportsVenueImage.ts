@@ -24,7 +24,7 @@ export const deleteSportsVenueImage = async (req: Request): Promise<boolean> => 
     );
   }
 
-  if (userType != 'owner' && userType !== 'admin') {
+  if (userType != 'Owner' && userType !== 'Admin') {
     throw new ForbiddenException(
       'Regular User is not allowed to delete this venue'
     );

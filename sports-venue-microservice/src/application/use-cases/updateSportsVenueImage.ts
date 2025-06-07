@@ -26,7 +26,7 @@ export const updateSportsVenueImage = async (
     );
   }
 
-  if (userType != 'owner' && userType !== 'admin') {
+  if (userType != 'Owner' && userType !== 'Admin') {
     throw new ForbiddenException(
       'Regular User is not allowed to delete this venue'
     );
