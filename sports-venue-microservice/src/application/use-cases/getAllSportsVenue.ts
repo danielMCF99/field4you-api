@@ -15,6 +15,7 @@ export const getAllSportsVenue = async (
     latitude: query.latitude ? parseFloat(query.latitude) : undefined,
     longitude: query.longitude ? parseFloat(query.longitude) : undefined,
     distance: query.distance ? parseInt(query.distance, 10) : undefined,
+    district: query.district?.toString(),
   };
 
   const response = await sportsVenueRepository.findAll(filters);

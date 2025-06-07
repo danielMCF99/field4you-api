@@ -10,4 +10,5 @@ export interface SportsVenueFilterParams {
   latitude?: number;
   longitude?: number;
   distance?: number;
+  district?: string;
 }

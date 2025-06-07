@@ -93,6 +93,7 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       distance,
       latitude,
       longitude,
+      district,
     } = params || {};
 
     if (
@@ -120,6 +121,10 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
 
     if (sportsVenueType) {
       query.sportsVenueType = sportsVenueType;
+    }
+
+    if (district) {
+      query['location.district'] = district;
     }
 
     const skip = page && limit ? (page - 1) * limit : 0;
