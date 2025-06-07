@@ -26,7 +26,7 @@ export const createSportsVenue = async (req: Request): Promise<SportsVenue> => {
     );
   }
 
-  if (userType != 'owner') {
+  if (userType != 'Owner') {
     throw new ForbiddenException(
       'Regular users are not able to create a sports venue'
     );
