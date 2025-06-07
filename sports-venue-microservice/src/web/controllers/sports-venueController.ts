@@ -11,6 +11,7 @@ import { updateSportsVenueImage } from '../../application/use-cases/updateSports
 import { updateSportsVenueRating } from '../../application/use-cases/updateSportsVenueRating';
 import { updateSportsVenueSchedule } from '../../application/use-cases/updateSportsVenueSchedule';
 import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
+import { getAllDistricts } from '../../application/use-cases/getAllDistricts';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -184,5 +185,17 @@ export const getSportsVenueTotalPlayersController = async (
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });
     return;
+  }
+};
+
+export const getAllDistrictsController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const districts = await getAllDistricts();
+    res.status(200).json({ districts });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
   }
 };

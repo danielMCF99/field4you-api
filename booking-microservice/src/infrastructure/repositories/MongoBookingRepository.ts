@@ -99,7 +99,7 @@ export class MongoBookingRepository implements IBookingRepository {
 
     const sortOrder = orderBy === 'asc' ? 1 : -1;
     const queryBuilder = BookingModel.find(query)
-      .sort({ [sortBy]: sortOrder })
+      .sort({ [sortBy]: sortOrder, _id: -1 })
       .skip(skip);
 
     if (typeof limit === 'number') {
@@ -304,6 +304,28 @@ export class MongoBookingRepository implements IBookingRepository {
       month: monthNames[parseInt(monthNumber)],
       regular: data.regular,
       event: data.event,
+    }));
+  }
+  async getBookedTimeSlotsForDay(
+    sportsVenueId: string,
+    date: Date
+  ): Promise<{ startTime: string; endTime: string }[]> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const bookings = await BookingModel.find({
+      sportsVenueId,
+      bookingStartDate: { $lt: endOfDay },
+      bookingEndDate: { $gt: startOfDay },
+      status: { $ne: 'Cancelled' },
+    }).lean();
+
+    return bookings.map((booking) => ({
+      startTime: booking.bookingStartDate.toISOString(),
+      endTime: booking.bookingEndDate.toISOString(),
     }));
   }
 }

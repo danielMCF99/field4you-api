@@ -5,6 +5,7 @@ import {
   createSportsVenueController,
   deleteSportsVenueController,
   deleteSportsVenueImageController,
+  getAllDistrictsController,
   getAllSportsVenueController,
   getSportsVenueByIdController,
   getSportsVenueScheduleController,
@@ -34,6 +35,7 @@ router.get(
   '/sports-venues/total-players',
   getSportsVenueTotalPlayersController
 );
+router.get('/sports-venues/districts', getAllDistrictsController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
 router.patch(
