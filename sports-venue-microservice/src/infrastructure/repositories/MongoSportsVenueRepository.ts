@@ -202,6 +202,7 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return districts
       .filter((d): d is string => typeof d === 'string')
       .map((d) => d.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
   }
 }
