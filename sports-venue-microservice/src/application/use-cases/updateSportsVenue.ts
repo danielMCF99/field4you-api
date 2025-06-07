@@ -29,7 +29,7 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
     );
   }
 
-  if (userType != 'owner') {
+  if (userType != 'Owner') {
     throw new ForbiddenException(
       'Regular User is not allowed to delete this venue'
     );
