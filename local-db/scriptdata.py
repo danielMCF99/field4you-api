@@ -2,9 +2,9 @@ from pymongo import MongoClient, errors
 from faker import Faker
 from bson import ObjectId
 import random
-import datetime
 import bcrypt
 import time
+import datetime
 
 fake = Faker('pt_PT')
 client = MongoClient("mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
@@ -33,6 +33,7 @@ auth_col = auth_db["Auth"]
 login_history_col = auth_db["LoginHistory"]
 user_col = user_db["Users"]
 owner_request_col = user_db["OwnerRequests"]
+notification_col = user_db["Notifications"]
 sports_venue_col = sports_venue_db["SportsVenues"]
 sports_venue_booking_invites_col = sports_venue_db["BookingInvites"]
 booking_col = booking_db["Bookings"]
@@ -201,7 +202,10 @@ for i in range(25):
 for i in range(500):
     venue_id = str(random.choice(sports_venues_ids))
     owner_id = str(random.choice(owners_ids))
-    start_time = fake.future_datetime(end_date="+30d")
+    start_time = fake.date_time_between(
+        start_date=datetime.datetime(2025, 1, 1),
+        end_date=datetime.datetime(2025, 12, 31)
+    )
     end_time = start_time + datetime.timedelta(hours=1)
 
     invited_users = random.sample(users_ids, 10)
@@ -274,7 +278,34 @@ for (uid, email), status in zip(users_ids, statuses):
         "__v": 0
     }
     try:
-        owner_request_col.insert_one(request)
+        # Inserir pedido na collection de owner requests
+        result = owner_request_col.insert_one(request)
+        
+        # Criar notificação dependendo do status
+        notification = {
+            "userId": str(uid),
+            "ownerRequestId": str(result.inserted_id),
+            "userEmail": email,
+            "createdAt": now,
+            "updatedAt": now,
+            "status": "Unread"
+        }
+
+        if status == "Pending":
+            notification["adminOnly"] = True
+        elif status == "Approved":
+            notification["adminOnly"] = False
+            notification["isApprovedRequest"] = True
+            notification["content"] = "Congratulations! You have been approved as an owner."
+        elif status == "Rejected":
+            notification["adminOnly"] = False
+            notification["isApprovedRequest"] = False
+            notification["content"] = "Unfortunately, your request to become an owner was rejected."
+
+        # Só criar notificação se a estrutura estiver completa (evita erro no "Pending")
+        if "adminOnly" in notification:
+            notification_col.insert_one(notification)
+
     except Exception as e:
         print(f"Erro owner requests: {e}")
         continue
@@ -296,6 +327,7 @@ booking_sports_venues_col.insert_many([
     {
         "_id": venue["_id"],
         "ownerId": venue["ownerId"],
+        "sportsVenueName": venue["sportsVenueName"],
         "sportsVenueType": venue["sportsVenueType"],
         "status": venue["status"],
         "bookingMinDuration": venue["bookingMinDuration"],

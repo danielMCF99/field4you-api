@@ -27,21 +27,19 @@ const upload = multer({ storage: storage });
 
 const userRoutes = express.Router();
 
+// Swagger
 userRoutes.get('/users/swagger', async (req: Request, res: Response) => {
   res.status(200).send(swaggerDocument);
 });
 
-userRoutes.get('/users', getAllController);
-userRoutes.get('/users/:id', getByIdController);
-userRoutes.put('/users/:id', updateUserController);
-userRoutes.patch('/users/status', updateUserStatusController);
-userRoutes.delete('/users/:id', deleteUserController);
+// Notifications
+userRoutes.get('/users/notifications', getAllByUseIdController);
 userRoutes.patch(
-  '/users/:id/image',
-  upload.single('image'),
-  updateUserImageController
+  '/users/notifications/:id/status',
+  updateNotificationStatusController
 );
 
+// Owner Requests
 userRoutes.post('/users/owner-requests/create', createOwnerRequestController);
 userRoutes.get('/users/owner-requests/all', getAllOwnerRequestsController);
 userRoutes.get('/users/owner-requests/:id', getOwnerRequestController);
@@ -51,10 +49,16 @@ userRoutes.get(
 );
 userRoutes.patch('/users/owner-requests/:id', updateOwnerRequestController);
 
-userRoutes.get('/users/notifications', getAllByUseIdController);
+// Users
+userRoutes.get('/users', getAllController);
+userRoutes.patch('/users/status', updateUserStatusController);
 userRoutes.patch(
-  '/users/notifications/:id/status',
-  updateNotificationStatusController
+  '/users/:id/image',
+  upload.single('image'),
+  updateUserImageController
 );
+userRoutes.get('/users/:id', getByIdController);
+userRoutes.put('/users/:id', updateUserController);
+userRoutes.delete('/users/:id', deleteUserController);
 
 export default userRoutes;

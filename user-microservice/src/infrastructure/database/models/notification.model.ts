@@ -4,8 +4,13 @@ import { NotificationStatus } from '../../../domain/entities/Notification';
 interface INotificationDocument extends Document {
   _id: Types.ObjectId;
   userId: string;
+  ownerRequestId: string;
+  isApprovedRequest?: Boolean;
+  userEmail: string;
+  phoneNumber?: string;
   status: string;
-  content: string;
+  content?: string;
+  adminOnly: Boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -13,13 +18,18 @@ interface INotificationDocument extends Document {
 const notificationSchema = new Schema<INotificationDocument>(
   {
     userId: { type: String, required: true },
+    ownerRequestId: { type: String, required: true },
+    isApprovedRequest: { type: Boolean, required: true },
+    userEmail: { type: String, required: true },
+    phoneNumber: { type: String, required: false },
     status: {
       type: String,
       required: true,
       default: NotificationStatus.read,
       enum: [NotificationStatus.read, NotificationStatus.unread],
     },
-    content: { type: String, required: true },
+    content: { type: String, required: false },
+    adminOnly: { type: Boolean, required: true },
   },
   {
     timestamps: true,

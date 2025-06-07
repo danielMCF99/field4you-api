@@ -17,10 +17,14 @@ export const updateOwnerRequest = async (
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  const userId = req.headers['x-user-id'] as string | undefined;
-  const userType = req.headers['x-user-type'] as string | undefined;
+  const authenticatedUserType = req.headers['x-user-type'] as
+    | string
+    | undefined;
+  const authenticatedUserEmail = req.headers['x-user-email'] as
+    | string
+    | undefined;
 
-  if (!userId || !userType) {
+  if (!authenticatedUserType || !authenticatedUserEmail) {
     throw new UnauthorizedException('Unauthorized');
   }
 
@@ -47,7 +51,7 @@ export const updateOwnerRequest = async (
     throw new BadRequestException('Only pending owner requests can be updated');
   }
 
-  if (userType !== UserType.admin) {
+  if (authenticatedUserType !== UserType.admin) {
     throw new ForbiddenException(
       'Only admins can update the status of owner requests'
     );
@@ -57,7 +61,7 @@ export const updateOwnerRequest = async (
     const updatedOwnerRequest = await ownerRequestRepository.updateStatus(
       id,
       status,
-      userId,
+      authenticatedUserEmail,
       response,
       session
     );
@@ -74,11 +78,13 @@ export const updateOwnerRequest = async (
       });
     }
 
-    // Commit DB Transaction
-    await session.commitTransaction();
-    session.endSession();
-
     // Create notification
+    const user = await userRepository.getById(ownerRequest.getOwnerId());
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     let notificationContent;
     if (!response) {
       notificationContent = response;
@@ -88,10 +94,20 @@ export const updateOwnerRequest = async (
           ? 'Your request to be an owner was approved'
           : 'Your request to be an owner was not approved';
     }
+
     createNotification({
       userId: ownerRequest.getOwnerId(),
+      ownerRequestId: id,
+      isApprovedRequest: status === Status.approved ? true : false,
+      userEmail: user.email,
+      phoneNumber: user.phoneNumber,
       content: notificationContent,
+      adminOnly: false,
     });
+
+    // Commit DB Transaction
+    await session.commitTransaction();
+    session.endSession();
 
     return updatedOwnerRequest;
   } catch (error: any) {

@@ -3,9 +3,9 @@ import {
   Notification,
   NotificationStatus,
 } from '../../domain/entities/Notification';
+import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { INotificationRepository } from '../../domain/interfaces/NotificationRepository';
 import { NotificationModel } from '../database/models/notification.model';
-import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 
 export class MongoNotificationRepository implements INotificationRepository {
   private static instance: MongoNotificationRepository;
@@ -20,13 +20,22 @@ export class MongoNotificationRepository implements INotificationRepository {
 
   async create(notification: {
     userId: string;
+    ownerRequestId: string;
+    userEmail: string;
     status: NotificationStatus;
-    content: string;
+    isApprovedRequest?: Boolean;
+    content?: string;
+    phoneNumber?: string;
+    adminOnly: Boolean;
   }): Promise<Notification> {
     const newNotification = await NotificationModel.create({
       userId: new Types.ObjectId(notification.userId),
+      ownerRequestId: notification.ownerRequestId,
+      userEmail: notification.userEmail,
       status: notification.status,
       content: notification.content,
+      phoneNumber: notification.phoneNumber,
+      adminOnly: notification.adminOnly,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -45,13 +54,22 @@ export class MongoNotificationRepository implements INotificationRepository {
   }
 
   async getByUserId(
-    userId: string,
     page: number,
-    limit: number
+    limit: number,
+    userId?: string,
+    adminOnly?: Boolean
   ): Promise<Notification[]> {
-    const query: any = {
-      userId: userId,
-    };
+    const query: any = {};
+
+    if (userId) {
+      query.userId = userId;
+    }
+
+    if (adminOnly) {
+      query.adminOnly = adminOnly;
+    }
+
+    query.status = NotificationStatus.unread;
 
     const skip = (page - 1) * limit;
 
