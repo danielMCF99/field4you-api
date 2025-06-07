@@ -38,7 +38,7 @@ export const updateSportsVenueSchedule = async (
     throw new NotFoundException('Sports Venue not found');
   }
 
-  if (userType !== 'admin' && sportsVenue.ownerId !== ownerId) {
+  if (userType !== 'Admin' && sportsVenue.ownerId !== ownerId) {
     throw new UnauthorizedException(
       'You are not authorized to update this sports venue'
     );
