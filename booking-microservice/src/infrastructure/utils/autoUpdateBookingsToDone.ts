@@ -15,6 +15,7 @@ export const autoUpdateBookingsToDone = async (): Promise<void> => {
         booking.getId(),
         BookingStatus.done
       );
+
       if (!updated) {
         console.warn(`Erro ao atualizar booking ${booking.getId()}`);
         continue;
@@ -24,6 +25,7 @@ export const autoUpdateBookingsToDone = async (): Promise<void> => {
         status: BookingInviteStatus.accepted,
         bookingId: booking.getId(),
       });
+      console.log(`Found the following accepted invites: ${acceptedInvites}`);
 
       const invitedUsersPayload = acceptedInvites.map((invite) => ({
         userId: invite.getUserId(),
