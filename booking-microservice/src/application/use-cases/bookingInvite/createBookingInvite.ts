@@ -8,6 +8,8 @@ export const createBookingInvite = async (
   invitedUsersIds: string[],
   bookingInfo: {
     bookingId: string;
+    sportsVenueId?: string;
+    sportsVenueName?: string;
     bookingStartDate?: Date;
     bookingEndDate?: Date;
   },
@@ -46,6 +48,8 @@ export const createBookingInvite = async (
       } else {
         bookingInvites.push({
           bookingId: bookingInfo.bookingId,
+          sportsVenueId: bookingInfo.sportsVenueId,
+          sportsVenueName: bookingInfo.sportsVenueName,
           bookingStartDate: bookingInfo.bookingStartDate,
           bookingEndDate: bookingInfo.bookingEndDate,
           userId: id,

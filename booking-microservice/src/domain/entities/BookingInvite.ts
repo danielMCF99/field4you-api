@@ -8,6 +8,8 @@ export class BookingInvite {
   public id?: string;
   public bookingId: string;
   public userId: string;
+  public sportsVenueId: string;
+  public sportsVenueName: string;
   public bookingStartDate: Date;
   public bookingEndDate: Date;
   public status: BookingInviteStatus;
@@ -19,6 +21,8 @@ export class BookingInvite {
     id?: string;
     bookingId: string;
     userId: string;
+    sportsVenueId: string;
+    sportsVenueName: string;
     bookingStartDate: Date;
     bookingEndDate: Date;
     status: BookingInviteStatus;
@@ -29,6 +33,8 @@ export class BookingInvite {
     this.id = bookingInvite.id;
     this.bookingId = bookingInvite.bookingId;
     this.userId = bookingInvite.userId;
+    this.sportsVenueId = bookingInvite.sportsVenueId;
+    this.sportsVenueName = bookingInvite.sportsVenueName;
     this.bookingStartDate = bookingInvite.bookingStartDate;
     this.bookingEndDate = bookingInvite.bookingEndDate;
     this.status = bookingInvite.status;
@@ -52,6 +58,8 @@ export class BookingInvite {
       id: doc._id.toString(),
       bookingId: doc.bookingId,
       userId: doc.userId,
+      sportsVenueId: doc.sportsVenueId,
+      sportsVenueName: doc.sportsVenueName,
       bookingStartDate: doc.bookingStartDate,
       bookingEndDate: doc.bookingEndDate,
       status: doc.status,
