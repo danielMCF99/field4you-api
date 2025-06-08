@@ -237,7 +237,7 @@ for i in range(500):
 
     for user_id, _ in invited_users:
         status = ""
-        if start_time < datetime.now()
+        if start_time < datetime.now():
             status = random.choice(["Accepted", "Rejected", "Pending"])
         else:
             status = random.choice(["Accepted", "Rejected", "Done"])

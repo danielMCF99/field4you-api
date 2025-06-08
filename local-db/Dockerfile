@@ -13,9 +13,9 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copia os ficheiros do script e requisitos
-COPY ./local-db/scriptdata.py /app/scriptdata.py
-COPY ./local-db/requirements.txt /app/requirements.txt
-COPY ./local-db/mongo-keyfile /etc/mongo-keyfile
+COPY ./scriptdata.py /app/scriptdata.py
+COPY ./requirements.txt /app/requirements.txt
+COPY ./mongo-keyfile /etc/mongo-keyfile
 RUN chmod 400 /etc/mongo-keyfile && chown mongodb:mongodb /etc/mongo-keyfile
 
 # Instala dependências no venv
