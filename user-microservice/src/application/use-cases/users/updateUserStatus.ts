@@ -17,7 +17,7 @@ export const updateUserStatus = async (req: Request): Promise<User> => {
   }
 
   const { status, userId } = req.body;
-  if (!status || (status != 'active' && status != 'inactive')) {
+  if (!status || (status != 'Active' && status != 'Inactive')) {
     throw new BadRequestException('Invalid status update request');
   }
 
@@ -40,8 +40,7 @@ export const updateUserStatus = async (req: Request): Promise<User> => {
 
   try {
     const updatedUser = await userRepository.update(user.getId(), {
-      ...user,
-      ...{ status: status },
+      status: status,
     });
 
     if (!updatedUser) {
