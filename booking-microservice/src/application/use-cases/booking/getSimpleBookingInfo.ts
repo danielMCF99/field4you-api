@@ -1,6 +1,9 @@
 import { Request } from 'express';
-import { bookingRepository, sportsVenueRepository } from '../../../app';
-import { BookingFilterParams } from '../../../domain/dtos/booking-filter.dto';
+import {
+  bookingInviteRepository,
+  bookingRepository,
+  sportsVenueRepository,
+} from '../../../app';
 import {
   simpleBookingSchema,
   SimpleBookingsResponseDTO,
@@ -8,8 +11,7 @@ import {
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 
 export const getSimpleBookingsInfo = async (
-  req: Request,
-  queryParams: any
+  req: Request
 ): Promise<SimpleBookingsResponseDTO[]> => {
   const authenticatedUserId = req.headers['x-user-id'] as string | undefined;
 
@@ -19,29 +21,51 @@ export const getSimpleBookingsInfo = async (
     );
   }
 
-  const { status, bookingStartDate, bookingEndDate, limit, page } = queryParams;
+  const now = new Date();
+  const limit = parseInt(req.query.limit as string) || 10;
+  const page = parseInt(req.query.page as string) || 1;
+  const skip = (page - 1) * limit;
 
   try {
-    const filters: BookingFilterParams = {
-      status: status?.toString(),
-      bookingStartDate: bookingStartDate
-        ? new Date(bookingStartDate)
-        : undefined,
-      bookingEndDate: bookingEndDate ? new Date(bookingEndDate) : undefined,
-      limit: limit ? parseInt(limit) : 10,
-      page: page ? parseInt(page) : 1,
-    };
+    // 1. Buscar reservas do utilizador
+    const ownerBookings =
+      await bookingRepository.findByOwnerIdAndStartDateAfter(
+        authenticatedUserId,
+        now
+      );
 
-    const bookings = await bookingRepository.findAll(
-      filters,
-      undefined,
-      'bookingStartDate',
-      'asc'
+    // 2. Buscar convites aceites
+    const acceptedInvites =
+      await bookingInviteRepository.findAcceptedFutureByUserId(
+        authenticatedUserId,
+        now
+      );
+
+    const inviteBookingIds = acceptedInvites.map((invite) => invite.bookingId);
+    const invitedBookings = await bookingRepository.findManyByIds(
+      inviteBookingIds
     );
 
+    // 3. Combinar e remover duplicados
+    const allBookingsMap = new Map<string, (typeof ownerBookings)[0]>();
+    [...ownerBookings, ...invitedBookings].forEach((booking) => {
+      allBookingsMap.set(booking.getId(), booking);
+    });
+
+    // 4. Converter para array e ordenar
+    const sortedBookings = Array.from(allBookingsMap.values()).sort(
+      (a, b) =>
+        new Date(a.bookingStartDate).getTime() -
+        new Date(b.bookingStartDate).getTime()
+    );
+
+    // 5. Aplicar paginação
+    const paginatedBookings = sortedBookings.slice(skip, skip + limit);
+
+    // 6. Gerar resposta DTO
     const result: SimpleBookingsResponseDTO[] = [];
 
-    for (const booking of bookings) {
+    for (const booking of paginatedBookings) {
       const sportsVenue = await sportsVenueRepository.findById(
         booking.sportsVenueId
       );
@@ -56,9 +80,7 @@ export const getSimpleBookingsInfo = async (
           sportsVenueName: sportsVenue.sportsVenueName,
         };
 
-        // Opcional: valida com zod (lança erro se estiver inválido)
         simpleBookingSchema.parse(dto);
-
         result.push(dto);
       }
     }
