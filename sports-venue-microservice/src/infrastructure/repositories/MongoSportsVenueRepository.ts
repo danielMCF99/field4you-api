@@ -80,6 +80,11 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
   }
 
+  async findByOwnerId(ownerId: string): Promise<SportsVenue[]> {
+    const sportsVenues = await SportsVenueModel.find({ ownerId }).lean();
+    return sportsVenues.map(SportsVenue.fromMongooseDocument);
+  }
+
   async findAll(
     params?: SportsVenueFilterParams
   ): Promise<{ totalPages: number; sportsVenues: SportsVenue[] }> {

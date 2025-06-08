@@ -8,6 +8,7 @@ import {
   getAllDistrictsController,
   getAllSportsVenueController,
   getSportsVenueByIdController,
+  getSportsVenueByOwnerIdController,
   getSportsVenueScheduleController,
   getSportsVenueTotalPlayersController,
   updateSportsVenueController,
@@ -37,6 +38,7 @@ router.get(
 );
 router.get('/sports-venues/districts', getAllDistrictsController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
+router.get('/sports-venues/owner/:id', getSportsVenueByOwnerIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
 router.patch(
   '/sports-venues/:id/image',
