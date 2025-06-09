@@ -4,6 +4,7 @@ import { deleteSportsVenue } from '../../application/use-cases/deleteSportsVenue
 import { deleteSportsVenueImage } from '../../application/use-cases/deleteSportsVenueImage';
 import { getAllSportsVenue } from '../../application/use-cases/getAllSportsVenue';
 import { getSportsVenueById } from '../../application/use-cases/getSportsVenueById';
+import { getSportsVenueByOwnerId } from '../../application/use-cases/getSportsVenueByOwnerId';
 import { getSportsVenueSchedule } from '../../application/use-cases/getSportsVenueSchedule';
 import { getSportsVenuesTotalPlayers } from '../../application/use-cases/getSportsVenuesTotalPlayers';
 import { updateSportsVenue } from '../../application/use-cases/updateSportsVenue';
@@ -117,6 +118,20 @@ export const getSportsVenueByIdController = async (
     return;
   }
 };
+
+export const getSportsVenueByOwnerIdController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const sportsVenue = await getSportsVenueByOwnerId(req);
+    res.status(200).json(sportsVenue);
+    return;
+  } catch (error: any) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+}
 
 export const getAllSportsVenueController = async (
   req: Request,

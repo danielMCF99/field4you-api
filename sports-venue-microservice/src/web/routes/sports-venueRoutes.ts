@@ -8,6 +8,7 @@ import {
   getAllDistrictsController,
   getAllSportsVenueController,
   getSportsVenueByIdController,
+  getSportsVenueByOwnerIdController,
   getSportsVenueScheduleController,
   getSportsVenueTotalPlayersController,
   updateSportsVenueController,
@@ -21,6 +22,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = Router();
+
+router.get('/sports-venues/owner', getSportsVenueByOwnerIdController);
 
 router.get('/sports-venues/swagger', async (req: Request, res: Response) => {
   res.status(200).send(swaggerDocument);
