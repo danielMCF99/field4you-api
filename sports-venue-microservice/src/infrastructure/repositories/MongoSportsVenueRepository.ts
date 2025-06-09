@@ -81,7 +81,9 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
   }
 
   async findByOwnerId(ownerId: string): Promise<SportsVenue[]> {
-    const sportsVenues = await SportsVenueModel.find({ ownerId }).lean();
+    const sportsVenues = await SportsVenueModel.find({ ownerId })
+    .sort({ createdAt: -1 })
+    .lean();
     return sportsVenues.map(SportsVenue.fromMongooseDocument);
   }
 

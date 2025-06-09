@@ -16,8 +16,5 @@ export const getSportsVenueByOwnerId = async (
   }
   const sportsVenue = await sportsVenueRepository.findByOwnerId(userId);
   
-  if (!sportsVenue.length) {
-    return [];
-  }
   return sportsVenue;
 };
