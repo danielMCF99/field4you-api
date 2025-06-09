@@ -19,7 +19,7 @@ const notificationSchema = new Schema<INotificationDocument>(
   {
     userId: { type: String, required: true },
     ownerRequestId: { type: String, required: true },
-    isApprovedRequest: { type: Boolean, required: true },
+    isApprovedRequest: { type: Boolean, required: false },
     userEmail: { type: String, required: true },
     phoneNumber: { type: String, required: false },
     status: {

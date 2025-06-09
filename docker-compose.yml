@@ -112,28 +112,15 @@ services:
 
   mongo-seed-python:
     image: python:3.11-slim
+    volumes:
+      - ./local-db/scriptdata.py:/app/scriptdata.py
+      - ./local-db/requirements.txt:/app/requirements.txt
     depends_on:
       - mongodb
-      - mongo-init-replica
-      - gateway-microservice
-      - auth-microservice
-      - user-microservice
-      - booking-microservice
-      - sports-venue-microservice
-      - feed-microservice
-    volumes:
-      - ./local-db/scriptdata.py:/scriptdata.py
-      - ./local-db/requirements.txt:/requirements.txt
-    working_dir: /
-    entrypoint:
-      - bash
-      - -c
-      - |
-        echo "Instalar dependências..."
-        pip install --no-cache-dir -r /requirements.txt
-        echo "Executar script Python..."
-        python /scriptdata.py
-    restart: 'no'
+    working_dir: /app
+    entrypoint: >
+      sh -c "pip install --no-cache-dir -r requirements.txt &&
+             python scriptdata.py"
 
 volumes:
   mongo_data:

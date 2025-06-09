@@ -176,16 +176,7 @@ for i in range(25):
         "sportsVenueName": f"Pavilhao {i}",
         "bookingMinDuration": 60,
         "bookingMinPrice": 50,
-        "sportsVenuePictures": [
-            {
-                "fileName": f"venue_{i}_img1.jpg",
-                "imageURL": f"https://placehold.co/600x400?text=Pavilhao+{i}+1"
-            },
-            {
-                "fileName": f"venue_{i}_img2.jpg",
-                "imageURL": f"https://placehold.co/600x400?text=Pavilhao+{i}+2"
-            }
-        ],
+        "sportsVenuePictures": [],
         "hasParking": fake.boolean(),
         "hasShower": fake.boolean(),
         "hasBar": fake.boolean(),
