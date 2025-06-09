@@ -12,6 +12,8 @@ export interface ISportsVenueRepository {
   delete(id: string): Promise<SportsVenue | null>;
 
   findById(id: string): Promise<SportsVenue | null>;
+  
+  findByOwnerId(id: string): Promise<SportsVenue[]>;
 
   findAll(
     params?: SportsVenueFilterParams
