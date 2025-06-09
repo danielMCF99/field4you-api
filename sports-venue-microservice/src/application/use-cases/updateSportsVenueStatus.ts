@@ -1,7 +1,10 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { sportsVenueRepository } from '../../app';
-import { SportsVenue } from '../../domain/entities/SportsVenue';
+import {
+  SportsVenue,
+  SportsVenueStatus,
+} from '../../domain/entities/SportsVenue';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
@@ -26,7 +29,10 @@ export const updateSportsVenueStatus = async (
   }
 
   const { status } = req.body;
-  if (!status || (status != 'active' && status != 'inactive')) {
+  if (
+    !status ||
+    (status != SportsVenueStatus.active && status != SportsVenueStatus.inactive)
+  ) {
     throw new BadRequestException('Invalid status update request');
   }
 
