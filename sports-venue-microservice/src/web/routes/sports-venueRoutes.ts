@@ -23,6 +23,8 @@ const upload = multer({ storage: storage });
 
 const router = Router();
 
+router.get('/sports-venues/owner', getSportsVenueByOwnerIdController);
+
 router.get('/sports-venues/swagger', async (req: Request, res: Response) => {
   res.status(200).send(swaggerDocument);
 });
@@ -38,7 +40,6 @@ router.get(
 );
 router.get('/sports-venues/districts', getAllDistrictsController);
 router.get('/sports-venues/:id', getSportsVenueByIdController);
-router.get('/sports-venues/owner/:id', getSportsVenueByOwnerIdController);
 router.delete('/sports-venues/:id', deleteSportsVenueController);
 router.patch(
   '/sports-venues/:id/image',
