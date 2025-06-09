@@ -1,8 +1,7 @@
 services:
   mongodb:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./local-db
     container_name: mongodb
     ports:
       - '27017:27017'

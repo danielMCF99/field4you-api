@@ -1,7 +1,7 @@
+import { format } from 'date-fns';
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { ZodError } from 'zod';
-import { getDay, format } from 'date-fns';
 import { bookingRepository, sportsVenueRepository } from '../../../app';
 import {
   CreateBookingDTO,
@@ -155,6 +155,8 @@ export const createBooking = async (
         invitedUsersIds,
         {
           bookingId: newBooking.getId(),
+          sportsVenueId: sportsVenue.getId(),
+          sportsVenueName: sportsVenue.sportsVenueName,
           bookingStartDate: newBooking.bookingStartDate,
           bookingEndDate: newBooking.bookingEndDate,
         },

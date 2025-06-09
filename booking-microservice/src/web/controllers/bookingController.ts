@@ -3,13 +3,13 @@ import { createBooking } from '../../application/use-cases/booking/createBooking
 import { deleteBooking } from '../../application/use-cases/booking/deleteBooking';
 import { getAllBookings } from '../../application/use-cases/booking/getAllBookings';
 import { getBookingById } from '../../application/use-cases/booking/getBookingById';
+import { getBookingTimeSlots } from '../../application/use-cases/booking/getBookingTimeSlots';
 import { getRecentBookings } from '../../application/use-cases/booking/getRecentBookings';
+import { getSimpleBookingsInfo } from '../../application/use-cases/booking/getSimpleBookingInfo';
 import { updateBooking } from '../../application/use-cases/booking/updateBooking';
 import { updateBookingStatus } from '../../application/use-cases/booking/updateBookingStatus';
 import { getWebGraphics } from '../../application/use-cases/graphics/web-graphics';
 import { getSportsVenueProfit } from '../../application/use-cases/sportsVenue/getSportsVenueProfit';
-import { getSimpleBookingsInfo } from '../../application/use-cases/booking/getSimpleBookingInfo';
-import { getBookingTimeSlots } from '../../application/use-cases/booking/getBookingTimeSlots';
 
 export const createBookingController = async (req: Request, res: Response) => {
   try {
@@ -124,7 +124,7 @@ export const getSimpleBookingsController = async (
   res: Response
 ) => {
   try {
-    const allBookings = await getSimpleBookingsInfo(req, req.query);
+    const allBookings = await getSimpleBookingsInfo(req);
     res.status(200).json({ bookings: allBookings });
     return;
   } catch (error: any) {

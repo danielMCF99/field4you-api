@@ -236,11 +236,20 @@ for i in range(500):
     booking_id = booking_col.insert_one(booking).inserted_id
 
     for user_id, _ in invited_users:
+        status = ""
+        if start_time < datetime.datetime.now():
+            status = random.choice(["Accepted", "Rejected", "Pending"])
+        else:
+            status = random.choice(["Accepted", "Rejected", "Done"])
+        
+        sportsVenue = sports_venue_col.find_one({"_id": ObjectId(venue_id)})
         invite = {
             "bookingId": str(booking_id),
             "userId": str(user_id),
             "sportsVenueId": venue_id,
+            "sportsVenueName": sportsVenue.get("sportsVenueName"),
             "bookingStartDate": start_time,
+            "status": status,
             "createdAt": now,
             "updatedAt": now
         }

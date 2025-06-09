@@ -328,4 +328,26 @@ export class MongoBookingRepository implements IBookingRepository {
       endTime: booking.bookingEndDate.toISOString(),
     }));
   }
+
+  async findByOwnerIdAndStartDateAfter(
+    ownerId: string,
+    fromDate: Date
+  ): Promise<Booking[]> {
+    const results = await BookingModel.find({
+      ownerId,
+      bookingStartDate: { $gte: fromDate },
+    }).lean();
+
+    return results.map(Booking.fromMongooseDocument);
+  }
+
+  async findManyByIds(bookingIds: string[]): Promise<Booking[]> {
+    const objectIds = bookingIds.map((id) => new Types.ObjectId(id));
+
+    const results = await BookingModel.find({
+      _id: { $in: objectIds },
+    }).lean();
+
+    return results.map(Booking.fromMongooseDocument);
+  }
 }

@@ -208,4 +208,17 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
       }
     ).exec();
   }
+
+  async findAcceptedFutureByUserId(
+    userId: string,
+    fromDate: Date
+  ): Promise<BookingInvite[]> {
+    const invites = await BookingInviteModel.find({
+      userId,
+      status: BookingInviteStatus.accepted,
+      bookingStartDate: { $gte: fromDate },
+    }).lean();
+
+    return invites.map(BookingInvite.fromMongooseDocument);
+  }
 }

@@ -5,6 +5,8 @@ interface IBookingInviteDocument extends Document {
   _id: Types.ObjectId;
   bookingId: string;
   userId: string;
+  sportsVenueId: string;
+  sportsVenueName: string;
   bookingStartDate: Date;
   bookingEndDate: Date;
   status: BookingInviteStatus;
@@ -17,6 +19,8 @@ const bookingInviteSchema = new Schema<IBookingInviteDocument>(
   {
     bookingId: { type: String, required: true },
     userId: { type: String, required: true },
+    sportsVenueId: { type: String, required: true },
+    sportsVenueName: { type: String, required: true },
     bookingStartDate: { type: Date, required: true },
     bookingEndDate: { type: Date, required: true },
     status: {
