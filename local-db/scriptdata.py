@@ -73,7 +73,7 @@ admin_doc = {
         "city": fake.city(),
         "district": fake.distrito()
     },
-    "birthDate": fake.date_of_birth(minimum_age=18, maximum_age=50).strftime("%d/%m/%Y"),
+    "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
     "createdAt": now,
     "updatedAt": now,
     "__v": 0
@@ -110,7 +110,7 @@ for i in range(190):
             "city": fake.city(),
             "district": fake.distrito()
         },
-        "birthDate": fake.date_of_birth(minimum_age=18, maximum_age=50).strftime("%d/%m/%Y"),
+        "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
@@ -150,7 +150,7 @@ for i in range(10):
             "city": fake.city(),
             "district": fake.distrito()
         },
-        "birthDate": fake.date_of_birth(minimum_age=18, maximum_age=50).strftime("%d/%m/%Y"),
+        "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
         "createdAt": now,
         "updatedAt": now,
         "__v": 0

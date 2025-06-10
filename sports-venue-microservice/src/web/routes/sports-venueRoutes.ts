@@ -16,6 +16,7 @@ import {
   updateSportsVenueRatingController,
   updateSportsVenueScheduleController,
   updateSportsVenueStatusController,
+  getAllDistrictsByOwnerIdController,
 } from '../controllers/sports-venueController';
 
 const storage = multer.memoryStorage();
@@ -24,6 +25,7 @@ const upload = multer({ storage: storage });
 const router = Router();
 
 router.get('/sports-venues/owner', getSportsVenueByOwnerIdController);
+router.get('/sports-venues/owner/districts', getAllDistrictsByOwnerIdController);
 
 router.get('/sports-venues/swagger', async (req: Request, res: Response) => {
   res.status(200).send(swaggerDocument);

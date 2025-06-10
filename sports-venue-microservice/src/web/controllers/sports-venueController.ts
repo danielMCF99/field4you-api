@@ -13,6 +13,7 @@ import { updateSportsVenueRating } from '../../application/use-cases/updateSport
 import { updateSportsVenueSchedule } from '../../application/use-cases/updateSportsVenueSchedule';
 import { updateSportsVenueStatus } from '../../application/use-cases/updateSportsVenueStatus';
 import { getAllDistricts } from '../../application/use-cases/getAllDistricts';
+import { getAllDistrictsByOwnerId } from '../../application/use-cases/getAllDistrictsByOwnerId';
 
 export const createSportsVenueController = async (
   req: Request,
@@ -209,6 +210,18 @@ export const getAllDistrictsController = async (
 ) => {
   try {
     const districts = await getAllDistricts();
+    res.status(200).json({ districts });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAllDistrictsByOwnerIdController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const districts = await getAllDistrictsByOwnerId(req);
     res.status(200).json({ districts });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
