@@ -257,4 +257,14 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
       .filter(Boolean)
       .sort((a, b) => a.localeCompare(b));
   }
+  async getAllDistrictsByOwnerId(
+    ownerId: string,
+  ): Promise<string[]> {
+    const districts = await SportsVenueModel.distinct('location.district', { ownerId });
+    return districts
+      .filter((d): d is string => typeof d === 'string')
+      .map((d) => d.trim())
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+  }
 }
