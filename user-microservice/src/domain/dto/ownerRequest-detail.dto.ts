@@ -10,5 +10,6 @@ export interface OwnerRequestDetailResponse {
     phoneNumber: string | undefined;
     birthDate: string;
     location: Location;
+    userType: string;
   };
 }

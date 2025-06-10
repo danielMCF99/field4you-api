@@ -76,7 +76,9 @@ export const updateOwnerRequestController = async (
     res.status(200).json({ ownerRequest });
     return;
   } catch (error: any) {
-    res.status(error.statusCode).json({ message: error.message });
+    const statusCode =
+      typeof error.statusCode === 'number' ? error.statusCode : 500;
+    res.status(statusCode).json({ message: error.message });
     return;
   }
 };

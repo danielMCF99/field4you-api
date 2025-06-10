@@ -46,6 +46,7 @@ export const getOwnerRequest = async (
         phoneNumber: user.phoneNumber,
         birthDate: new Date(user.birthDate).toISOString().split('T')[0],
         location: user.getLocation(),
+        userType: user.userType,
       },
     };
   } catch (error: any) {
