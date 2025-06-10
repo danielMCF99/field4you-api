@@ -25,25 +25,30 @@ export const getSimpleBookingsInfo = async (
   const limit = parseInt(req.query.limit as string) || 10;
   const page = parseInt(req.query.page as string) || 1;
   const skip = (page - 1) * limit;
+  const includePast = req.query.includePast === 'true';
 
   try {
     // 1. Buscar reservas do utilizador
     const ownerBookings =
       await bookingRepository.findByOwnerIdAndStartDateAfter(
         authenticatedUserId,
-        now
+        now,
+        includePast
       );
 
     // 2. Buscar convites aceites
     const acceptedInvites =
       await bookingInviteRepository.findAcceptedFutureByUserId(
         authenticatedUserId,
-        now
+        now,
+        includePast
       );
 
     const inviteBookingIds = acceptedInvites.map((invite) => invite.bookingId);
     const invitedBookings = await bookingRepository.findManyByIds(
-      inviteBookingIds
+      inviteBookingIds,
+      now,
+      includePast
     );
 
     // 3. Combinar e remover duplicados
@@ -78,6 +83,7 @@ export const getSimpleBookingsInfo = async (
           bookingPrice: booking.bookingPrice,
           sportsVenueId: booking.sportsVenueId,
           sportsVenueName: sportsVenue.sportsVenueName,
+          bookingStatus: booking.status,
         };
 
         simpleBookingSchema.parse(dto);
