@@ -124,8 +124,8 @@ export const getSportsVenueByOwnerIdController = async (
   res: Response
 ) => {
   try {
-    const sportsVenue = await getSportsVenueByOwnerId(req);
-    res.status(200).json(sportsVenue);
+    const allSportsVenue = await getSportsVenueByOwnerId(req.query, req);
+    res.status(200).json({sportsVenues: allSportsVenue});
     return;
   } catch (error: any) {
     res.status(error.statusCode).json({ message: error.message });

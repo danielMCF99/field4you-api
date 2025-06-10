@@ -13,7 +13,7 @@ export interface ISportsVenueRepository {
 
   findById(id: string): Promise<SportsVenue | null>;
   
-  findByOwnerId(id: string): Promise<SportsVenue[]>;
+  findByOwnerId(id: string, params?: SportsVenueFilterParams): Promise<{ totalPages: number; sportsVenues: SportsVenue[] }>;
 
   findAll(
     params?: SportsVenueFilterParams

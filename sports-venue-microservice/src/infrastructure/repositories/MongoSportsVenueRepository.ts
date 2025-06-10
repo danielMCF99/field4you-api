@@ -80,11 +80,51 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
   }
 
-  async findByOwnerId(ownerId: string): Promise<SportsVenue[]> {
-    const sportsVenues = await SportsVenueModel.find({ ownerId })
-    .sort({ createdAt: -1 })
-    .lean();
-    return sportsVenues.map(SportsVenue.fromMongooseDocument);
+  async findByOwnerId(
+    ownerId: string,
+    params?: SportsVenueFilterParams
+  ): Promise<{ totalPages: number; sportsVenues: SportsVenue[] }> {
+    const {
+      sportsVenueName = '',
+      page,
+      limit,
+      status,
+      district,
+    } = params || {};
+  
+    const query: any = { ownerId };
+  
+    if (sportsVenueName) {
+      query.sportsVenueName = { $regex: sportsVenueName, $options: 'i' };
+    }
+  
+    if (status) {
+      query.status = status;
+    }
+  
+    if (district) {
+      query['location.district'] = district;
+    }
+  
+    const skip =  page && limit ? (page - 1) * limit : 0;
+  
+    const queryBuilder = SportsVenueModel.find(query)
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip);
+  
+    if (typeof limit === 'number') {
+      queryBuilder.limit(limit);
+    }
+  
+    const results = await queryBuilder.lean();
+  
+    let venues = results.map(SportsVenue.fromMongooseDocument);
+  
+    const numberOfSportsVenues = await SportsVenueModel.countDocuments(query);
+    return {
+      totalPages: numberOfSportsVenues,
+      sportsVenues: venues,
+    };
   }
 
   async findAll(
