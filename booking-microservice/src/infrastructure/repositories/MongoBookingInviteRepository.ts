@@ -211,14 +211,15 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
 
   async findAcceptedFutureByUserId(
     userId: string,
-    fromDate: Date
+    fromDate: Date,
+    includePast: boolean
   ): Promise<BookingInvite[]> {
-    const invites = await BookingInviteModel.find({
+    const query = {
       userId,
       status: BookingInviteStatus.accepted,
-      bookingStartDate: { $gte: fromDate },
-    }).lean();
-
+      ...(includePast ? {} : { bookingStartDate: { $gte: fromDate } }),
+    };
+    const invites = await BookingInviteModel.find(query).lean();
     return invites.map(BookingInvite.fromMongooseDocument);
   }
 }

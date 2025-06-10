@@ -331,23 +331,38 @@ export class MongoBookingRepository implements IBookingRepository {
 
   async findByOwnerIdAndStartDateAfter(
     ownerId: string,
-    fromDate: Date
+    fromDate: Date,
+    includePast: boolean
   ): Promise<Booking[]> {
-    const results = await BookingModel.find({
+    const query = {
       ownerId,
-      bookingStartDate: { $gte: fromDate },
-    }).lean();
-
+      ...(includePast
+        ? {}
+        : {
+            bookingStartDate: { $gte: fromDate },
+            status: { $ne: 'Cancelled' },
+          }),
+    };
+    const results = await BookingModel.find(query).lean();
     return results.map(Booking.fromMongooseDocument);
   }
 
-  async findManyByIds(bookingIds: string[]): Promise<Booking[]> {
+  async findManyByIds(
+    bookingIds: string[],
+    fromDate: Date,
+    includePast: boolean
+  ): Promise<Booking[]> {
     const objectIds = bookingIds.map((id) => new Types.ObjectId(id));
-
-    const results = await BookingModel.find({
+    const query = {
       _id: { $in: objectIds },
-    }).lean();
-
+      ...(includePast
+        ? {}
+        : {
+            bookingStartDate: { $gte: fromDate },
+            status: { $ne: 'Cancelled' },
+          }),
+    };
+    const results = await BookingModel.find(query).lean();
     return results.map(Booking.fromMongooseDocument);
   }
 }
