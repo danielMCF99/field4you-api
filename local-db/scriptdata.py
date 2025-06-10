@@ -73,7 +73,7 @@ admin_doc = {
         "city": fake.city(),
         "district": fake.distrito()
     },
-    "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=30, maximum_age=60), datetime.datetime.min.time()),
+    "birthDate": fake.date_of_birth(minimum_age=18, maximum_age=50).strftime("%d/%m/%Y"),
     "createdAt": now,
     "updatedAt": now,
     "__v": 0
@@ -110,7 +110,7 @@ for i in range(190):
             "city": fake.city(),
             "district": fake.distrito()
         },
-        "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=18, maximum_age=50), datetime.datetime.min.time()),
+        "birthDate": fake.date_of_birth(minimum_age=18, maximum_age=50).strftime("%d/%m/%Y"),
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
@@ -150,7 +150,7 @@ for i in range(10):
             "city": fake.city(),
             "district": fake.distrito()
         },
-        "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+        "birthDate": fake.date_of_birth(minimum_age=18, maximum_age=50).strftime("%d/%m/%Y"),
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
@@ -196,8 +196,8 @@ for i in range(25):
     _id = sports_venue_col.insert_one(venue).inserted_id
     sports_venues_ids.append(_id)
 
-
-for i in range(500):
+numberOfEvents = 47
+for i in range(1000):
     venue_id = str(random.choice(sports_venues_ids))
     owner_id = str(random.choice(owners_ids))
     start_time = fake.date_time_between(
@@ -209,10 +209,16 @@ for i in range(500):
     invited_users = random.sample(users_ids, 10)
     invited_users_ids_str = [str(user_id[0]) for user_id in invited_users]
 
+    bookingType = ""
+    if numberOfEvents > 0:
+        bookingType = "Event"
+        numberOfEvents = numberOfEvents - 1
+    else:
+        bookingType = "Regular"
     booking = {
         "ownerId": owner_id,
         "sportsVenueId": venue_id,
-        "bookingType": "Regular",
+        "bookingType": bookingType,
         "status": random.choice(["Active", "Cancelled", "Done", "Confirmed"]),
         "title": f"Reserva {i}",
         "bookingStartDate": start_time,
@@ -274,16 +280,48 @@ def generate_unique_request_number(collection):
 
 for (uid, email), status in zip(users_ids, statuses):
     request_number = generate_unique_request_number(owner_request_col)
-    request = {
-        "userId": uid,
-        "userEmail": email,
-        "message": "Quero ser owner!",
-        "requestNumber": request_number,
-        "status": status, 
-        "createdAt": now,
-        "updatedAt": now,
-        "__v": 0
-    }
+
+    request = {}
+    if status == "Pending":
+        request = {
+            "userId": uid,
+            "userEmail": email,
+            "message": "Quero ser owner!",
+            "requestNumber": request_number,
+            "status": status, 
+            "createdAt": now,
+            "updatedAt": now,
+            "__v": 0
+        }
+    elif status == "Approved":
+        request = {
+            "userId": uid,
+            "userEmail": email,
+            "message": "Quero ser owner!",
+            "requestNumber": request_number,
+            "status": status, 
+            "createdAt": now,
+            "updatedAt": now,
+            "response" : "You have been approved as an owner!",
+            "reviewedAt" : now,
+            "reviewedBy" : "admin123@alunos.ipca.pt",
+            "__v": 0
+        }
+    elif status == "Rejected":
+        request = {
+            "userId": uid,
+            "userEmail": email,
+            "message": "Quero ser owner!",
+            "requestNumber": request_number,
+            "status": status, 
+            "createdAt": now,
+            "updatedAt": now,
+            "response" : "You have NOT been approved as an owner!",
+            "reviewedAt" : now,
+            "reviewedBy" : "admin123@alunos.ipca.pt",
+            "__v": 0
+        }
+
     try:
         # Inserir pedido na collection de owner requests
         result = owner_request_col.insert_one(request)

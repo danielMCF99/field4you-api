@@ -14,4 +14,5 @@ export interface AllOwnerRequestsSummary {
   requestNumber?: string;
   createdAt?: Date;
   reviewedAt?: Date;
+  reviewedBy?: string;
 }

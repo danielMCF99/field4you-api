@@ -81,6 +81,7 @@ export const getAllOwnerRequests = async (
           requestNumber: elem.requestNumber,
           createdAt: elem.createdAt,
           reviewedAt: elem.reviewedAt,
+          reviewedBy: elem.reviewedBy,
         };
       })
     );
