@@ -38,6 +38,7 @@ export const createOwnerRequest = async (
 
   const ownerRequest = new OwnerRequest({
     userId,
+    userEmail,
     message,
     status: Status.pending,
   });
