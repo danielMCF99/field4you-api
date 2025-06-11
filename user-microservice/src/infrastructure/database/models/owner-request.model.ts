@@ -20,7 +20,6 @@ const ownerRequestSchema = new Schema<IOwnerRequest>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      unique: true,
     },
     message: { type: String },
     status: {
