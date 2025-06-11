@@ -38,7 +38,6 @@ export const createOwnerRequest = async (
     );
   }
 
-  console.log(`Create Owner Request: userId = ${userId}`);
   const ownerRequest = new OwnerRequest({
     userId,
     userEmail,
