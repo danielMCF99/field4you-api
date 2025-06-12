@@ -19,17 +19,19 @@ export const createOwnerRequest = async (
   }
 
   const existingUser = await userRepository.getById(userId);
-
   if (!existingUser) {
     throw new BadRequestException('User does not exist');
   }
+
   if (existingUser.userType === UserType.owner) {
     throw new BadRequestException('User is already an owner');
   }
+
   const existingRequests = await ownerRequestRepository.getByUserId(userId);
   const hasPending = existingRequests.some(
     (req) => req.status === Status.pending
   );
+
   if (hasPending) {
     throw new BadRequestException(
       'There is already a pending request for this user'
@@ -38,13 +40,13 @@ export const createOwnerRequest = async (
 
   const ownerRequest = new OwnerRequest({
     userId,
+    userEmail,
     message,
     status: Status.pending,
   });
 
   try {
     const newOwnerRequest = await ownerRequestRepository.create(ownerRequest);
-
     if (!newOwnerRequest) {
       throw new InternalServerErrorException('Failed to create owner request');
     }

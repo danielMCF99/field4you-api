@@ -3,12 +3,12 @@ import { Status } from '../../../domain/entities/OwnerRequest';
 
 interface IOwnerRequest extends Document {
   _id: Types.ObjectId;
-  userId: Types.ObjectId;
+  userId: String;
   message?: string;
   status: string;
   response?: string;
   reviewedAt?: Date;
-  reviewedBy?: Types.ObjectId;
+  reviewedBy?: String;
   requestNumber: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -17,10 +17,9 @@ interface IOwnerRequest extends Document {
 const ownerRequestSchema = new Schema<IOwnerRequest>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User',
       required: true,
-      unique: true,
     },
     message: { type: String },
     status: {

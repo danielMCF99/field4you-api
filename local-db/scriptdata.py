@@ -284,7 +284,7 @@ for (uid, email), status in zip(users_ids, statuses):
     request = {}
     if status == "Pending":
         request = {
-            "userId": uid,
+            "userId": str(uid),
             "userEmail": email,
             "message": "Quero ser owner!",
             "requestNumber": request_number,
@@ -295,7 +295,7 @@ for (uid, email), status in zip(users_ids, statuses):
         }
     elif status == "Approved":
         request = {
-            "userId": uid,
+            "userId": str(uid),
             "userEmail": email,
             "message": "Quero ser owner!",
             "requestNumber": request_number,
@@ -309,7 +309,7 @@ for (uid, email), status in zip(users_ids, statuses):
         }
     elif status == "Rejected":
         request = {
-            "userId": uid,
+            "userId": str(uid),
             "userEmail": email,
             "message": "Quero ser owner!",
             "requestNumber": request_number,
