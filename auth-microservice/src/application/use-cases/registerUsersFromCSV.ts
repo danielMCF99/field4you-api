@@ -57,7 +57,7 @@ export const registerUsersFromCSV = async (
 
     const newAuth = await authRepository.create(
       new Auth({
-        userType: UserType.user,
+        userType: parsed.userType,
         email: parsed.email,
         password: hashedPassword,
         status: UserStatus.active,

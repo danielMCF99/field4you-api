@@ -10,6 +10,7 @@ export interface CSVUser {
   phoneNumber: string;
   district: string;
   city: string;
+  userType: string;
   address: string;
 }
 
