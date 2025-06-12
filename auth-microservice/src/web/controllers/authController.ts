@@ -4,6 +4,8 @@ import { loginUser } from '../../application/use-cases/loginUser';
 import { passwordRecovery } from '../../application/use-cases/passwordRecovery';
 import { passwordReset } from '../../application/use-cases/passwordReset';
 import { registerUser } from '../../application/use-cases/registerUser';
+import { registerUsersFromCSV } from '../../application/use-cases/registerUsersFromCSV';
+import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 
 export const registerUserController = async (req: Request, res: Response) => {
   try {
@@ -80,5 +82,17 @@ export const activeUsersController = async (req: Request, res: Response) => {
       message: error.message,
     });
     return;
+  }
+};
+
+export const registerUsersFromCSVController = async (req: Request, res: Response) => {
+  try {
+    const result = await registerUsersFromCSV(req);
+    res.status(200).json({
+      message: 'Batch registration completed.',
+      ...result,
+    });
+  } catch (error: any) {
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };

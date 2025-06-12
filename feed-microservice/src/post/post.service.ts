@@ -123,7 +123,7 @@ export class PostService {
       throw new NotFoundException('Post not found');
     }
 
-    if (userType != 'admin') {
+    if (userType != 'Admin') {
       if (creatorEmail != post.creatorEmail) {
         throw new UnauthorizedException('User is not allowed to delete post');
       }

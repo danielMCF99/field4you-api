@@ -69,22 +69,26 @@ class ProxyService {
       throw new Error(`Service '${serviceName}' is not configured.`);
     }
 
-    if (Array.isArray(files) && files.length > 0) {
+    if (files && typeof files === 'object') {
       const formData = new FormData();
-      files.forEach((f: any) => {
-        formData.append(f.fieldname, f.buffer, f.originalname);
-      });
-
+    
+      for (const fieldName in files) {
+        const fileArray = files[fieldName];
+        for (const file of fileArray) {
+          formData.append(fieldName, file.buffer, file.originalname);
+        }
+      }
+    
       for (const [key, value] of Object.entries(data)) {
         formData.append(key, value);
       }
-
+    
       data = formData;
       headers = {
         ...headers,
         ...formData.getHeaders(),
       };
-    }
+    }    
 
     if (typeof baseUrl !== 'string') {
       throw new Error(`Invalid baseUrl type: ${typeof baseUrl}`);
