@@ -9,8 +9,8 @@ import {
 import { Auth, UserStatus, UserType } from '../../domain/entities/Auth';
 import { BadRequestException } from '../../domain/exceptions/BadRequestException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
-import { parseCSVUsers, CSVUser } from '../../utils/csvParser';
 import { publishUserCreation } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
+import { parseCSVUsers } from '../../utils/csvParser';
 
 export const registerUsersFromCSV = async (
   req: Request
@@ -21,7 +21,7 @@ export const registerUsersFromCSV = async (
     throw new BadRequestException('CSV file is missing.');
   }
 
-  if (userType !== 'Admin') {
+  if (userType !== UserType.admin) {
     throw new UnauthorizedException('Unauthorized access.');
   }
 
@@ -37,7 +37,9 @@ export const registerUsersFromCSV = async (
     } catch (error) {
       if (error instanceof ZodError) {
         const missingFields = error.errors.map((err) => err.path.join('.'));
-        console.warn(`Skipping user due to invalid fields: ${missingFields.join(', ')}`);
+        console.warn(
+          `Skipping user due to invalid fields: ${missingFields.join(', ')}`
+        );
         skipped++;
         continue;
       }
@@ -57,7 +59,7 @@ export const registerUsersFromCSV = async (
 
     const newAuth = await authRepository.create(
       new Auth({
-        userType: parsed.userType,
+        userType: parsed.userType ? parsed.userType : UserType.user,
         email: parsed.email,
         password: hashedPassword,
         status: UserStatus.active,
