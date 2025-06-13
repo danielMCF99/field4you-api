@@ -7,6 +7,7 @@ export enum Status {
 export class OwnerRequest {
   public readonly id?: string;
   public userId: string;
+  public userEmail: string;
   public message?: string;
   public status: Status;
   public response?: string;
@@ -19,6 +20,7 @@ export class OwnerRequest {
   constructor(ownerRequest: {
     id?: string;
     userId: string;
+    userEmail: string;
     message?: string;
     status: Status;
     response?: string;
@@ -30,6 +32,7 @@ export class OwnerRequest {
   }) {
     this.id = ownerRequest.id;
     this.userId = ownerRequest.userId;
+    this.userEmail = ownerRequest.userEmail;
     this.message = ownerRequest.message;
     this.status = ownerRequest.status;
     this.response = ownerRequest.response;
@@ -51,6 +54,7 @@ export class OwnerRequest {
     return new OwnerRequest({
       id: doc._id.toString(),
       userId: doc.userId.toString(),
+      userEmail: doc.userEmail,
       message: doc.message,
       status: doc.status,
       createdAt: doc.createdAt,

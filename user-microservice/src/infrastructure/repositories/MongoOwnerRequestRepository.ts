@@ -18,7 +18,8 @@ export class MongoOwnerRequestRepository implements IOwnerRequestRepository {
 
   async create(ownerRequest: OwnerRequest): Promise<OwnerRequest> {
     const newOwnerRequest = new OwnerRequestModel({
-      userId: new Types.ObjectId(ownerRequest.userId),
+      userId: ownerRequest.userId,
+      userEmail: ownerRequest.userEmail,
       message: ownerRequest.message,
       status: ownerRequest.status,
       createdAt: ownerRequest.createdAt,
