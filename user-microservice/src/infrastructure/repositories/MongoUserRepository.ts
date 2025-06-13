@@ -56,6 +56,8 @@ export class MongoUserRepository implements IUserRepository {
 
     if (userType) {
       query.userType = userType;
+    } else {
+      query.userType = { $ne: 'Admin' };
     }
 
     if (email) {
