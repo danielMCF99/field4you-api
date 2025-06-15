@@ -44,7 +44,7 @@ export class PostService {
     let profileImageUrl = 'DefaultProfileImage';
     try {
       const userRes = await firstValueFrom(
-        this.httpService.get(`${userServiceUrl}${creatorId}`),
+        this.httpService.get(`${userServiceUrl}/${creatorId}`),
       );
       profileImageUrl = userRes.data.imageURL || profileImageUrl;
     } catch (err) {
