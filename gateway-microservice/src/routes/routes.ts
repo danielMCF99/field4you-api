@@ -12,7 +12,10 @@ const router = express.Router();
 // Proxy route for microservices
 router.all(
   '/:serviceName/:path(*)?',
-  upload.array('image'),
+  upload.fields([
+    { name: 'file', maxCount: 1 },
+    { name: 'image', maxCount: 5 }
+  ]),
   async (req: Request, res: Response) => {
     const { serviceName } = req.params as {
       serviceName: keyof typeof serviceConfig;
