@@ -22,15 +22,13 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
     );
   }
 
-  if (userType != 'Admin') {
-    throw new ForbiddenException(
-      'Only admin users are allowed to delete sports venues'
-    );
-  }
-
   const sportsVenue = await sportsVenueRepository.findById(id);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue with given ID not found');
+  }
+
+  if (userType === 'User') {
+    throw new ForbiddenException('User is not authorized to delete this venue');
   }
 
   if (sportsVenue.ownerId.toString() !== ownerId.toString()) {
