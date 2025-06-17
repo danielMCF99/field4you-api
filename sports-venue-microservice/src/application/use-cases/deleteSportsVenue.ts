@@ -27,6 +27,10 @@ export const deleteSportsVenue = async (req: Request): Promise<boolean> => {
     throw new NotFoundException('Sports Venue with given ID not found');
   }
 
+  if (userType === 'User') {
+    throw new ForbiddenException('User is not authorized to delete this venue');
+  }
+
   if (sportsVenue.ownerId.toString() !== ownerId.toString()) {
     throw new UnauthorizedException(
       'Sports Venue does not belong to the current user'
