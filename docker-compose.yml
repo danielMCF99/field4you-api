@@ -113,8 +113,8 @@ services:
   mongo-seed-python:
     image: python:3.11-slim
     volumes:
-      - ./local-db/scriptdata.py:/app/scriptdata.py
-      - ./local-db/requirements.txt:/app/requirements.txt
+      - ./local-db/population_script/scriptdata.py:/app/scriptdata.py
+      - ./local-db/population_script/requirements.txt:/app/requirements.txt
     depends_on:
       - mongodb
     working_dir: /app

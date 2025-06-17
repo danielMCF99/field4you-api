@@ -15,6 +15,11 @@ export const authenticate = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  console.log('Path:', req.path);
+  if (req.path.startsWith('/socket.io')) {
+    return next();
+  }
+
   // Check if given route is whitelisted
   const isWhitelisted = whitelist.some(
     (route) =>
