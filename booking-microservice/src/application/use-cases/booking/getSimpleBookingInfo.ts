@@ -78,6 +78,7 @@ export const getSimpleBookingsInfo = async (
       if (sportsVenue) {
         const dto: SimpleBookingsResponseDTO = {
           bookingId: booking.getId(),
+          bookingType: booking.bookingType,
           bookingStartDate: booking.bookingStartDate,
           bookingEndDate: booking.bookingEndDate,
           bookingPrice: booking.bookingPrice,

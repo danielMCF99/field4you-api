@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { createBooking } from '../../application/use-cases/booking/createBooking';
 import { deleteBooking } from '../../application/use-cases/booking/deleteBooking';
 import { getAllBookings } from '../../application/use-cases/booking/getAllBookings';
+import { getAllBookingsForOwnerVenues } from '../../application/use-cases/booking/getAllBookingsForOwnerVenues';
 import { getBookingById } from '../../application/use-cases/booking/getBookingById';
 import { getBookingTimeSlots } from '../../application/use-cases/booking/getBookingTimeSlots';
 import { getRecentBookings } from '../../application/use-cases/booking/getRecentBookings';
@@ -141,5 +142,18 @@ export const getBookingTimeSlotsController = async (
     return res.status(200).json({ timeSlots });
   } catch (error: any) {
     return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+export const getSimpleBookingsForOwnerSportsVenueController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const allBookings = await getAllBookingsForOwnerVenues(req);
+    res.status(200).json({ bookings: allBookings });
+    return;
+  } catch (error: any) {
+    return res.status(error.statusCode).json({ message: error.message });
   }
 };

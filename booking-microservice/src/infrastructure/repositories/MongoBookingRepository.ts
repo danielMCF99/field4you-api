@@ -365,4 +365,39 @@ export class MongoBookingRepository implements IBookingRepository {
     const results = await BookingModel.find(query).lean();
     return results.map(Booking.fromMongooseDocument);
   }
+
+  async findManyBySportsVenueIdsWithFilters(
+    sportsVenueIds: string[],
+    filters: BookingFilterParams
+  ): Promise<Booking[]> {
+    if (!sportsVenueIds.length) return [];
+
+    const query: any = {
+      sportsVenueId: { $in: sportsVenueIds },
+    };
+
+    if (filters.status) query.status = filters.status;
+    if (filters.bookingType) query.bookingType = filters.bookingType;
+
+    if (filters.bookingStartDate && filters.bookingEndDate) {
+      query.bookingStartDate = {
+        $gte: filters.bookingStartDate,
+        $lte: filters.bookingEndDate,
+      };
+    } else if (filters.bookingStartDate) {
+      query.bookingStartDate = { $gte: filters.bookingStartDate };
+    } else if (filters.bookingEndDate) {
+      query.bookingStartDate = { $lte: filters.bookingEndDate };
+    }
+
+    const limit = filters.limit ?? 10;
+    const page = filters.page ?? 1;
+
+    const results = await BookingModel.find(query)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .lean();
+
+    return results.map(Booking.fromMongooseDocument);
+  }
 }
