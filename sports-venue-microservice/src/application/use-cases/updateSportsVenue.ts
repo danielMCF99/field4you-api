@@ -29,18 +29,17 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
     );
   }
 
-  if (userType != 'Owner') {
-    throw new ForbiddenException(
-      'Regular User is not allowed to delete this venue'
-    );
-  }
-
   const sportsVenue = await sportsVenueRepository.findById(id);
   if (!sportsVenue) {
     throw new NotFoundException('Sports Venue not found');
   }
+
+  if (userType === 'User') {
+    throw new ForbiddenException('User is not authorized to update this venue');
+  }
+
   if (sportsVenue.ownerId != ownerId) {
-    throw new UnauthorizedException(
+    throw new ForbiddenException(
       'User is not authorized to update this venue'
     );
   }
