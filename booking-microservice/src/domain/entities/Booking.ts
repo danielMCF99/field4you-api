@@ -10,6 +10,11 @@ export enum BookingStatus {
   confirmed = 'Confirmed',
 }
 
+export enum PaymentMethod {
+  card = 'Card',
+  money = 'Money',
+}
+
 export class Booking {
   public id?: string;
   public ownerId?: string;
@@ -22,6 +27,7 @@ export class Booking {
   public bookingPrice: number;
   public isPublic: boolean;
   public invitedUsersIds: string[];
+  public paymentMethod: PaymentMethod;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -37,6 +43,7 @@ export class Booking {
     bookingPrice: number;
     isPublic: boolean;
     invitedUsersIds?: string[];
+    paymentMethod: PaymentMethod;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -51,6 +58,7 @@ export class Booking {
     this.bookingPrice = booking.bookingPrice;
     this.isPublic = booking.isPublic;
     this.invitedUsersIds = booking.invitedUsersIds || [];
+    this.paymentMethod = booking.paymentMethod;
     this.createdAt = booking.createdAt;
     this.updatedAt = booking.updatedAt;
   }
@@ -74,6 +82,7 @@ export class Booking {
       bookingPrice: doc.bookingPrice,
       isPublic: doc.isPublic,
       invitedUsersIds: doc.invitedUsersIds,
+      paymentMethod: doc.paymentMethod,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

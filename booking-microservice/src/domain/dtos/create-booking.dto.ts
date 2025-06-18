@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BookingType } from '../entities/Booking';
+import { BookingType, PaymentMethod } from '../entities/Booking';
 import mongoose from 'mongoose';
 
 const isValidObjectId = (val: string) => mongoose.Types.ObjectId.isValid(val);
@@ -20,6 +20,7 @@ export const createBookingSchema = z.object({
       message: 'Each invitedUserId must be a valid MongoDB ObjectId',
     })
   ),
+  paymentMethod: z.nativeEnum(PaymentMethod),
 });
 
 export type CreateBookingDTO = z.infer<typeof createBookingSchema>;

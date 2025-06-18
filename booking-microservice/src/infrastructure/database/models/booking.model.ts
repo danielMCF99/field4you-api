@@ -1,5 +1,9 @@
 import { Document, Schema, Types, model } from 'mongoose';
-import { BookingStatus, BookingType } from '../../../domain/entities/Booking';
+import {
+  BookingStatus,
+  BookingType,
+  PaymentMethod,
+} from '../../../domain/entities/Booking';
 
 interface IBookingDocument extends Document {
   _id: Types.ObjectId;
@@ -13,6 +17,7 @@ interface IBookingDocument extends Document {
   bookingPrice: number;
   isPublic: boolean;
   invitedUsersIds: string[];
+  paymentMethod: PaymentMethod;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -50,6 +55,11 @@ const bookingSchema = new Schema<IBookingDocument>(
     },
     isPublic: { type: Boolean, default: false },
     invitedUsersIds: { type: [String], default: [] },
+    paymentMethod: {
+      type: String,
+      required: true,
+      enum: [PaymentMethod.card, PaymentMethod.money],
+    },
   },
   {
     timestamps: true,
