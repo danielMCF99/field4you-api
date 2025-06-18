@@ -18,10 +18,17 @@ if (!rabbitmqURL) {
   );
 }
 
-const firebaseServerKey = process.env.FIREBASE_SERVER_KEY;
-if (!firebaseServerKey) {
+const googleProjectId = process.env.GOOGLE_PROJECT_ID;
+if (!googleProjectId) {
   throw new Error(
-    'The environment variables FIREBASE_SERVER_KEY is required but is not defined.'
+    'The environment variables GOOGLE_PROJECT_ID is required but is not defined.'
+  );
+}
+
+const googleAppCred = process.env.GOOGLE_APP_CRED;
+if (!googleAppCred) {
+  throw new Error(
+    'The environment variables GOOGLE_APP_CRED is required but is not defined.'
   );
 }
 
@@ -30,5 +37,6 @@ export default {
   port: process.env.PORT || 3000,
   jwtSecret: process.env.JWT_SECRET || 'secret',
   rabbitmqURL,
-  firebaseServerKey,
+  googleProjectId,
+  googleAppCred,
 };

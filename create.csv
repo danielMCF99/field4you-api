@@ -1,0 +1,9 @@
+email,password,userType,firstName,lastName,birthDate,address,city,district,phoneNumber
+a30766@alunos.ipca.pt,password,Owner,Daniel,Ferreira,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+a16818@alunos.ipca.pt,password,Owner,André,Vale,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+a33456@alunos.ipca.pt,password,Owner,Nelson,Novais,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+user1@alunos.ipca.pt,password,User,User,First,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+user2@alunos.ipca.pt,password,User,User,Second,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+user3@alunos.ipca.pt,password,User,User,Third,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+user4@alunos.ipca.pt,password,User,User,Fourth,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+user5@alunos.ipca.pt,password,User,User,Fifth,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321

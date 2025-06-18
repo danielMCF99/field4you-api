@@ -1,8 +1,7 @@
 import amqp, { Connection } from 'amqplib';
-import { createUser } from '../../application/use-cases/users/createUser';
-import { updateUser } from '../../application/use-cases/users/updateUser';
-import config from '../../config/env';
 import { userRepository } from '../../app';
+import { createUser } from '../../application/use-cases/users/createUser';
+import config from '../../config/env';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -29,7 +28,7 @@ async function connectWithRetry(
   throw new Error('Exhausted retries for RabbitMQ connection.');
 }
 
-export async function subscribeUserCreation() {
+export async function subscribeUserEvents() {
   try {
     const connection = await connectWithRetry();
     const channel = await connection.createChannel();
@@ -39,60 +38,57 @@ export async function subscribeUserCreation() {
     const queue = await channel.assertQueue('user_user_events', {
       durable: true,
     });
+
+    // Bind to all relevant user events
     await channel.bindQueue(queue.queue, 'user.events', 'user.created');
-
-    console.log(`[*] Waiting for User registration events...`);
-    channel.consume(queue.queue, async (msg) => {
-      if (msg !== null) {
-        try {
-          const payload = JSON.parse(msg.content.toString());
-          console.log('[x] Received User registration event:');
-
-          await createUser(payload);
-          channel.ack(msg);
-        } catch (error) {
-          console.error(
-            `Error processing message with routing key user.created:`,
-            error
-          );
-          channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior
-        }
-      }
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function subscribeUserPushNotificationTokenUpdate() {
-  try {
-    const connection = await connectWithRetry();
-    const channel = await connection.createChannel();
-
-    await channel.assertExchange('user.events', 'topic', { durable: true });
-
-    const queue = await channel.assertQueue('user_user_events', {
-      durable: true,
-    });
+    await channel.bindQueue(queue.queue, 'user.events', 'user.updated');
+    await channel.bindQueue(queue.queue, 'user.events', 'user.status.updated');
+    await channel.bindQueue(queue.queue, 'user.events', 'user.deleted');
     await channel.bindQueue(queue.queue, 'user.events', 'auth.user.updated');
 
-    console.log(`[*] Waiting for User update events...`);
-    channel.consume(queue.queue, async (msg) => {
-      if (msg !== null) {
-        try {
-          const payload = JSON.parse(msg.content.toString());
-          console.log('[x] Received User updated push notification event:');
-          await userRepository.update(payload.userId, {
-            pushNotificationToken: payload.pushNotificationToken,
-          });
-          channel.ack(msg);
-        } catch (error) {
-          console.error(
-            `Error processing message with routing key auth.user.updated:`,
-            error
-          );
-          channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior
+    console.log(`[*] Waiting for User events...`);
+    channel.consume(queue.queue, async (msg: any) => {
+      if (!msg?.content) return;
+
+      const routingKey = msg.fields.routingKey;
+      const data = JSON.parse(msg.content.toString());
+
+      try {
+        switch (routingKey) {
+          case 'user.created':
+            console.log('Received User created');
+            await createUser(data);
+            break;
+          case 'user.updated':
+            console.log('Received User updated');
+            // Aqui assume-se que existe uma função updateUser semelhante ao createUser
+            await userRepository.update(data.userId, data.updatedData);
+            break;
+          case 'auth.user.updated':
+            console.log('Received User updated for push notification token');
+            await userRepository.update(data.userId, {
+              pushNotificationToken: data.pushNotificationToken,
+            });
+            break;
+          case 'user.status.updated':
+            console.log('Received User status updated');
+            await userRepository.update(data.userId, { status: data.status });
+            break;
+          case 'user.deleted':
+            console.log('Received User deleted');
+            await userRepository.delete(data.userId);
+            break;
+          default:
+            console.warn(`Unknown routing key: ${routingKey}`);
         }
+
+        channel.ack(msg);
+      } catch (error) {
+        console.error(
+          `Error processing message with routing key ${routingKey}:`,
+          error
+        );
+        channel.nack(msg, false, true); // Pode reenfileirar a mensagem para tentar de novo
       }
     });
   } catch (error) {

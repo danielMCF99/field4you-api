@@ -1,39 +1,60 @@
 import axios from 'axios';
+import { GoogleAuth } from 'google-auth-library';
 import config from '../../../config/env';
 
-export async function sendPushNotification(
-  token: string,
+function getServiceAccountFromEnv() {
+  const base64 = config.googleAppCred;
+  if (!base64) throw new Error('Service account base64 not set in .env');
+  const jsonString = Buffer.from(base64, 'base64').toString('utf8');
+  return JSON.parse(jsonString);
+}
+
+const SCOPES = ['https://www.googleapis.com/auth/firebase.messaging'];
+
+/**
+ * Get Google OAuth access token for FCM API v1
+ */
+async function getAccessToken() {
+  const serviceAccount = getServiceAccountFromEnv();
+
+  const auth = new GoogleAuth({
+    credentials: serviceAccount,
+    scopes: SCOPES,
+  });
+
+  const client = await auth.getClient();
+  const { token } = await client.getAccessToken();
+  return token;
+}
+
+/**
+ * Example of sending a message to FCM
+ */
+export async function sendFcmMessage(
+  deviceToken: string,
   title: string,
   body: string
 ) {
-  const message = {
-    to: token, // o pushNotificationToken que tens guardado na tua BD
-    notification: {
-      title: title,
-      body: body,
+  const token = await getAccessToken();
+
+  const url = `https://fcm.googleapis.com/v1/projects/${config.googleProjectId}/messages:send`;
+
+  const messageBody = {
+    message: {
+      token: deviceToken,
+      notification: {
+        title: title,
+        body: body,
+      },
     },
-    // podes adicionar 'data' se quiseres payload extra não visível ao user
   };
 
-  try {
-    const response = await axios.post(
-      'https://fcm.googleapis.com/fcm/send',
-      message,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `key=${config.firebaseServerKey}`,
-        },
-      }
-    );
+  const response = await axios.post(url, messageBody, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
-    console.log('Push notification sent:', response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error(
-      'Error sending push notification:',
-      error.response?.data || error.message
-    );
-    throw error;
-  }
+  console.log(response.data);
 }
