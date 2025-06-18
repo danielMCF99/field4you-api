@@ -18,9 +18,17 @@ if (!rabbitmqURL) {
   );
 }
 
+const firebaseServerKey = process.env.FIREBASE_SERVER_KEY;
+if (!firebaseServerKey) {
+  throw new Error(
+    'The environment variables FIREBASE_SERVER_KEY is required but is not defined.'
+  );
+}
+
 export default {
   mongoUri,
   port: process.env.PORT || 3000,
   jwtSecret: process.env.JWT_SECRET || 'secret',
   rabbitmqURL,
+  firebaseServerKey,
 };

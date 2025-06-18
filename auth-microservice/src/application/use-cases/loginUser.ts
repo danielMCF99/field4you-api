@@ -38,28 +38,15 @@ export const loginUser = async (req: Request): Promise<string> => {
     throw new UnauthorizedException('Invalid credentials');
   }
 
-  if (pushNotificationToken) {
-    if (!auth.pushNotificationToken) {
-      authRepository.update(auth.getId(), {
-        pushNotificationToken: pushNotificationToken,
-      });
-
-      publishUserUpdate({
-        userId: auth.getId(),
-        pushNotificationToken: pushNotificationToken,
-      });
-    } else {
-      if (auth.pushNotificationToken != pushNotificationToken) {
-        authRepository.update(auth.getId(), {
-          pushNotificationToken: pushNotificationToken,
-        });
-
-        publishUserUpdate({
-          userId: auth.getId(),
-          pushNotificationToken: pushNotificationToken,
-        });
-      }
-    }
+  if (
+    pushNotificationToken &&
+    auth.pushNotificationToken !== pushNotificationToken
+  ) {
+    authRepository.update(auth.getId(), { pushNotificationToken });
+    publishUserUpdate({
+      userId: auth.getId(),
+      pushNotificationToken,
+    });
   }
 
   // Generate JWT Token
