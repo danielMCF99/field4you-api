@@ -14,6 +14,7 @@ export class User {
   public userType: UserType;
   public email: string;
   public status: UserStatus;
+  public pushNotificationToken?: string;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -22,6 +23,7 @@ export class User {
     userType: UserType;
     email: string;
     status: UserStatus;
+    pushNotificationToken?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -29,6 +31,7 @@ export class User {
     this.userType = user.userType;
     this.email = user.email;
     this.status = user.status;
+    this.pushNotificationToken = user.pushNotificationToken;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
   }
@@ -43,6 +46,7 @@ export class User {
       userType: doc.userType,
       email: doc.email,
       status: doc.status,
+      pushNotificationToken: doc.pushNotificationToken,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

@@ -8,10 +8,11 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
 import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
+import { publishUserUpdate } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const loginUser = async (req: Request): Promise<string> => {
   // Validate request body integrity
-  const { email, password } = req.body;
+  const { email, password, pushNotificationToken } = req.body;
 
   if (!email || !password) {
     throw new BadRequestException('Email and Password are required');
@@ -35,6 +36,30 @@ export const loginUser = async (req: Request): Promise<string> => {
   const isMatch = await bcrypt.compare(password, auth.password);
   if (!isMatch) {
     throw new UnauthorizedException('Invalid credentials');
+  }
+
+  if (pushNotificationToken) {
+    if (!auth.pushNotificationToken) {
+      authRepository.update(auth.getId(), {
+        pushNotificationToken: pushNotificationToken,
+      });
+
+      publishUserUpdate({
+        userId: auth.getId(),
+        pushNotificationToken: pushNotificationToken,
+      });
+    } else {
+      if (auth.pushNotificationToken != pushNotificationToken) {
+        authRepository.update(auth.getId(), {
+          pushNotificationToken: pushNotificationToken,
+        });
+
+        publishUserUpdate({
+          userId: auth.getId(),
+          pushNotificationToken: pushNotificationToken,
+        });
+      }
+    }
   }
 
   // Generate JWT Token

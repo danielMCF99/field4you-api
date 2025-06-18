@@ -1,6 +1,8 @@
 import amqp, { Connection } from 'amqplib';
 import { createUser } from '../../application/use-cases/users/createUser';
+import { updateUser } from '../../application/use-cases/users/updateUser';
 import config from '../../config/env';
+import { userRepository } from '../../app';
 
 async function connectWithRetry(
   retries: number = 5,
@@ -51,6 +53,42 @@ export async function subscribeUserCreation() {
         } catch (error) {
           console.error(
             `Error processing message with routing key user.created:`,
+            error
+          );
+          channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior
+        }
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function subscribeUserPushNotificationTokenUpdate() {
+  try {
+    const connection = await connectWithRetry();
+    const channel = await connection.createChannel();
+
+    await channel.assertExchange('user.events', 'topic', { durable: true });
+
+    const queue = await channel.assertQueue('user_user_events', {
+      durable: true,
+    });
+    await channel.bindQueue(queue.queue, 'user.events', 'auth.user.updated');
+
+    console.log(`[*] Waiting for User update events...`);
+    channel.consume(queue.queue, async (msg) => {
+      if (msg !== null) {
+        try {
+          const payload = JSON.parse(msg.content.toString());
+          console.log('[x] Received User updated push notification event:');
+          await userRepository.update(payload.userId, {
+            pushNotificationToken: payload.pushNotificationToken,
+          });
+          channel.ack(msg);
+        } catch (error) {
+          console.error(
+            `Error processing message with routing key auth.user.updated:`,
             error
           );
           channel.nack(msg, false, true); // A mensagem pode ser reencaminhada para tentar novamente ou registrada para análise posterior

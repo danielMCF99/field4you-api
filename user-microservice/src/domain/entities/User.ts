@@ -29,6 +29,7 @@ export class User {
   public birthDate: string;
   public fileName?: string;
   public imageURL?: string;
+  public pushNotificationToken?: string;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -44,6 +45,7 @@ export class User {
     birthDate: string;
     fileName?: string;
     imageURL?: string;
+    pushNotificationToken?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -58,6 +60,7 @@ export class User {
     this.birthDate = user.birthDate;
     this.fileName = user.fileName;
     this.imageURL = user.imageURL;
+    this.pushNotificationToken = user.pushNotificationToken;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
   }
@@ -83,6 +86,7 @@ export class User {
       birthDate: doc.birthDate,
       fileName: doc.fileName,
       imageURL: doc.imageURL,
+      pushNotificationToken: doc.pushNotificationToken,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });
