@@ -2,8 +2,26 @@ email,password,userType,firstName,lastName,birthDate,address,city,district,phone
 a30766@alunos.ipca.pt,password,Owner,Daniel,Ferreira,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
 a16818@alunos.ipca.pt,password,Owner,André,Vale,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
 a33456@alunos.ipca.pt,password,Owner,Nelson,Novais,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
-user1@alunos.ipca.pt,password,User,User,First,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
-user2@alunos.ipca.pt,password,User,User,Second,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
-user3@alunos.ipca.pt,password,User,User,Third,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
-user4@alunos.ipca.pt,password,User,User,Fourth,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
-user5@alunos.ipca.pt,password,User,User,Fifth,1999-05-08,Rua David Barbosa,Barcelos,Braga,987654321
+user1@alunos.ipca.pt,password,User,João,Santos,1998-03-12,Rua de Cedofeita,Porto,Porto,912345678
+user2@alunos.ipca.pt,password,User,Maria,Silva,2001-07-22,Avenida da Liberdade,Lisboa,Lisboa,923456789
+user3@alunos.ipca.pt,password,User,Pedro,Martins,1995-11-04,Rua 31 de Janeiro,Braga,Braga,934567890
+user4@alunos.ipca.pt,password,User,Inês,Fernandes,1999-06-28,Rua Direita,Viseu,Viseu,945678901
+user5@alunos.ipca.pt,password,User,Ricardo,Oliveira,1987-02-09,Rua de Santa Catarina,Porto,Porto,956789012
+user6@alunos.ipca.pt,password,User,Sofia,Pereira,2000-12-01,Rua Serpa Pinto,Coimbra,Coimbra,967890123
+user7@alunos.ipca.pt,password,User,André,Gomes,1992-04-23,Rua Brito Capelo,Matosinhos,Porto,978901234
+user8@alunos.ipca.pt,password,User,Beatriz,Carvalho,1997-09-18,Rua do Almada,Porto,Porto,989012345
+user9@alunos.ipca.pt,password,User,Carlos,Rocha,1990-01-10,Rua do Bonfim,Porto,Porto,900123456
+user10@alunos.ipca.pt,password,User,Ana,Monteiro,2003-08-30,Rua dos Fanqueiros,Lisboa,Lisboa,911234567
+user11@alunos.ipca.pt,password,User,Tiago,Lopes,2002-05-25,Rua do Souto,Braga,Braga,922345678
+user12@alunos.ipca.pt,password,User,Patrícia,Mendes,1994-10-12,Rua Dom Dinis,Coimbra,Coimbra,933456789
+user13@alunos.ipca.pt,password,User,Gonçalo,Barros,1986-06-14,Rua do Sol,Viana do Castelo,Viana do Castelo,944567890
+user14@alunos.ipca.pt,password,User,Daniela,Alves,1993-03-17,Rua da Junqueira,Figueira da Foz,Coimbra,955678901
+user15@alunos.ipca.pt,password,User,Filipe,Teixeira,1996-02-20,Rua Formosa,Porto,Porto,966789012
+user16@alunos.ipca.pt,password,User,Raquel,Freitas,1998-11-06,Rua Mouzinho da Silveira,Porto,Porto,977890123
+user17@alunos.ipca.pt,password,User,Bruno,Costa,2004-04-02,Rua Alexandre Herculano,Porto,Porto,988901234
+user18@alunos.ipca.pt,password,User,Carla,Marques,1991-07-19,Rua do Loreto,Lisboa,Lisboa,999012345
+user19@alunos.ipca.pt,password,User,Luís,Antunes,1989-09-11,Rua Dom Afonso Henriques,Guimarães,Braga,910123456
+user20@alunos.ipca.pt,password,User,Margarida,Correia,1995-12-15,Rua Augusta,Lisboa,Lisboa,921234567
+user21@alunos.ipca.pt,password,User,Miguel,Ribeiro,1997-08-27,Rua de São Victor,Braga,Braga,932345678
+user22@alunos.ipca.pt,password,User,Helena,Baptista,1993-05-30,Rua da Alegria,Porto,Porto,943456789
+user23@alunos.ipca.pt,password,User,Joana,Tavares,1999-02-14,Rua das Flores,Porto,Porto,954567890

@@ -53,8 +53,8 @@ export const createOwnerRequest = async (
 
     // Create notification
     createNotification({
-      userId: ownerRequest.getOwnerId(),
-      ownerRequestId: ownerRequest.getId(),
+      userId: newOwnerRequest.getOwnerId(),
+      ownerRequestId: newOwnerRequest.getId(),
       userEmail: existingUser.email,
       phoneNumber: existingUser.phoneNumber,
       adminOnly: true,
