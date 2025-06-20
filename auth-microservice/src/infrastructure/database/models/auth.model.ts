@@ -11,6 +11,7 @@ interface IAuthDocument extends Document {
   lastAccessDate: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  pushNotificationToken?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -39,6 +40,7 @@ const authSchema = new Schema<IAuthDocument>(
     lastAccessDate: { type: Date, required: true },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    pushNotificationToken: { type: String },
   },
   {
     timestamps: true,

@@ -7,7 +7,10 @@ import { authenticate } from './middlewares/auth.middleware';
 import routes from './routes/routes';
 import { generateSwaggerDocument } from './services/swagger';
 import cors from 'cors';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 
+export let io: SocketIOServer;
 export const jwtHelper = JwtHelperImplementation.getInstance();
 
 const app: Application = express();
@@ -49,8 +52,24 @@ const startServer = async () => {
       res.status(err.code).json({ error: 'Internal Server Error' });
     });
 
+    // Cria o HTTP server e Socket.IO
+    const server = http.createServer(app);
+    io = new SocketIOServer(server, {
+      cors: {
+        origin: ['http://localhost:5173', 'https://field4you-web.vercel.app'],
+        credentials: true,
+      },
+    });
+
+    io.on('connection', (socket) => {
+      logger.info('Admin connected to WebSocket');
+      socket.on('disconnect', () => {
+        logger.info('Admin disconnected from WebSocket');
+      });
+    });
+
     // Start server
-    app.listen(serviceConfig.port, () => {
+    server.listen(serviceConfig.port, () => {
       logger.info(`API Gateway running on port ${serviceConfig.port}`);
     });
   } catch (error) {

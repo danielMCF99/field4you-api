@@ -1,13 +1,13 @@
 // Load environment variables
+import app from './app';
 import config from './config/env';
 import { connectToDB } from './infrastructure/database/database';
-import app from './app';
-import { subscribeUserCreation } from './infrastructure/rabbitmq/rabbitmq.subscriber';
+import { subscribeUserEvents } from './infrastructure/rabbitmq/rabbitmq.subscriber';
 
 const startServer = async () => {
   try {
     await connectToDB();
-    await subscribeUserCreation();
+    await subscribeUserEvents();
     app.listen(config.port, () => {
       console.log(`Server running on port ${config.port}`);
     });

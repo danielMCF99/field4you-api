@@ -3,6 +3,7 @@ import { bookingInviteRepository, userRepository } from '../../../app';
 import { BookingInviteStatus } from '../../../domain/entities/BookingInvite';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../../domain/exceptions/NotFoundException';
+import { sendFcmMessage } from './sendPushNotification';
 
 export const createBookingInvite = async (
   invitedUsersIds: string[],
@@ -38,6 +39,7 @@ export const createBookingInvite = async (
         bookingInfo.bookingId,
         id
       );
+
       if (exists) {
         if (bookingInfo.bookingStartDate || bookingInfo.bookingEndDate) {
           await bookingInviteRepository.update(bookingInfo.bookingId, id, {
@@ -58,6 +60,19 @@ export const createBookingInvite = async (
       }
     }
     await bookingInviteRepository.insertMany(bookingInvites, session);
+
+    // Send push notifications
+    for (const userId of invitedUsersIds) {
+      const user = await userRepository.getById(userId);
+
+      if (user && user?.pushNotificationToken) {
+        sendFcmMessage(
+          user.pushNotificationToken,
+          'You have been invited to a new booking!',
+          bookingInfo.bookingId
+        );
+      }
+    }
 
     return true;
   } catch (error) {

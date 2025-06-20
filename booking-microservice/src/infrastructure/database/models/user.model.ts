@@ -6,6 +6,7 @@ interface IUserDocument extends Document {
   userType: UserType;
   status: string;
   email: string;
+  pushNotificationToken?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -28,6 +29,10 @@ const userSchema = new Schema<IUserDocument>(
       required: true,
       default: UserStatus.active,
       enum: [UserStatus.active, UserStatus.inactive],
+    },
+    pushNotificationToken: {
+      type: String,
+      required: false,
     },
   },
   {

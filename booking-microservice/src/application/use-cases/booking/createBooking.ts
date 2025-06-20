@@ -51,6 +51,7 @@ export const createBooking = async (
     bookingEndDate,
     isPublic,
     invitedUsersIds,
+    paymentMethod,
   } = parsed;
 
   const sportsVenue = await sportsVenueRepository.findById(sportsVenueId);
@@ -141,6 +142,7 @@ export const createBooking = async (
       sportsVenue.bookingMinPrice,
     isPublic,
     invitedUsersIds,
+    paymentMethod,
   });
 
   booking.ownerId = ownerId;

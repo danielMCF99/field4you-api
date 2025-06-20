@@ -54,6 +54,7 @@ export async function subscribeUserEvents() {
     await channel.bindQueue(queue.queue, 'user.events', 'user.updated');
     await channel.bindQueue(queue.queue, 'user.events', 'user.status.updated');
     await channel.bindQueue(queue.queue, 'user.events', 'user.deleted');
+    await channel.bindQueue(queue.queue, 'user.events', 'auth.user.updated');
 
     console.log(`[*] Waiting for User events...`);
     channel.consume(queue.queue, async (msg: any) => {
@@ -71,6 +72,12 @@ export async function subscribeUserEvents() {
           case 'user.updated':
             console.log('Received User updated');
             await updateUser(data.userId, data.updatedData);
+            break;
+          case 'auth.user.updated':
+            console.log('Received User updated for push notification token');
+            await updateUser(data.userId, {
+              pushNotificationToken: data.pushNotificationToken,
+            });
             break;
           case 'user.status.updated':
             console.log('Received User status updated');

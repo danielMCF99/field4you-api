@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import multer from 'multer';
+import { io } from '../app';
 import { serviceConfig } from '../config/env';
 import { logger } from '../logging/logger';
 import ProxyService from '../services/proxyService';
@@ -9,12 +10,49 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
+router.post(
+  '/auth/register',
+  upload.none(), // Se o registo não inclui ficheiros, senão usa .fields
+  async (req: Request, res: Response) => {
+    const method = req.method;
+    const data = req.body;
+    const query = req.query;
+
+    try {
+      const filteredHeaders = {
+        'content-type': req.headers['content-type'],
+        authorization: req.headers['authorization'],
+      };
+
+      // Faz o forward para o auth-service
+      const result = await ProxyService.forwardRequest(
+        'auth',
+        'register',
+        method,
+        data,
+        query,
+        filteredHeaders
+      );
+
+      // Se registo OK, emite notificação via websocket
+      if (result.status === 200) {
+        io.emit('user_registered', {});
+      }
+
+      res.status(result.status).set(result.headers).json(result.data);
+    } catch (error: any) {
+      logger.error(`Error in /auth/register: ${error.message}`);
+      res.status(500).json({ message: 'Failed to register user' });
+    }
+  }
+);
+
 // Proxy route for microservices
 router.all(
   '/:serviceName/:path(*)?',
   upload.fields([
     { name: 'file', maxCount: 1 },
-    { name: 'image', maxCount: 5 }
+    { name: 'image', maxCount: 5 },
   ]),
   async (req: Request, res: Response) => {
     const { serviceName } = req.params as {

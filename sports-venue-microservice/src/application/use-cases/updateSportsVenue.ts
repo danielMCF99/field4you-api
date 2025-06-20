@@ -11,8 +11,9 @@ import { BadRequestException } from '../../domain/exceptions/BadRequestException
 import { ForbiddenException } from '../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../domain/exceptions/InternalServerErrorException';
 import { NotFoundException } from '../../domain/exceptions/NotFoundException';
-import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 import { publishSportsVenueUpdate } from '../../infrastructure/rabbitmq/rabbitmq.publisher';
+import { getCoordinatesFromAddress } from '../../infrastructure/utils/getCoordinatesFromAddress';
+import { UnauthorizedException } from '../../domain/exceptions/UnauthorizedException';
 
 export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const id = req.params.id.toString();
@@ -24,7 +25,7 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   const userType = req.headers['x-user-type'] as string | undefined;
 
   if (!ownerId || !userType) {
-    throw new InternalServerErrorException(
+    throw new UnauthorizedException(
       'Internal Server Error. Missing required authentication headers'
     );
   }
@@ -39,9 +40,7 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
   }
 
   if (sportsVenue.ownerId != ownerId) {
-    throw new ForbiddenException(
-      'User is not authorized to update this venue'
-    );
+    throw new ForbiddenException('User is not authorized to update this venue');
   }
 
   let parsed: UpdateSportsVenueDTO;
@@ -54,19 +53,61 @@ export const updateSportsVenue = async (req: Request): Promise<SportsVenue> => {
         missingFields,
       });
     }
-
     throw new InternalServerErrorException(
       'Unexpected error parsing request data'
     );
   }
 
-  const updatedData = { ...parsed };
+  if (Object.keys(parsed).length === 0) {
+    throw new BadRequestException(
+      'At least one field must be provided for update'
+    );
+  }
+
+  // Only update location if some of the fields have changed
+  let locationCoords;
+  const locationFields = ['district', 'city', 'address'];
+  const locationUpdated = locationFields.every((field) => field in parsed);
+
+  if (locationUpdated) {
+    if (parsed.district && parsed.city && parsed.address) {
+      console.log(parsed);
+      try {
+        locationCoords = await getCoordinatesFromAddress(
+          parsed.address,
+          parsed.city,
+          parsed.district
+        );
+      } catch (err) {
+        throw new BadRequestException(
+          'Could not fetch coordinates for the new address'
+        );
+      }
+    }
+  }
+
+  let updatedData = { ...parsed };
 
   try {
-    const updatedSportsVenue = await sportsVenueRepository.update(id, {
-      ...sportsVenue,
-      ...updatedData,
-    });
+    let updatedSportsVenue;
+    if (locationUpdated) {
+      await sportsVenueRepository.update(id, { ...updatedData });
+      const location = {
+        district: parsed.district,
+        city: parsed.city,
+        address: parsed.address,
+        latitude: locationCoords?.latitude,
+        longitude: locationCoords?.longitude,
+      };
+
+      updatedSportsVenue = await sportsVenueRepository.update(id, {
+        location: location,
+      });
+    } else {
+      updatedSportsVenue = await sportsVenueRepository.update(id, {
+        ...updatedData,
+      });
+    }
 
     if (!updatedSportsVenue) {
       throw new InternalServerErrorException('Failed to update Sports Venue');

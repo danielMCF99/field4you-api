@@ -19,6 +19,7 @@ export class Auth {
   public lastAccessDate: Date;
   public resetPasswordToken?: string;
   public resetPasswordExpires?: Date;
+  public pushNotificationToken?: string;
   public createdAt?: Date;
   public updatedAt?: Date;
 
@@ -32,6 +33,7 @@ export class Auth {
     lastAccessDate: Date;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
+    pushNotificationToken?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -44,6 +46,7 @@ export class Auth {
     this.lastAccessDate = auth.lastAccessDate;
     this.resetPasswordToken = auth.resetPasswordToken;
     this.resetPasswordExpires = auth.resetPasswordExpires;
+    this.pushNotificationToken = auth.pushNotificationToken;
     this.createdAt = auth.createdAt;
     this.updatedAt = auth.updatedAt;
   }
@@ -63,6 +66,7 @@ export class Auth {
       lastAccessDate: doc.lastAccessDate,
       resetPasswordToken: doc.resetPasswordToken,
       resetPasswordExpires: doc.resetPasswordExpires,
+      pushNotificationToken: doc.pushNotificationToken,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });

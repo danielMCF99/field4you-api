@@ -41,4 +41,9 @@ export interface IBookingRepository {
   countBookingsByMonthAndType(): Promise<
     { month: string; regular: number; event: number }[]
   >;
+
+  findManyBySportsVenueIdsWithFilters(
+    sportsVenueIds: string[],
+    filters: BookingFilterParams
+  ): Promise<Booking[]>;
 }

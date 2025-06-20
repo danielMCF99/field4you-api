@@ -31,9 +31,60 @@ export const registerUsersFromCSV = async (
   let skipped = 0;
 
   for (const user of users) {
+    console.log(user);
     let parsed: RegisterUserDTO;
     try {
       parsed = registerUserSchema.parse(user);
+
+      const existing = await authRepository.findByEmail(parsed.email);
+      if (existing) {
+        console.warn(`Skipping user with existing email: ${parsed.email}`);
+        skipped++;
+        continue;
+      }
+
+      const hashedPassword = await bcrypt.hash(parsed.password, 10);
+      const now = new Date();
+
+      const newAuth = await authRepository.create(
+        new Auth({
+          userType: parsed.userType ? parsed.userType : UserType.user,
+          email: parsed.email,
+          password: hashedPassword,
+          status: UserStatus.active,
+          registerDate: now,
+          lastAccessDate: now,
+        })
+      );
+
+      await jwtHelper.generateToken(
+        newAuth.getId(),
+        newAuth.userType.toString(),
+        newAuth.email
+      );
+
+      mailer.sendMail(
+        newAuth.email,
+        'Welcome to Field4You',
+        'Welcome! Thank you for registering!'
+      );
+
+      publishUserCreation({
+        userId: newAuth.getId(),
+        email: newAuth.email,
+        firstName: parsed.firstName,
+        lastName: parsed.lastName,
+        location: {
+          address: parsed.address,
+          city: parsed.city,
+          district: parsed.district,
+        },
+        userType: newAuth.userType.toString(),
+        birthDate: parsed.birthDate,
+        phoneNumber: parsed.phoneNumber,
+      });
+
+      created++;
     } catch (error) {
       if (error instanceof ZodError) {
         const missingFields = error.errors.map((err) => err.path.join('.'));
@@ -41,61 +92,11 @@ export const registerUsersFromCSV = async (
           `Skipping user due to invalid fields: ${missingFields.join(', ')}`
         );
         skipped++;
-        continue;
+        throw new BadRequestException('Error in CSV file content');
       }
 
       throw new Error('Unexpected error parsing user data.');
     }
-
-    const existing = await authRepository.findByEmail(parsed.email);
-    if (existing) {
-      console.warn(`Skipping user with existing email: ${parsed.email}`);
-      skipped++;
-      continue;
-    }
-
-    const hashedPassword = await bcrypt.hash(parsed.password, 10);
-    const now = new Date();
-
-    const newAuth = await authRepository.create(
-      new Auth({
-        userType: parsed.userType ? parsed.userType : UserType.user,
-        email: parsed.email,
-        password: hashedPassword,
-        status: UserStatus.active,
-        registerDate: now,
-        lastAccessDate: now,
-      })
-    );
-
-    await jwtHelper.generateToken(
-      newAuth.getId(),
-      newAuth.userType.toString(),
-      newAuth.email
-    );
-
-    mailer.sendMail(
-      newAuth.email,
-      'Welcome to Field4You',
-      'Welcome! Thank you for registering!'
-    );
-
-    publishUserCreation({
-      userId: newAuth.getId(),
-      email: newAuth.email,
-      firstName: parsed.firstName,
-      lastName: parsed.lastName,
-      location: {
-        address: parsed.address,
-        city: parsed.city,
-        district: parsed.district,
-      },
-      userType: newAuth.userType.toString(),
-      birthDate: parsed.birthDate,
-      phoneNumber: parsed.phoneNumber,
-    });
-
-    created++;
   }
 
   return { created, skipped };

@@ -9,6 +9,7 @@ import {
   getRecentBookingsController,
   getRecentBookingsProfitController,
   getSimpleBookingsController,
+  getSimpleBookingsForOwnerSportsVenueController,
   getWebGraphicsController,
   updateBookingController,
   updateBookingStatusController,
@@ -37,6 +38,10 @@ router.get('/bookings/recent-profit', getRecentBookingsProfitController);
 router.get('/bookings/web-graphics', getWebGraphicsController);
 router.get('/bookings/simple', getSimpleBookingsController);
 router.get('/bookings/timeslots', getBookingTimeSlotsController);
+router.get(
+  '/bookings/owner/sports-venues',
+  getSimpleBookingsForOwnerSportsVenueController
+);
 router.patch('/bookings/:id/status', updateBookingStatusController);
 router.put('/bookings/:id', updateBookingController);
 router.get('/bookings/:id', getBookingByIdController);
