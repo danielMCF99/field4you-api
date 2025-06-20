@@ -5,6 +5,7 @@ import {
 } from '../../domain/entities/SportsVenue';
 import { ISportsVenueRepository } from '../../domain/interfaces/SportsVenueRepository';
 import { SportsVenueModel } from '../database/models/sports-venue.model';
+import { SportsVenueFilterParams } from '../../domain/dtos/sports-venue-filter.dto';
 
 export class MongoSportsVenueRepository implements ISportsVenueRepository {
   private static instance: MongoSportsVenueRepository;
@@ -59,11 +60,15 @@ export class MongoSportsVenueRepository implements ISportsVenueRepository {
     return sportsVenue ? SportsVenue.fromMongooseDocument(sportsVenue) : null;
   }
 
-  async findAll(ownerId?: string): Promise<SportsVenue[]> {
+  async findAll(ownerId?: string, filters?: SportsVenueFilterParams): Promise<SportsVenue[]> {
     const query: any = {};
 
     if (ownerId) {
       query.ownerId = ownerId;
+    }
+
+    if (filters?.sportsVenueName) {
+      query.sportsVenueName = { $regex: new RegExp(filters.sportsVenueName, 'i') };
     }
 
     const queryBuilder = SportsVenueModel.find(query).sort({ createdAt: -1 });

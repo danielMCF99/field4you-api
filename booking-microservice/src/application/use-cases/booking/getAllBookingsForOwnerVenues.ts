@@ -8,6 +8,7 @@ import {
 import { BookingStatus } from '../../../domain/entities/Booking';
 import { ForbiddenException } from '../../../domain/exceptions/ForbiddenException';
 import { InternalServerErrorException } from '../../../domain/exceptions/InternalServerErrorException';
+import { SportsVenueFilterParams } from '../../../domain/dtos/sports-venue-filter.dto';
 
 export const getAllBookingsForOwnerVenues = async (
   req: Request
@@ -33,8 +34,15 @@ export const getAllBookingsForOwnerVenues = async (
   }
 
   try {
+  
+    const sportsVenueName = req.query.sportsVenueName?.toString();
+
+    const venueFilters: SportsVenueFilterParams = {
+      sportsVenueName: sportsVenueName,
+    };
+
     // Get sports venue of authenticated owner
-    const venues = await sportsVenueRepository.findAll(ownerId);
+    const venues = await sportsVenueRepository.findAll(ownerId, venueFilters);
     const sportsVenueIds = venues.map((venue) => venue.getId());
 
     const filters: BookingFilterParams = {
