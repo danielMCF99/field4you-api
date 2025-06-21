@@ -26,9 +26,10 @@ export const getSimpleBookingsInfo = async (
   const page = parseInt(req.query.page as string) || 1;
   const skip = (page - 1) * limit;
   const includePast = req.query.includePast === 'true';
+  const sportsVenueNameFilter = req.query.sportsVenueName?.toString();
+  const statusFilter = req.query.status?.toString();
 
   try {
-    // 1. Buscar reservas do utilizador
     const ownerBookings =
       await bookingRepository.findByOwnerIdAndStartDateAfter(
         authenticatedUserId,
@@ -36,7 +37,6 @@ export const getSimpleBookingsInfo = async (
         includePast
       );
 
-    // 2. Buscar convites aceites
     const acceptedInvites =
       await bookingInviteRepository.findAcceptedFutureByUserId(
         authenticatedUserId,
@@ -51,40 +51,63 @@ export const getSimpleBookingsInfo = async (
       includePast
     );
 
-    // 3. Combinar e remover duplicados
     const allBookingsMap = new Map<string, (typeof ownerBookings)[0]>();
     [...ownerBookings, ...invitedBookings].forEach((booking) => {
       allBookingsMap.set(booking.getId(), booking);
     });
 
-    // 4. Converter para array e ordenar
     const sortedBookings = Array.from(allBookingsMap.values()).sort(
       (a, b) =>
         new Date(a.bookingStartDate).getTime() -
         new Date(b.bookingStartDate).getTime()
     );
 
-    // 5. Aplicar paginação
-    const paginatedBookings = sortedBookings.slice(skip, skip + limit);
+    const bookingsWithVenueInfo = await Promise.all(
+      sortedBookings.map(async (booking) => {
+        const sportsVenue = await sportsVenueRepository.findById(
+          booking.sportsVenueId
+        );
+        return {
+          booking,
+          sportsVenue,
+        };
+      })
+    );
 
-    // 6. Gerar resposta DTO
+    let filteredBookingsWithVenue = bookingsWithVenueInfo;
+    if (statusFilter) {
+      filteredBookingsWithVenue = filteredBookingsWithVenue.filter(
+        (item) =>
+          item.booking.status.toLowerCase() === statusFilter.toLowerCase()
+      );
+    }
+
+    if (sportsVenueNameFilter) {
+      filteredBookingsWithVenue = filteredBookingsWithVenue.filter((item) =>
+        item.sportsVenue?.sportsVenueName
+          .toLowerCase()
+          .includes(sportsVenueNameFilter.toLowerCase())
+      );
+    }
+
+    const paginatedBookingsWithVenue = filteredBookingsWithVenue.slice(
+      skip,
+      skip + limit
+    );
+
     const result: SimpleBookingsResponseDTO[] = [];
 
-    for (const booking of paginatedBookings) {
-      const sportsVenue = await sportsVenueRepository.findById(
-        booking.sportsVenueId
-      );
-
-      if (sportsVenue) {
+    for (const item of paginatedBookingsWithVenue) {
+      if (item.sportsVenue) {
         const dto: SimpleBookingsResponseDTO = {
-          bookingId: booking.getId(),
-          bookingType: booking.bookingType,
-          bookingStartDate: booking.bookingStartDate,
-          bookingEndDate: booking.bookingEndDate,
-          bookingPrice: booking.bookingPrice,
-          sportsVenueId: booking.sportsVenueId,
-          sportsVenueName: sportsVenue.sportsVenueName,
-          bookingStatus: booking.status,
+          bookingId: item.booking.getId(),
+          bookingType: item.booking.bookingType,
+          bookingStartDate: item.booking.bookingStartDate,
+          bookingEndDate: item.booking.bookingEndDate,
+          bookingPrice: item.booking.bookingPrice,
+          sportsVenueId: item.booking.sportsVenueId,
+          sportsVenueName: item.sportsVenue.sportsVenueName,
+          bookingStatus: item.booking.status,
         };
 
         simpleBookingSchema.parse(dto);
