@@ -222,4 +222,34 @@ export class MongoBookingInviteRepository implements IBookingInviteRepository {
     const invites = await BookingInviteModel.find(query).lean();
     return invites.map(BookingInvite.fromMongooseDocument);
   }
+
+  async deleteByBookingIdAndUserId(
+    bookingId: string,
+    userId: string,
+    session?: ClientSession
+  ): Promise<boolean> {
+    const result = await BookingInviteModel.deleteOne(
+      {
+        bookingId: bookingId,
+        userId: userId,
+      },
+      session ? { session } : {}
+    );
+    return result.deletedCount > 0;
+  }
+
+  async bulkDeleteByBookingIdAndUserIds(
+    bookingId: string,
+    userIds: string[],
+    session?: ClientSession
+  ): Promise<{ deletedCount: number }> {
+    const result = await BookingInviteModel.deleteMany(
+      {
+        bookingId: bookingId,
+        userId: { $in: userIds },
+      },
+      session ? { session } : {}
+    );
+    return { deletedCount: result.deletedCount || 0 };
+  }
 }

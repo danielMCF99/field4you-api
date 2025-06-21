@@ -33,6 +33,7 @@ export const createBookingInvite = async (
   try {
     // Create BookingInvites
     const bookingInvites: any = [];
+    const newlyInvitedUsers: string[] = [];
 
     for (const id of invitedUsersIds) {
       const exists = await bookingInviteRepository.existsByBookingIdAndUserId(
@@ -57,12 +58,13 @@ export const createBookingInvite = async (
           userId: id,
           status: BookingInviteStatus.pending,
         });
+        newlyInvitedUsers.push(id);
       }
     }
     await bookingInviteRepository.insertMany(bookingInvites, session);
 
-    // Send push notifications
-    for (const userId of invitedUsersIds) {
+    // Send push notifications only to newly invited users
+    for (const userId of newlyInvitedUsers) {
       const user = await userRepository.getById(userId);
 
       if (user && user?.pushNotificationToken) {
