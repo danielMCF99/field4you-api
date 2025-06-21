@@ -44,10 +44,12 @@ export class PostService {
     let profileImageUrl = 'DefaultProfileImage';
     try {
       const userRes = await firstValueFrom(
-        this.httpService.get(`${userServiceUrl}/${creatorId}`),
+        this.httpService.get(`${userServiceUrl}${creatorId}`),
       );
+      console.log('User response:', userRes.data);
       profileImageUrl = userRes.data.imageURL || profileImageUrl;
     } catch (err) {
+      console.log(err);
       console.warn(
         'Não foi possível obter o utilizador, a usar imagem default',
       );
