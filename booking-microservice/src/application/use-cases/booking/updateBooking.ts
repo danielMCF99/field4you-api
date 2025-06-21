@@ -1,7 +1,11 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { ZodError } from 'zod';
-import { bookingRepository } from '../../../app';
+import {
+  bookingRepository,
+  bookingInviteRepository,
+  sportsVenueRepository,
+} from '../../../app';
 import {
   UpdateBookingDTO,
   updateBookingSchema,
@@ -15,6 +19,10 @@ import { NotFoundException } from '../../../domain/exceptions/NotFoundException'
 import { UnauthorizedException } from '../../../domain/exceptions/UnauthorizedException';
 import { createBookingInvite } from '../bookingInvite/createBookingInvite';
 import { checkBookingConflicts } from './checkBookingConflicts';
+import {
+  publishBookingInvitesAdded,
+  publishBookingInvitesRemoved,
+} from '../../../infrastructure/rabbitmq/rabbitmq.publisher';
 
 export const updateBooking = async (req: Request): Promise<Booking> => {
   const id = req.params.id.toString();
@@ -80,10 +88,21 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     invitedUsersIds,
   } = parsed;
 
-  if (parsed.invitedUsersIds && parsed.invitedUsersIds.length > 0) {
-    parsed.invitedUsersIds = Array.from(
-      new Set([...booking.invitedUsersIds, ...parsed.invitedUsersIds])
+  // Identify new users to invite and users to remove
+  let newInvitedUsersIds: string[] = [];
+  let removedUsersIds: string[] = [];
+
+  if (parsed.invitedUsersIds !== undefined) {
+    const newList = parsed.invitedUsersIds || [];
+    const currentList = booking.invitedUsersIds || [];
+
+    // Find new users (in new list but not in current list)
+    newInvitedUsersIds = newList.filter(
+      (userId) => !currentList.includes(userId)
     );
+
+    // Find removed users (in current list but not in new list)
+    removedUsersIds = currentList.filter((userId) => !newList.includes(userId));
   }
 
   /*const isSportsVenueIdChanged =
@@ -122,6 +141,14 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     }
   }
 
+  // Get sports venue information for invites
+  const sportsVenue = await sportsVenueRepository.findById(
+    booking.sportsVenueId
+  );
+  if (!sportsVenue) {
+    throw new NotFoundException('Sports Venue not found');
+  }
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -144,11 +171,46 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
       throw new InternalServerErrorException('Error updating booking');
     }
 
-    if (parsed.invitedUsersIds && parsed.invitedUsersIds.length > 0) {
+    // Remove invites for users that were removed from the list
+    if (removedUsersIds.length > 0) {
+      const deletedInvites =
+        await bookingInviteRepository.bulkDeleteByBookingIdAndUserIds(
+          updatedBooking.getId(),
+          removedUsersIds,
+          session
+        );
+      console.log(
+        `Removed ${deletedInvites.deletedCount} invites for removed users`
+      );
+    }
+
+    // Only create invites for new users, not existing ones
+    if (newInvitedUsersIds.length > 0) {
       await createBookingInvite(
-        parsed.invitedUsersIds,
+        newInvitedUsersIds,
         {
           bookingId: updatedBooking.getId(),
+          sportsVenueId: sportsVenue.getId(),
+          sportsVenueName: sportsVenue.sportsVenueName,
+          bookingStartDate: updatedBooking.bookingStartDate,
+          bookingEndDate: updatedBooking.bookingEndDate,
+        },
+        session
+      );
+    }
+
+    // Update existing invites if booking dates changed
+    if (
+      (isStartDateChanged || isEndDateChanged) &&
+      updatedBooking.invitedUsersIds &&
+      updatedBooking.invitedUsersIds.length > 0
+    ) {
+      await createBookingInvite(
+        updatedBooking.invitedUsersIds,
+        {
+          bookingId: updatedBooking.getId(),
+          sportsVenueId: sportsVenue.getId(),
+          sportsVenueName: sportsVenue.sportsVenueName,
           bookingStartDate: updatedBooking.bookingStartDate,
           bookingEndDate: updatedBooking.bookingEndDate,
         },
@@ -159,6 +221,24 @@ export const updateBooking = async (req: Request): Promise<Booking> => {
     // Commit DB Transaction
     await session.commitTransaction();
     session.endSession();
+
+    // Publish events for data replication to sports-venue-microservice
+    if (removedUsersIds.length > 0) {
+      await publishBookingInvitesRemoved({
+        bookingId: updatedBooking.getId(),
+        sportsVenueId: sportsVenue.getId(),
+        removedUserIds: removedUsersIds,
+      });
+    }
+
+    if (newInvitedUsersIds.length > 0) {
+      await publishBookingInvitesAdded({
+        bookingId: updatedBooking.getId(),
+        sportsVenueId: sportsVenue.getId(),
+        addedUserIds: newInvitedUsersIds,
+        bookingStartDate: updatedBooking.bookingStartDate,
+      });
+    }
 
     // Get final state of booking with all invited users
     const response = await bookingRepository.findById(id);

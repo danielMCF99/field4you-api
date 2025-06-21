@@ -33,3 +33,20 @@ export async function publishFinishedBooking(finishedBookingPayload: {
 }) {
   await publishToExchange('booking.finished', finishedBookingPayload);
 }
+
+export async function publishBookingInvitesAdded(payload: {
+  bookingId: string;
+  sportsVenueId: string;
+  addedUserIds: string[];
+  bookingStartDate: Date;
+}) {
+  await publishToExchange('booking.invites.added', payload);
+}
+
+export async function publishBookingInvitesRemoved(payload: {
+  bookingId: string;
+  sportsVenueId: string;
+  removedUserIds: string[];
+}) {
+  await publishToExchange('booking.invites.removed', payload);
+}

@@ -118,6 +118,16 @@ export async function subscribeBookingEvents() {
     });
 
     await channel.bindQueue(queue.queue, 'booking.events', 'booking.finished');
+    await channel.bindQueue(
+      queue.queue,
+      'booking.events',
+      'booking.invites.added'
+    );
+    await channel.bindQueue(
+      queue.queue,
+      'booking.events',
+      'booking.invites.removed'
+    );
 
     console.log(`[*] Waiting for Booking events...`);
     channel.consume(queue.queue, async (msg: any) => {
@@ -131,6 +141,28 @@ export async function subscribeBookingEvents() {
           case 'booking.finished':
             console.log('Received finished booking invites');
             await bookingInviteRepository.insertMany(data.invitedUserIds);
+            break;
+
+          case 'booking.invites.added':
+            console.log('Received booking invites added');
+            const newInvites = data.addedUserIds.map((userId: string) => ({
+              bookingId: data.bookingId,
+              userId: userId,
+              sportsVenueId: data.sportsVenueId,
+              bookingStartDate: data.bookingStartDate,
+            }));
+            await bookingInviteRepository.insertMany(newInvites);
+            break;
+
+          case 'booking.invites.removed':
+            console.log('Received booking invites removed');
+            for (const userId of data.removedUserIds) {
+              await bookingInviteRepository.deleteByUserIdAndBookingIdAndSportsVenueId(
+                userId,
+                data.bookingId,
+                data.sportsVenueId
+              );
+            }
             break;
 
           default:

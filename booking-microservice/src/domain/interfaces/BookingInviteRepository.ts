@@ -51,4 +51,16 @@ export interface IBookingInviteRepository {
     reason: string,
     session?: ClientSession
   ): Promise<{ modifiedCount: number }>;
+
+  deleteByBookingIdAndUserId(
+    bookingId: string,
+    userId: string,
+    session?: ClientSession
+  ): Promise<boolean>;
+
+  bulkDeleteByBookingIdAndUserIds(
+    bookingId: string,
+    userIds: string[],
+    session?: ClientSession
+  ): Promise<{ deletedCount: number }>;
 }
