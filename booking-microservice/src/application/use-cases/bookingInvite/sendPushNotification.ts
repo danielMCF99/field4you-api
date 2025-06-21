@@ -42,9 +42,9 @@ export async function sendFcmMessage(
   const messageBody = {
     message: {
       token: deviceToken,
-      notification: {
-        title: title,
-        body: body,
+      data: {
+        type: 'booking',
+        bookingId: body,
       },
     },
   };
