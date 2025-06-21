@@ -27,7 +27,7 @@ export const getSportsVenueProfit = async (
     const venues = await sportsVenueRepository.findAll(sportsVenueOwnerId);
     const sportsVenueIds = venues.map((venue) => venue.getId());
     console.timeEnd('fetch-venues');
-
+    console.log(sportsVenueIds);
     const [currentMonthProfit, previousMonthProfit, dailyProfits] =
       await Promise.all([
         BookingModel.aggregate([
@@ -67,7 +67,7 @@ export const getSportsVenueProfit = async (
 
     const currentTotal = currentMonthProfit[0]?.totalProfit || 0;
     const previousTotal = previousMonthProfit[0]?.totalProfit || 0;
-
+    console.log(dailyProfits);
     const percentageDifference =
       previousTotal === 0
         ? currentTotal === 0
@@ -93,7 +93,7 @@ const getDailyProfit = async (start: Date, end: Date) => {
   const bookings = await BookingModel.aggregate([
     {
       $match: {
-        lastAccessDate: {
+        bookingStartDate: {
           $gte: start,
           $lte: end,
         },
