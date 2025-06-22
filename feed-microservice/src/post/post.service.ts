@@ -94,7 +94,7 @@ export class PostService {
       this.postModel
         .find(query)
         .select(
-          '_id creatorEmail comment profileImageUrl fileName imageUrl userType createdAt',
+          '_id creatorId creatorEmail comment profileImageUrl fileName imageUrl userType createdAt',
         )
         .sort({ createdAt: -1 })
         .skip(skip)
