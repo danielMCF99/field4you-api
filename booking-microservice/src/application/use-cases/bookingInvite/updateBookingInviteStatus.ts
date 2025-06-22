@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { bookingInviteRepository } from '../../../app';
+import { bookingInviteRepository, bookingRepository } from '../../../app';
 import {
   BookingInvite,
   BookingInviteStatus,
@@ -86,8 +86,28 @@ export const updateBookingInviteStatus = async (
       newStatus,
       comments ? comments : null
     );
+
     if (!updatedBookingInvite) {
       throw new InternalServerErrorException('Error updating booking invite');
+    }
+
+    if (updatedBookingInvite.status === BookingInviteStatus.rejected) {
+      const booking = await bookingRepository.findById(
+        updatedBookingInvite.bookingId
+      );
+
+      if (!booking) {
+        throw new InternalServerErrorException('Booking not found');
+      }
+
+      const filteredInvitedUsers = booking.invitedUsersIds.filter(
+        (userId) => userId !== bookingInvite.getUserId()
+      );
+
+      // Atualizar só o campo invitedUsersIds
+      await bookingRepository.update(updatedBookingInvite.bookingId, {
+        invitedUsersIds: filteredInvitedUsers,
+      });
     }
 
     return updatedBookingInvite;
