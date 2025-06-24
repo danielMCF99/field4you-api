@@ -4,7 +4,7 @@ from bson import ObjectId
 import random
 import bcrypt
 import time
-import datetime
+from datetime import datetime, timedelta
 
 fake = Faker('pt_PT')
 client = MongoClient("mongodb://admin:password@mongodb:27017/?authSource=admin&replicaSet=rs0&directConnection=true")
@@ -20,6 +20,19 @@ def wait_for_replica_set_ready(client, retries=30, delay=5):
             print(f"Tentativa {attempt + 1}: Replica set não está pronto. Erro: {e}")
         time.sleep(delay)
     raise Exception("Timeout à espera do replica set estar pronto.")
+
+def generate_random_date(start_year=1975, end_year=2005):
+    # Data inicial e final
+    start_date = datetime(start_year, 1, 1)
+    end_date = datetime(end_year, 12, 31)
+    # Total de dias entre as datas
+    delta = end_date - start_date
+    random_days = random.randint(0, delta.days)
+    # Gera a data aleatória
+    random_date = start_date + timedelta(days=random_days)
+    # Formata no padrão pedido
+    formatted_date = random_date.strftime('%Y-%m-%dT00:00:00.000+00:00')
+    return formatted_date
 
 wait_for_replica_set_ready(client)
 
@@ -44,7 +57,7 @@ booking_sports_venues_col = booking_db["SportsVenues"]
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode()
 
-now = datetime.datetime.utcnow()
+now = datetime.utcnow()
 
 admin = {
     "userType": "Admin",
@@ -73,12 +86,15 @@ admin_doc = {
         "city": fake.city(),
         "district": fake.distrito()
     },
-    "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+    #"birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+    "birthDate": generate_random_date(),
     "createdAt": now,
     "updatedAt": now,
     "__v": 0
 }
 user_col.insert_one(admin_doc)
+
+print("Admin inserted successfully")
 
 users_ids = []
 for i in range(190):
@@ -101,6 +117,7 @@ for i in range(190):
         "userType": "User",
         "email": email,
         "status": "Active",
+        "phoneNumber": fake.phone_number(),
         "firstName": fake.first_name(),
         "lastName": fake.last_name(),
         "location": {
@@ -110,13 +127,16 @@ for i in range(190):
             "city": fake.city(),
             "district": fake.distrito()
         },
-        "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+        #"birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+        "birthDate": generate_random_date(),
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
     }
     user_col.insert_one(user_doc)
     users_ids.append((auth_id, email))
+
+print("Regular Users inserted successfully")
 
 owners_ids = []
 owner_emails = [
@@ -145,6 +165,7 @@ for email in owner_emails:
         "userType": "Owner",
         "email": email,
         "status": "Active",
+        "phoneNumber": fake.phone_number(),
         "firstName": fake.first_name(),
         "lastName": fake.last_name(),
         "location": {
@@ -154,10 +175,8 @@ for email in owner_emails:
             "city": fake.city(),
             "district": fake.distrito()  # Garante que fake.distrito existe ou usa uma lista
         },
-        "birthDate": datetime.datetime.combine(
-            fake.date_of_birth(minimum_age=25, maximum_age=65), 
-            datetime.datetime.min.time()
-        ),
+        #"birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+        "birthDate": generate_random_date(),
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
@@ -189,6 +208,7 @@ for i in range(3):
         "userType": "Owner",
         "email": email,
         "status": "Active",
+        "phoneNumber": fake.phone_number(),
         "firstName": fake.first_name(),
         "lastName": fake.last_name(),
         "location": {
@@ -198,7 +218,8 @@ for i in range(3):
             "city": fake.city(),
             "district": fake.distrito()
         },
-        "birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+        #"birthDate": datetime.datetime.combine(fake.date_of_birth(minimum_age=25, maximum_age=65), datetime.datetime.min.time()),
+        "birthDate": generate_random_date(),        
         "createdAt": now,
         "updatedAt": now,
         "__v": 0
@@ -206,6 +227,8 @@ for i in range(3):
     user_col.insert_one(owner_doc)
 
     owners_ids.append(auth_id)
+
+print("Owners inserted successfully")
 
 standard_schedule = {
     day: [
@@ -243,6 +266,8 @@ for i in range(5):
     }
     _id = sports_venue_col.insert_one(venue).inserted_id
     sports_venues_ids.append(_id)
+
+print("Inserted inactive sports venues")
 
 active_sports_venues = [
     {
@@ -339,15 +364,15 @@ active_sports_venues = [
                 "_id": "6857ffa53f7fd6f89c8d8f92"
             }
         ],
-        "hasParking": true,
-        "hasShower": true,
-        "hasBar": true,
+        "hasParking": True,
+        "hasShower": True,
+        "hasBar": True,
         "location": {
             "address": "Avenida Eusebio da Silva Ferreira",
             "latitude": 38.7574463,
             "longitude": -9.1775128,
-            "city": Lisboa,
-            "district": Lisboa
+            "city": "Lisboa",
+            "district": "Lisboa"
         },
         "weeklySchedule": standard_schedule,
         "numberOfRatings": 0,
@@ -374,9 +399,9 @@ active_sports_venues = [
                 "_id": "6858003d3f7fd6f89c8d8fd4"
             }
         ],
-        "hasParking": true,
-        "hasShower": true,
-        "hasBar": true,
+        "hasParking": True,
+        "hasShower": True,
+        "hasBar": True,
         "location": {
             "address": "Via Futebol Clube do Porto",
             "latitude": 41.1607629,
@@ -401,10 +426,10 @@ for i in range(700):
     venue_id = str(random.choice(sports_venues_ids))
     owner_id = str(random.choice(owners_ids))
     start_time = fake.date_time_between(
-        start_date=datetime.datetime(2025, 1, 1),
-        end_date=datetime.datetime(2025, 12, 31)
+        start_date=datetime(2025, 1, 1),
+        end_date=datetime(2025, 12, 31)
     )
-    end_time = start_time + datetime.timedelta(hours=1)
+    end_time = start_time + timedelta(hours=1)
 
     invited_users = random.sample(users_ids, 10)
     invited_users_ids_str = [str(user_id[0]) for user_id in invited_users]
@@ -434,7 +459,7 @@ for i in range(700):
 
     for user_id, _ in invited_users:
         status = ""
-        if start_time < datetime.datetime.now():
+        if start_time < datetime.now():
             status = random.choice(["Accepted", "Rejected", "Pending"])
         else:
             status = random.choice(["Accepted", "Rejected", "Done"])
@@ -454,6 +479,8 @@ for i in range(700):
         booking_invite_col.insert_one(invite)  
         sports_venue_booking_invites_col.insert_one(invite)  
 
+print("Created Bookings")
+
 user_ids_only = [id_email[0] for id_email in users_ids]
 all_user_ids = user_ids_only + owners_ids + [admin_id]
 for _ in range(800):
@@ -469,6 +496,8 @@ for _ in range(800):
         login_history_col.insert_one(login)
     except Exception as e:
         continue
+
+print("Created Login History")
 
 statuses = ['Approved'] * 10 + ['Pending'] * 15 + ['Rejected'] * 15
 selected_user_ids = random.sample(user_ids_only, len(statuses))
@@ -555,6 +584,8 @@ for (uid, email), status in zip(users_ids, statuses):
     except Exception as e:
         print(f"Erro owner requests: {e}")
         continue
+
+print("Created Owner Requests")
 
 booking_users_col.insert_many([
     {
