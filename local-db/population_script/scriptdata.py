@@ -446,7 +446,7 @@ for i in range(700):
             "sportsVenueId": venue_id,
             "sportsVenueName": sportsVenue.get("sportsVenueName"),
             "bookingStartDate": start_time,
-            "bookingEndDate": end_time
+            "bookingEndDate": end_time,
             "status": status,
             "createdAt": now,
             "updatedAt": now
