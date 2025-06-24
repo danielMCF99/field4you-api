@@ -70,12 +70,16 @@ export const registerUser = async (req: Request): Promise<String> => {
     newAuth.email
   );
 
-  // Send greeting email
-  mailer.sendMail(
-    newAuth.email,
-    'Welcome to Field4You',
-    'Welcome! Thank you for registering!'
-  );
+  // It is not critical to fail email sending
+  try {
+    mailer.sendMail(
+      newAuth.email,
+      'Welcome to Field4You',
+      'Welcome! Thank you for registering!'
+    );
+  } catch (error) {
+    console.log('Error sending email');
+  }
 
   // Publish event to RabbitMQ
   publishUserCreation({
