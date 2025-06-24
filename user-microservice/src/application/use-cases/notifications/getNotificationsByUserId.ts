@@ -37,7 +37,7 @@ export const getNotificationsByUserId = async (
         page,
         limit,
         authenticatedUserId,
-        undefined
+        false
       );
     }
 

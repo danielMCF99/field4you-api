@@ -63,12 +63,6 @@ export const registerUsersFromCSV = async (
         newAuth.email
       );
 
-      mailer.sendMail(
-        newAuth.email,
-        'Welcome to Field4You',
-        'Welcome! Thank you for registering!'
-      );
-
       publishUserCreation({
         userId: newAuth.getId(),
         email: newAuth.email,
@@ -96,6 +90,17 @@ export const registerUsersFromCSV = async (
       }
 
       throw new Error('Unexpected error parsing user data.');
+    }
+
+    // It is not critical to fail email sending
+    try {
+      mailer.sendMail(
+        user.email,
+        'Welcome to Field4You',
+        'Welcome! Thank you for registering!'
+      );
+    } catch (error) {
+      console.log('Error sending email');
     }
   }
 

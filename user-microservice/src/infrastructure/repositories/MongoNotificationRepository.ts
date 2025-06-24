@@ -31,6 +31,7 @@ export class MongoNotificationRepository implements INotificationRepository {
     const newNotification = await NotificationModel.create({
       userId: new Types.ObjectId(notification.userId),
       ownerRequestId: notification.ownerRequestId,
+      isApprovedRequest: notification.isApprovedRequest,
       userEmail: notification.userEmail,
       status: notification.status,
       content: notification.content,
