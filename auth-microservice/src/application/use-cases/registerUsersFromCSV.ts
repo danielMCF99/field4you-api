@@ -91,7 +91,7 @@ export const registerUsersFromCSV = async (
 
       throw new Error('Unexpected error parsing user data.');
     }
-
+    /*
     // It is not critical to fail email sending
     try {
       mailer.sendMail(
@@ -101,7 +101,7 @@ export const registerUsersFromCSV = async (
       );
     } catch (error) {
       console.log('Error sending email');
-    }
+    }*/
   }
 
   return { created, skipped };
